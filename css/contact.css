@@ -452,6 +452,10 @@
     .policy-block {
       padding: 30px 20px;
     }
+    
+    .contact-info-grid {
+        grid-template-columns: 1fr; /* Stack contact info on mobile */
+    }
   }
   
   @media (max-width: 576px) {

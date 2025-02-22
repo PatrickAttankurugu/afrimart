@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - AfriMart Depot | Authentic African & Ghanaian Food</title>
+    <meta name="description" content="Explore detailed information about our authentic African and Ghanaian food products at AfriMart Depot. View ingredients, nutritional information, and customer reviews.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Product Details CSS -->
+    <link rel="stylesheet" href="css/product-details.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="header-wrapper">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="assets/images/logo.png" alt="AfriMart Depot Logo">
+                    </a>
+                </div>
+                <nav class="nav-menu">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                        <li class="nav-item"><a href="shop.html" class="nav-link active">Shop</a></li>
+                        <li class="nav-item"><a href="about.html" class="nav-link">About Us</a></li>
+                        <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
+                        <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search products...">
+                    </div>
+                    <div class="cart-icon">
+                        <a href="cart.html">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count">0</span>
+                        </a>
+                    </div>
+                    <div class="account-icon">
+                        <a href="account.html">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                    <div class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu (Hidden by Default) -->
+    <div class="mobile-menu">
+        <div class="close-menu">
+            <i class="fas fa-times"></i>
+        </div>
+        <ul class="mobile-nav-list">
+            <li class="mobile-nav-item"><a href="index.html" class="mobile-nav-link">Home</a></li>
+            <li class="mobile-nav-item"><a href="shop.html" class="mobile-nav-link active">Shop</a></li>
+            <li class="mobile-nav-item"><a href="about.html" class="mobile-nav-link">About Us</a></li>
+            <li class="mobile-nav-item"><a href="blog.html" class="mobile-nav-link">Blog</a></li>
+            <li class="mobile-nav-item"><a href="contact.html" class="mobile-nav-link">Contact</a></li>
+        </ul>
+        <div class="mobile-search">
+            <input type="text" placeholder="Search products...">
+            <button type="button" class="search-button"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <section class="breadcrumb-section">
+        <div class="container">
+            <div class="breadcrumb-wrapper">
+                <div class="breadcrumb-links">
+                    <a href="index.html">Home</a>
+                    <span class="separator">/</span>
+                    <a href="shop.html">Shop</a>
+                    <span class="separator">/</span>
+                    <span class="current product-name">Product Name</span>
+                </div>
+                <div class="product-navigation">
+                    <a href="#" class="prev-product" title="Previous Product">
+                        <i class="fas fa-chevron-left"></i> Prev
+                    </a>
+                    <a href="#" class="next-product" title="Next Product">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Details Section -->
+    <section class="product-details-section section-padding">
+        <div class="container">
+            <div class="product-details-wrapper">
+                <!-- Product Gallery -->
+                <div class="product-gallery" data-aos="fade-right">
+                    <div class="main-image-wrapper">
+                        <div class="image-zoom-container">
+                            <img src="assets/images/products/palm-oil.jpg" alt="Product Image" id="main-product-image" class="main-product-image">
+                            <div class="zoom-lens"></div>
+                        </div>
+                        <div class="zoom-result"></div>
+                    </div>
+                    <div class="thumbnail-gallery">
+                        <div class="thumbnail active" data-img="assets/images/products/palm-oil.jpg">
+                            <img src="assets/images/products/palm-oil.jpg" alt="Thumbnail 1">
+                        </div>
+                        <div class="thumbnail" data-img="assets/images/products/palm-oil-2.jpg">
+                            <img src="assets/images/products/palm-oil-2.jpg" alt="Thumbnail 2">
+                        </div>
+                        <div class="thumbnail" data-img="assets/images/products/palm-oil-3.jpg">
+                            <img src="assets/images/products/palm-oil-3.jpg" alt="Thumbnail 3">
+                        </div>
+                        <div class="thumbnail" data-img="assets/images/products/palm-oil-4.jpg">
+                            <img src="assets/images/products/palm-oil-4.jpg" alt="Thumbnail 4">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product Info -->
+                <div class="product-info" data-aos="fade-left">
+                    <h1 class="product-title">Premium Palm Oil</h1>
+                    
+                    <div class="product-rating">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <span class="review-count">(32 reviews)</span>
+                    </div>
+                    
+                    <div class="product-price">
+                        <span class="current-price">$12.99</span>
+                        <span class="unit">500ml</span>
+                    </div>
+                    
+                    <div class="product-availability in-stock">
+                        <i class="fas fa-check-circle"></i> In Stock
+                    </div>
+                    
+                    <div class="product-short-description">
+                        <p>Authentic, premium quality red palm oil sourced directly from Ghana. This traditional cooking oil adds rich flavor and vibrant color to West African dishes like jollof rice, soups, and stews.</p>
+                    </div>
+                    
+                    <div class="product-options">
+                        <div class="option-group size-option">
+                            <h3>Size:</h3>
+                            <div class="option-buttons">
+                                <button class="option-btn" data-price="7.99" data-unit="250ml">250ml</button>
+                                <button class="option-btn active" data-price="12.99" data-unit="500ml">500ml</button>
+                                <button class="option-btn" data-price="22.99" data-unit="1 Liter">1 Liter</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="product-quantity">
+                        <h3>Quantity:</h3>
+                        <div class="quantity-selector">
+                            <button class="quantity-btn minus">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn plus">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-actions">
+                        <button class="btn btn-primary add-to-cart-btn">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                        <button class="btn wishlist-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="product-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">SKU:</span>
+                            <span class="meta-value">PO-500</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Category:</span>
+                            <span class="meta-value">
+                                <a href="shop.html?category=oils">Cooking Oils</a>
+                            </span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Tags:</span>
+                            <span class="meta-value">
+                                <a href="shop.html?tag=palm-oil">Palm Oil</a>,
+                                <a href="shop.html?tag=ghanaian">Ghanaian</a>,
+                                <a href="shop.html?tag=cooking-oils">Cooking Oils</a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="product-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">SKU:</span>
+                            <span class="meta-value">PO-500</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Category:</span>
+                            <span class="meta-value">
+                                <a href="shop.html?category=oils">Cooking Oils</a>
+                            </span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Tags:</span>
+                            <span class="meta-value">
+                                <a href="shop.html?tag=palm-oil">Palm Oil</a>,
+                                <a href="shop.html?tag=ghanaian">Ghanaian</a>,
+                                <a href="shop.html?tag=cooking-oils">Cooking Oils</a>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="product-share">
+                        <span class="share-label">Share:</span>
+                        <div class="share-buttons">
+                            <a href="#" class="share-btn facebook" title="Share on Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="share-btn twitter" title="Share on Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="share-btn pinterest" title="Pin on Pinterest">
+                                <i class="fab fa-pinterest-p"></i>
+                            </a>
+                            <a href="#" class="share-btn whatsapp" title="Share on WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            <a href="#" class="share-btn email" title="Share via Email">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="product-shipping-info">
+                        <div class="shipping-item">
+                            <i class="fas fa-shipping-fast"></i>
+                            <span>Free shipping on orders over $50</span>
+                        </div>
+                        <div class="shipping-item">
+                            <i class="fas fa-undo"></i>
+                            <span>14-day return policy</span>
+                        </div>
+                        <div class="shipping-item">
+                            <i class="fas fa-lock"></i>
+                            <span>Secure checkout</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product Tabs -->
+            <div class="product-tabs" data-aos="fade-up">
+                <div class="tabs-navigation">
+                    <button class="tab-btn active" data-tab="description">Description</button>
+                    <button class="tab-btn" data-tab="ingredients">Ingredients & Nutrition</button>
+                    <button class="tab-btn" data-tab="uses">How to Use</button>
+                    <button class="tab-btn" data-tab="shipping">Shipping & Returns</button>
+                    <button class="tab-btn" data-tab="reviews">Reviews <span class="review-count">(32)</span></button>
+                </div>
+                
+                <div class="tabs-content">
+                    <!-- Description Tab -->
+                    <div class="tab-pane active" id="description">
+                        <div class="tab-content-inner">
+                            <h3>Product Description</h3>
+                            <p>Our premium red palm oil is carefully harvested and processed using traditional methods in Ghana. This vibrant oil is a staple in West African cuisine, prized for its rich flavor profile and distinctive reddish-orange color that comes from its high content of carotenoids.</p>
+                            
+                            <p>Unlike industrially processed palm oils, our premium product maintains all the natural nutrients and flavor compounds that make it a treasured ingredient in traditional African cooking. The oil is sourced from small-scale, sustainable farms where palms are grown without harmful chemicals and harvested at peak ripeness.</p>
+                            
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="feature-content">
+                                        <h4>Authentic Flavor</h4>
+                                        <p>Brings the true taste of West African cuisine to your kitchen with its distinctive flavor profile.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="feature-content">
+                                        <h4>Rich in Nutrients</h4>
+                                        <p>Naturally high in carotenoids, vitamin E, and antioxidants that contribute to its nutritional value.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="feature-content">
+                                        <h4>Versatile Kitchen Staple</h4>
+                                        <p>Perfect for traditional dishes like jollof rice, soups, stews, and sauces where its rich flavor enhances the overall taste.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="feature-content">
+                                        <h4>Sustainably Sourced</h4>
+                                        <p>Sourced from small-scale farmers who practice sustainable farming methods, ensuring ethical production.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="description-image">
+                                <img src="assets/images/products/palm-oil-lifestyle.jpg" alt="Palm Oil in Traditional Dish">
+                                <p class="image-caption">Premium palm oil adds authentic flavor and color to traditional West African dishes</p>
+                            </div>
+                            
+                            <div class="product-origin">
+                                <h4>Origin & Production</h4>
+                                <p>Our red palm oil comes from the Western Region of Ghana, where the unique soil and climate conditions produce palm fruits with exceptional flavor characteristics. The oil is extracted using traditional methods that preserve its natural qualities and nutritional benefits.</p>
+                                <p>Each batch undergoes quality testing to ensure purity and authenticity before being carefully packaged to maintain freshness during shipping.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ingredients & Nutrition Tab -->
+                    <div class="tab-pane" id="ingredients">
+                        <div class="tab-content-inner">
+                            <h3>Ingredients & Nutrition</h3>
+                            
+                            <div class="ingredients-section">
+                                <h4>Ingredients</h4>
+                                <p>100% Pure Red Palm Oil (Elaeis guineensis)</p>
+                                <p class="allergen-info"><strong>Allergen Information:</strong> Produced in a facility that processes nuts and other vegetable oils. May contain traces of nuts.</p>
+                            </div>
+                            
+                            <div class="nutrition-section">
+                                <h4>Nutritional Information</h4>
+                                <p>Typical values per 100ml:</p>
+                                
+                                <div class="nutrition-table-wrapper">
+                                    <table class="nutrition-table">
+                                        <tbody>
+                                            <tr>
+                                                <th>Energy</th>
+                                                <td>3700 kJ / 900 kcal</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Fat</th>
+                                                <td>100g</td>
+                                            </tr>
+                                            <tr>
+                                                <th>- of which Saturates</th>
+                                                <td>49g</td>
+                                            </tr>
+                                            <tr>
+                                                <th>- of which Monounsaturates</th>
+                                                <td>40g</td>
+                                            </tr>
+                                            <tr>
+                                                <th>- of which Polyunsaturates</th>
+                                                <td>11g</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Carbohydrates</th>
+                                                <td>0g</td>
+                                            </tr>
+                                            <tr>
+                                                <th>- of which Sugars</th>
+                                                <td>0g</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Protein</th>
+                                                <td>0g</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Salt</th>
+                                                <td>0g</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Vitamin E</th>
+                                                <td>30mg (250% RDA*)</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Beta-carotene</th>
+                                                <td>5mg</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="nutrition-note">*RDA: Recommended Daily Allowance</p>
+                                
+                                <div class="nutrition-benefits">
+                                    <h4>Health Benefits</h4>
+                                    <p>Red palm oil is known for its high content of carotenoids and tocotrienols, which are antioxidants that support overall health. It's also rich in vitamin E, which contributes to the protection of cells from oxidative stress.</p>
+                                    <p><strong>Note:</strong> While palm oil is nutritious in moderation, it should be used as part of a balanced diet due to its high calorie and fat content.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="storage-info">
+                                <h4>Storage Information</h4>
+                                <p>Store in a cool, dry place away from direct sunlight. After opening, refrigerate and use within 6 months for optimal freshness and quality.</p>
+                                <p>Natural separation may occur. This is normal for an unrefined product and does not affect quality. Gently warm to liquefy if solidified at cooler temperatures.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- How to Use Tab -->
+                    <div class="tab-pane" id="uses">
+                        <div class="tab-content-inner">
+                            <h3>How to Use</h3>
+                            
+                            <div class="uses-section">
+                                <h4>Cooking Tips</h4>
+                                <p>Red palm oil has a rich flavor profile and adds a distinctive taste to dishes. It's best used in traditional West African recipes where its unique flavor can enhance the overall dish. Here are some tips for cooking with our premium palm oil:</p>
+                                
+                                <ul class="uses-list">
+                                    <li>
+                                        <strong>Ideal Cooking Temperature:</strong> Palm oil has a high smoke point, making it suitable for high-heat cooking methods like frying and sautéing.
+                                    </li>
+                                    <li>
+                                        <strong>Start with Small Amounts:</strong> The flavor can be quite pronounced, so begin with smaller quantities until you're familiar with its taste profile.
+                                    </li>
+                                    <li>
+                                        <strong>Warming:</strong> If solidified, gently warm the oil until it returns to liquid form before using.
+                                    </li>
+                                    <li>
+                                        <strong>Color Transfer:</strong> Be aware that the vibrant color will transfer to your dishes, which is desirable in traditional recipes.
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="recipes-section">
+                                <h4>Popular Recipes</h4>
+                                
+                                <div class="recipe-cards">
+                                    <div class="recipe-card">
+                                        <div class="recipe-image">
+                                            <img src="assets/images/blog/jollof-rice.jpg" alt="Jollof Rice">
+                                        </div>
+                                        <div class="recipe-content">
+                                            <h5>Jollof Rice</h5>
+                                            <p>This iconic West African dish uses palm oil as a key ingredient for its authentic flavor and color.</p>
+                                            <a href="blog/jollof-rice-recipe.html" class="recipe-link">View Recipe <i class="fas fa-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="recipe-card">
+                                        <div class="recipe-image">
+                                            <img src="assets/images/blog/egusi-soup.jpg" alt="Egusi Soup">
+                                        </div>
+                                        <div class="recipe-content">
+                                            <h5>Egusi Soup</h5>
+                                            <p>A nutritious Nigerian soup made with ground melon seeds and enhanced with palm oil.</p>
+                                            <a href="blog/egusi-soup-recipe.html" class="recipe-link">View Recipe <i class="fas fa-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="recipe-card">
+                                        <div class="recipe-image">
+                                            <img src="assets/images/blog/palm-oil-stew.jpg" alt="Palm Oil Stew">
+                                        </div>
+                                        <div class="recipe-content">
+                                            <h5>Ghanaian Palm Oil Stew</h5>
+                                            <p>A versatile stew that showcases the rich flavor of palm oil, often served with rice or plantains.</p>
+                                            <a href="blog/palm-oil-stew-recipe.html" class="recipe-link">View Recipe <i class="fas fa-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="usage-video">
+                                <h4>Video Demonstration</h4>
+                                <div class="video-container">
+                                    <iframe width="560" height="315" src="https://www.youtube.com/embed/example" title="How to Cook with Palm Oil" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>
+                                <p class="video-caption">Watch our culinary expert demonstrate how to properly use palm oil in traditional West African cooking</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping & Returns Tab -->
+                    <div class="tab-pane" id="shipping">
+                        <div class="tab-content-inner">
+                            <h3>Shipping & Returns</h3>
+                            
+                            <div class="shipping-section">
+                                <h4>Shipping Information</h4>
+                                
+                                <table class="shipping-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Region</th>
+                                            <th>Standard Shipping</th>
+                                            <th>Express Shipping</th>
+                                            <th>Free Shipping</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>United Kingdom</td>
+                                            <td>£3.99 (3-5 business days)</td>
+                                            <td>£7.99 (1-2 business days)</td>
+                                            <td>Orders over £50</td>
+                                        </tr>
+                                        <tr>
+                                            <td>European Union</td>
+                                            <td>£9.99 (5-7 business days)</td>
+                                            <td>£15.99 (2-3 business days)</td>
+                                            <td>Orders over £80</td>
+                                        </tr>
+                                        <tr>
+                                            <td>United States & Canada</td>
+                                            <td>£12.99 (7-10 business days)</td>
+                                            <td>£19.99 (3-5 business days)</td>
+                                            <td>Orders over £100</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Rest of World</td>
+                                            <td>£14.99 (10-14 business days)</td>
+                                            <td>£24.99 (5-7 business days)</td>
+                                            <td>Orders over £120</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                                <div class="shipping-notes">
+                                    <p><strong>Please Note:</strong></p>
+                                    <ul>
+                                        <li>Shipping times are estimates and may vary during peak seasons and holidays.</li>
+                                        <li>International orders may be subject to customs duties and taxes imposed by the destination country. These fees are the responsibility of the customer and are not included in the shipping cost.</li>
+                                        <li>We take special care in packaging our products to ensure they arrive in perfect condition.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="returns-section">
+                                <h4>Returns & Refunds Policy</h4>
+                                
+                                <p>We want you to be completely satisfied with your purchase. If you're not satisfied with your order, here's our returns policy:</p>
+                                
+                                <div class="policy-details">
+                                    <h5>Return Eligibility</h5>
+                                    <p>You may return most unused, unopened items within 14 days of delivery for a full refund of the product cost (shipping fees are non-refundable).</p>
+                                    
+                                    <h5>Return Process</h5>
+                                    <ol>
+                                        <li>Contact our customer service team at <a href="mailto:returns@afrimartdepot.com">returns@afrimartdepot.com</a> within 14 days of receiving your order.</li>
+                                        <li>Include your order number and the reason for your return.</li>
+                                        <li>Our team will provide you with a return authorization and instructions.</li>
+                                        <li>Package the unused, unopened item securely in its original packaging.</li>
+                                        <li>Ship the package to the address provided in the return instructions.</li>
+                                    </ol>
+                                    
+                                    <h5>Refunds</h5>
+                                    <p>Once we receive and inspect your return, we'll send you an email to confirm receipt and the status of your refund. If approved, your refund will be processed, and a credit will be automatically applied to your original method of payment within 3-5 business days.</p>
+                                    
+                                    <h5>Non-Returnable Items</h5>
+                                    <p>The following items cannot be returned or exchanged:</p>
+                                    <ul>
+                                        <li>Perishable goods that have been opened or used</li>
+                                        <li>Items with damaged or broken seals</li>
+                                        <li>Products that have been personalized or customized</li>
+                                    </ul>
+                                    
+                                    <h5>Damaged or Defective Items</h5>
+                                    <p>If you receive damaged or defective items, please contact us immediately at <a href="mailto:info@afrimartdepot.com">info@afrimartdepot.com</a>. Include photos of the damaged items and packaging. We'll arrange for a replacement or refund.</p>
+                                </div>
+                                
+                                <p>For our complete returns policy, please visit our <a href="returns.html">Returns & Refunds</a> page.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reviews Tab -->
+                    <div class="tab-pane" id="reviews">
+                        <div class="tab-content-inner">
+                            <div class="reviews-header">
+                                <h3>Customer Reviews</h3>
+                                <div class="overall-rating">
+                                    <div class="rating-number">4.5</div>
+                                    <div class="rating-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <div class="rating-count">Based on 32 reviews</div>
+                                </div>
+                                <button class="btn btn-primary write-review-btn">Write a Review</button>
+                            </div>
+                            
+                            <div class="rating-breakdown">
+                                <h4>Rating Breakdown</h4>
+                                <div class="rating-bars">
+                                    <div class="rating-bar-item">
+                                        <div class="rating-label">5 Star</div>
+                                        <div class="rating-bar">
+                                            <div class="rating-fill" style="width: 70%;"></div>
+                                        </div>
+                                        <div class="rating-percent">70%</div>
+                                    </div>
+                                    <div class="rating-bar-item">
+                                        <div class="rating-label">4 Star</div>
+                                        <div class="rating-bar">
+                                            <div class="rating-fill" style="width: 20%;"></div>
+                                        </div>
+                                        <div class="rating-percent">20%</div>
+                                    </div>
+                                    <div class="rating-bar-item">
+                                        <div class="rating-label">3 Star</div>
+                                        <div class="rating-bar">
+                                            <div class="rating-fill" style="width: 5%;"></div>
+                                        </div>
+                                        <div class="rating-percent">5%</div>
+                                    </div>
+                                    <div class="rating-bar-item">
+                                        <div class="rating-label">2 Star</div>
+                                        <div class="rating-bar">
+                                            <div class="rating-fill" style="width: 3%;"></div>
+                                        </div>
+                                        <div class="rating-percent">3%</div>
+                                    </div>
+                                    <div class="rating-bar-item">
+                                        <div class="rating-label">1 Star</div>
+                                        <div class="rating-bar">
+                                            <div class="rating-fill" style="width: 2%;"></div>
+                                        </div>
+                                        <div class="rating-percent">2%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="reviews-filter">
+                                <div class="filter-dropdown">
+                                    <label for="sort-reviews">Sort by:</label>
+                                    <select id="sort-reviews">
+                                        <option value="newest">Newest First</option>
+                                        <option value="highest">Highest Rated</option>
+                                        <option value="lowest">Lowest Rated</option>
+                                    </select>
+                                </div>
+                                <div class="filter-dropdown">
+                                    <label for="filter-reviews">Filter by:</label>
+                                    <select id="filter-reviews">
+                                        <option value="all">All Ratings</option>
+                                        <option value="5">5 Star Only</option>
+                                        <option value="4">4 Star Only</option>
+                                        <option value="3">3 Star Only</option>
+                                        <option value="2">2 Star Only</option>
+                                        <option value="1">1 Star Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="reviews-list">
+                                <!-- Review 1 -->
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <div class="reviewer-info">
+                                            <div class="reviewer-avatar">
+                                                <img src="assets/images/testimonials/testimonial-1.jpg" alt="Sarah J.">
+                                            </div>
+                                            <div class="reviewer-meta">
+                                                <h5 class="reviewer-name">Sarah J.</h5>
+                                                <div class="review-date">March 15, 2025</div>
+                                            </div>
+                                        </div>
+                                        <div class="review-rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                    </div>
+                                    <div class="review-content">
+                                        <h4 class="review-title">Authentic taste of home!</h4>
+                                        <p>As someone who grew up in Ghana, I've been searching for authentic palm oil since moving to the UK. This is the real deal! The color, aroma, and taste are exactly like what my mother used to cook with. Made perfect jollof rice with this, and it brought back so many memories. Will definitely be a repeat customer!</p>
+                                    </div>
+                                    <div class="review-images">
+                                        <div class="review-image">
+                                            <img src="assets/images/reviews/review-img-1.jpg" alt="Customer Image">
+                                        </div>
+                                    </div>
+                                    <div class="review-footer">
+                                        <div class="review-helpful">
+                                            <span>Was this review helpful?</span>
+                                            <button class="helpful-btn yes">
+                                                <i class="fas fa-thumbs-up"></i> Yes (12)
+                                            </button>
+                                            <button class="helpful-btn no">
+                                                <i class="fas fa-thumbs-down"></i> No (2)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Review 2 -->
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <div class="reviewer-info">
+                                            <div class="reviewer-avatar">
+                                                <img src="assets/images/testimonials/testimonial-2.jpg" alt="David K.">
+                                            </div>
+                                            <div class="reviewer-meta">
+                                                <h5 class="reviewer-name">David K.</h5>
+                                                <div class="review-date">March 10, 2025</div>
+                                            </div>
+                                        </div>
+                                        <div class="review-rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="far fa-star"></i>
+                                        </div>
+                                    </div>
+                                    <div class="review-content">
+                                        <h4 class="review-title">Good quality but strong flavor for beginners</h4>
+                                        <p>The quality of this palm oil is excellent, and the packaging was secure with no leaks. However, as someone new to West African cooking, I found the flavor quite strong and distinctive. It took me a few tries to get used to it. I'd recommend starting with smaller amounts if you're new to cooking with palm oil. Still, it's clearly an authentic product and perfect for those familiar with it.</p>
+                                    </div>
+                                    <div class="review-footer">
+                                        <div class="review-helpful">
+                                            <span>Was this review helpful?</span>
+                                            <button class="helpful-btn yes">
+                                                <i class="fas fa-thumbs-up"></i> Yes (8)
+                                            </button>
+                                            <button class="helpful-btn no">
+                                                <i class="fas fa-thumbs-down"></i> No (1)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Review 3 -->
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <div class="reviewer-info">
+                                            <div class="reviewer-avatar">
+                                                <img src="assets/images/testimonials/testimonial-3.jpg" alt="Ama O.">
+                                            </div>
+                                            <div class="reviewer-meta">
+                                                <h5 class="reviewer-name">Ama O.</h5>
+                                                <div class="review-date">March 5, 2025</div>
+                                            </div>
+                                        </div>
+                                        <div class="review-rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star-half-alt"></i>
+                                        </div>
+                                    </div>
+                                    <div class="review-content">
+                                        <h4 class="review-title">Excellent for traditional cooking</h4>
+                                        <p>This palm oil has become a staple in my kitchen. The quality is consistent with each order, and the flavor is rich and authentic. I use it primarily for traditional Ghanaian dishes, and it gives them that authentic taste that's impossible to achieve with other oils. My only suggestion would be to offer larger sizes for those of us who cook with it regularly!</p>
+                                    </div>
+                                    <div class="review-footer">
+                                        <div class="review-helpful">
+                                            <span>Was this review helpful?</span>
+                                            <button class="helpful-btn yes">
+                                                <i class="fas fa-thumbs-up"></i> Yes (5)
+                                            </button>
+                                            <button class="helpful-btn no">
+                                                <i class="fas fa-thumbs-down"></i> No (0)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- More Reviews Button -->
+                                <div class="more-reviews">
+                                    <button class="btn btn-secondary load-more-reviews">Load More Reviews</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Review Form (Initially Hidden) -->
+                            <div class="review-form-container" style="display: none;">
+                                <h4>Write a Review</h4>
+                                <form class="review-form">
+                                    <div class="form-group">
+                                        <label for="reviewer-name">Your Name <span class="required">*</span></label>
+                                        <input type="text" id="reviewer-name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reviewer-email">Your Email <span class="required">*</span></label>
+                                        <input type="email" id="reviewer-email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Your Rating <span class="required">*</span></label>
+                                        <div class="star-rating">
+                                            <i class="far fa-star" data-rating="1"></i>
+                                            <i class="far fa-star" data-rating="2"></i>
+                                            <i class="far fa-star" data-rating="3"></i>
+                                            <i class="far fa-star" data-rating="4"></i>
+                                            <i class="far fa-star" data-rating="5"></i>
+                                            <input type="hidden" name="rating" id="selected-rating" value="0">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="review-title">Review Title <span class="required">*</span></label>
+                                        <input type="text" id="review-title" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="review-content">Your Review <span class="required">*</span></label>
+                                        <textarea id="review-content" rows="6" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="review-image">Add Photos (optional)</label>
+                                        <input type="file" id="review-image" accept="image/*" multiple>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                                        <button type="button" class="btn btn-secondary cancel-review">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Related Products Section -->
+    <section class="related-products section-padding bg-light">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>You May Also Like</h2>
+                <p>Other products that complement this item</p>
+            </div>
+            
+            <div class="related-products-slider" data-aos="fade-up" data-aos-delay="200">
+                <!-- Related Product 1 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="assets/images/products/suya-spice.jpg" alt="Suya Spice">
+                        <div class="product-actions">
+                            <button class="action-btn quick-view">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn add-to-wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">
+                            <a href="product-details.html?product=suya-spice">Authentic Suya Spice</a>
+                        </h3>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>(23)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price">$7.99</span>
+                            <span class="unit">100g</span>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <!-- Related Product 2 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="assets/images/products/dried-catfish.jpg" alt="Smoked Catfish">
+                        <div class="product-actions">
+                            <button class="action-btn quick-view">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn add-to-wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">
+                            <a href="product-details.html?product=dried-catfish">Smoked Catfish</a>
+                        </h3>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>(19)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price">$14.99</span>
+                            <span class="unit">250g</span>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <!-- Related Product 3 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="assets/images/products/stock-fish.jpg" alt="Stock Fish">
+                        <div class="product-actions">
+                            <button class="action-btn quick-view">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn add-to-wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">
+                            <a href="product-details.html?product=stock-fish">Stock Fish</a>
+                        </h3>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <span>(31)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price">$21.99</span>
+                            <span class="unit">300g</span>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <!-- Related Product 4 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="assets/images/products/zobo-leaf.jpg" alt="Zobo Leaf (Hibiscus)">
+                        <div class="product-actions">
+                            <button class="action-btn quick-view">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn add-to-wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">
+                            <a href="product-details.html?product=zobo-leaf">Zobo Leaf (Hibiscus)</a>
+                        </h3>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <span>(18)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price">$6.99</span>
+                            <span class="unit">100g</span>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section parallax-window" data-parallax="scroll" data-image-src="assets/images/newsletter-bg.jpg">
+        <div class="container">
+            <div class="newsletter-content" data-aos="fade-up">
+                <div class="section-header light">
+                    <h2>Join Our Newsletter</h2>
+                    <p>Sign up to receive updates, new recipes, and exclusive offers</p>
+                </div>
+                <form class="newsletter-form" data-aos="fade-up" data-aos-delay="200">
+                    <div class="form-group">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit" class="btn btn-accent">Subscribe</button>
+                    </div>
+                    <div class="form-terms">
+                        <label class="checkbox-container">
+                            <input type="checkbox" required>
+                            <span class="checkmark"></span>
+                            <span>I agree to receive emails from AfriMart Depot and accept the <a href="privacy-policy.html">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-col about-col">
+                        <div class="footer-logo">
+                            <img src="assets/images/logo-white.png" alt="AfriMart Depot Logo">
+                        </div>
+                        <p>Bringing authentic African flavors to food enthusiasts worldwide. Your one-stop shop for premium quality African and Ghanaian food products.</p>
+                        <div class="social-icons">
+                            <a href="https://facebook.com/afrimart_depot" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com/afrimart_depot" class="social-icon"><i class="fab fa-instagram"></i></a>
+                            <a href="https://twitter.com/afrimart_depot" class="social-icon"><i class="fab fa-twitter"></i></a>
+                            <a href="https://pinterest.com/afrimart_depot" class="social-icon"><i class="fab fa-pinterest-p"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Quick Links</h3>
+                        <ul class="footer-links">
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="shop.html">Shop</a></li>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="blog.html">Blog & Recipes</a></li>
+                            <li><a href="contact.html">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Categories</h3>
+                        <ul class="footer-links">
+                            <li><a href="shop.html?category=dried-seafood">Dried Seafood</a></li>
+                            <li><a href="shop.html?category=fresh-seafood">Fresh Seafood</a></li>
+                            <li><a href="shop.html?category=spices-herbs">Spices & Herbs</a></li>
+                            <li><a href="shop.html?category=vegetables">Vegetables</a></li>
+                            <li><a href="shop.html?category=snacks">Snacks</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Customer Service</h3>
+                        <ul class="footer-links">
+                            <li><a href="faq.html">FAQ</a></li>
+                            <li><a href="shipping.html">Shipping & Delivery</a></li>
+                            <li><a href="returns.html">Returns & Refunds</a></li>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms.html">Terms & Conditions</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col contact-col">
+                        <h3>Contact Us</h3>
+                        <ul class="contact-info">
+                            <li><i class="fas fa-map-marker-alt"></i> 123 Main Street, London, UK</li>
+                            <li><i class="fas fa-phone-alt"></i> +44 (0) 123 456 7890</li>
+                            <li><i class="fas fa-envelope"></i> info@afrimartdepot.com</li>
+                            <li><i class="fas fa-clock"></i> Mon-Fri: 9AM - 6PM</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom-content">
+                    <div class="copyright">
+                        <p>&copy; 2025 AfriMart Depot. All Rights Reserved.</p>
+                    </div>
+                    <div class="payment-methods">
+                        <img src="assets/images/payment-methods.png" alt="Payment Methods">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Parallax JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parallax.js/1.5.0/parallax.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+    <!-- Product Details JS -->
+    <script src="js/product-details.js"></script>
+</body>
+</html>

@@ -1304,49 +1304,87 @@
   }
   
   @media (max-width: 768px) {
-    .footer-top {
-      padding: 50px 0 30px;
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
     }
-    
+
+    .nav-menu {
+        display: none;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .mobile-menu {
+        left: -300px;
+    }
+
+    .mobile-menu.active {
+        left: 0;
+    }
+
+    .mobile-nav-list {
+        flex-direction: column;
+    }
+
+    .mobile-nav-link {
+        font-size: 16px;
+        padding: 15px;
+    }
+
+    .mobile-search {
+        flex-direction: column;
+        margin-top: 10px;
+    }
+
+    .mobile-search input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .mobile-search button {
+        width: 100%;
+    }
+
+    .hero-content h1 {
+        font-size: 28px;
+    }
+
+    .hero-content p {
+        font-size: 16px;
+    }
+
+    .product-card {
+        flex-direction: column;
+    }
+
+    .product-info {
+        text-align: center;
+    }
+
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+
     .footer-grid {
-      grid-template-columns: 1fr;
-      gap: 20px;
+        grid-template-columns: 1fr;
     }
-    
-    .about-col,
-    .contact-col {
-      grid-column: span 1;
+
+    .search-box input {
+        width: 100%;
     }
-    
-    .footer-col h3 {
-      margin-bottom: 15px;
+
+    .hero-content {
+        padding: 20px;
     }
-    
-    .footer-bottom-content {
-      flex-direction: column;
-      gap: 15px;
-      text-align: center;
-    }
-    
-    .newsletter-form .form-group {
-      flex-direction: column;
-    }
-    
-    .newsletter-form input,
-    .newsletter-form button {
-      width: 100%;
-      border-radius: 4px;
-    }
-    
-    .newsletter-form button {
-      margin-top: 10px;
-    }
-    
-    .back-to-top {
-      bottom: 20px;
-      right: 20px;
-      width: 35px;
-      height: 35px;
+
+    .hero-buttons .btn {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 10px;
     }
   }
   

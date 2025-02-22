@@ -662,6 +662,10 @@
     .cta-buttons .btn {
       width: 100%;
     }
+    
+    .about-wrapper {
+        flex-direction: column; /* Stack about section elements */
+    }
   }
   
   @media (max-width: 576px) {
