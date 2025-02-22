@@ -1,0 +1,686 @@
+/*
+* AfriMart Depot - About Page Stylesheet
+* Version: 1.0
+*/
+
+/* ==================
+  1. General Styles
+==================== */
+.text-left {
+    text-align: left;
+  }
+  
+  .section-header.text-left h2:after {
+    left: 0;
+    transform: none;
+  }
+  
+  /* ==================
+    2. Story Section
+  ==================== */
+  .story-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+  }
+  
+  .story-content {
+    flex: 1;
+  }
+  
+  .story-image {
+    flex: 1;
+    position: relative;
+  }
+  
+  .story-image img {
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    width: 100%;
+  }
+  
+  .experience-badge {
+    position: absolute;
+    bottom: -30px;
+    right: -30px;
+    width: 120px;
+    height: 120px;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--box-shadow);
+  }
+  
+  .experience-badge .years {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  
+  .experience-badge .text {
+    font-size: 14px;
+    text-align: center;
+    margin-top: 5px;
+  }
+  
+  .founder-quote {
+    background-color: #f8f9fa;
+    border-left: 4px solid var(--primary-color);
+    padding: 20px;
+    margin: 30px 0;
+    font-style: italic;
+  }
+  
+  .founder-quote p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  
+  .founder-quote cite {
+    font-style: normal;
+    font-weight: 600;
+  }
+  
+  /* ==================
+    3. Mission & Values
+  ==================== */
+  .mission-content {
+    max-width: 800px;
+    margin: 0 auto 50px;
+    text-align: center;
+  }
+  
+  .mission-block {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+  }
+  
+  .mission-block h3 {
+    margin-bottom: 15px;
+    position: relative;
+    padding-bottom: 15px;
+  }
+  
+  .mission-block h3:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-color);
+  }
+  
+  .mission-block p {
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    margin-top: 30px;
+  }
+  
+  .value-card {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    transition: var(--transition);
+  }
+  
+  .value-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--hover-shadow);
+  }
+  
+  .value-icon {
+    width: 70px;
+    height: 70px;
+    background-color: rgba(20, 137, 60, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  
+  .value-icon i {
+    font-size: 30px;
+    color: var(--primary-color);
+  }
+  
+  .value-card h3 {
+    margin-bottom: 15px;
+  }
+  
+  .value-card p {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+  
+  /* ==================
+    4. Team Section
+  ==================== */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+  }
+  
+  .team-member {
+    background-color: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+  }
+  
+  .team-member:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--hover-shadow);
+  }
+  
+  .member-image {
+    height: 250px;
+    overflow: hidden;
+  }
+  
+  .member-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .team-member:hover .member-image img {
+    transform: scale(1.1);
+  }
+  
+  .member-info {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .member-info h3 {
+    margin-bottom: 5px;
+  }
+  
+  .member-role {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .member-bio {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 15px;
+    line-height: 1.6;
+  }
+  
+  .member-social {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .member-social a {
+    width: 36px;
+    height: 36px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    transition: var(--transition);
+  }
+  
+  .member-social a:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+  }
+  
+  /* ==================
+    5. Sourcing Section
+  ==================== */
+  .sourcing-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+  }
+  
+  .sourcing-image {
+    flex: 1;
+  }
+  
+  .sourcing-image img {
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    width: 100%;
+  }
+  
+  .sourcing-content {
+    flex: 1;
+  }
+  
+  .sourcing-features {
+    margin-top: 30px;
+  }
+  
+  .feature-item {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  
+  .feature-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .feature-icon {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(20, 137, 60, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    flex-shrink: 0;
+  }
+  
+  .feature-icon i {
+    font-size: 20px;
+    color: var(--primary-color);
+  }
+  
+  .feature-content h4 {
+    margin-bottom: 5px;
+  }
+  
+  .feature-content p {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+  
+  /* ==================
+    6. Cuisine Section
+  ==================== */
+  .intro-text {
+    max-width: 800px;
+    margin: 0 auto 50px;
+    text-align: center;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  
+  .cuisine-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+  
+  .cuisine-card {
+    background-color: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    transition: var(--transition);
+  }
+  
+  .cuisine-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--hover-shadow);
+  }
+  
+  .cuisine-image {
+    width: 150px;
+    height: 150px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  .cuisine-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .cuisine-info {
+    padding: 20px;
+    flex: 1;
+  }
+  
+  .cuisine-info h3 {
+    margin-bottom: 10px;
+  }
+  
+  .cuisine-info p {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+  
+  .cuisine-cta {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .cuisine-cta p {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  /* ==================
+    7. Shipping Section
+  ==================== */
+  .shipping-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    margin-bottom: 50px;
+  }
+  
+  .shipping-card {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    transition: var(--transition);
+  }
+  
+  .shipping-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--hover-shadow);
+  }
+  
+  .shipping-icon {
+    font-size: 40px;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+  }
+  
+  .shipping-card h3 {
+    margin-bottom: 10px;
+  }
+  
+  .shipping-card p {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+  
+  .shipping-rates {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+  }
+  
+  .shipping-rates h3 {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .rates-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .rates-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .rates-table th,
+  .rates-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e1e1e1;
+  }
+  
+  .rates-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  
+  .rates-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .shipping-note {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-top: 20px;
+    font-style: italic;
+  }
+  
+  /* ==================
+    8. FAQ Section
+  ==================== */
+  .faq-wrapper {
+    display: flex;
+    gap: 50px;
+  }
+  
+  .accordion {
+    flex: 2;
+  }
+  
+  .accordion-item {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 15px;
+    overflow: hidden;
+  }
+  
+  .accordion-header {
+    width: 100%;
+    padding: 20px;
+    background-color: var(--white);
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+  
+  .accordion-header:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .accordion-header i {
+    color: var(--primary-color);
+    transition: var(--transition);
+  }
+  
+  .accordion-content {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  
+  .accordion-content p {
+    padding-bottom: 20px;
+    line-height: 1.6;
+  }
+  
+  .accordion-item.active .accordion-header {
+    background-color: #f8f9fa;
+  }
+  
+  .faq-contact {
+    flex: 1;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    align-self: flex-start;
+  }
+  
+  .faq-contact h3 {
+    color: var(--white);
+    margin-bottom: 15px;
+  }
+  
+  .faq-contact p {
+    margin-bottom: 20px;
+  }
+  
+  /* ==================
+    9. CTA Section
+  ==================== */
+  .cta-section {
+    position: relative;
+    padding: 100px 0;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .cta-section:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+  }
+  
+  .cta-content {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+    color: var(--white);
+  }
+  
+  .cta-content h2 {
+    color: var(--white);
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+  
+  .cta-content p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+  }
+  
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  /* ==================
+    10. Responsive Styles
+  ==================== */
+  @media (max-width: 1200px) {
+    .values-grid,
+    .team-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .story-wrapper,
+    .sourcing-wrapper {
+      flex-direction: column;
+    }
+    
+    .story-image,
+    .sourcing-image {
+      order: -1;
+    }
+    
+    .experience-badge {
+      bottom: -20px;
+      right: 20px;
+    }
+    
+    .shipping-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .cuisine-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .faq-wrapper {
+      flex-direction: column;
+    }
+    
+    .faq-contact {
+      max-width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .values-grid,
+    .team-grid,
+    .shipping-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .cuisine-card {
+      flex-direction: column;
+    }
+    
+    .cuisine-image {
+      width: 100%;
+      height: 200px;
+    }
+    
+    .cta-buttons {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .cta-buttons .btn {
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .founder-quote {
+      padding: 15px;
+    }
+    
+    .founder-quote p {
+      font-size: 16px;
+    }
+    
+    .accordion-header {
+      padding: 15px;
+      font-size: 14px;
+    }
+    
+    .rates-table th,
+    .rates-table td {
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+  }

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - AfriMart Depot | Authentic African & Ghanaian Food</title>
+    <meta name="description" content="Review your cart, adjust quantities, select shipping options, and securely checkout at AfriMart Depot, your source for authentic African and Ghanaian food products.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Cart Specific CSS -->
+    <link rel="stylesheet" href="css/cart.css">
+
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="header-wrapper">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="assets/images/logo.png" alt="AfriMart Depot Logo">
+                    </a>
+                </div>
+                <nav class="nav-menu">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                        <li class="nav-item"><a href="shop.html" class="nav-link">Shop</a></li>
+                        <li class="nav-item"><a href="about.html" class="nav-link">About Us</a></li>
+                        <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
+                        <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search products...">
+                    </div>
+                    <div class="cart-icon">
+                        <a href="cart.html">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count">3</span>
+                        </a>
+                    </div>
+                    <div class="account-icon">
+                        <a href="account.html">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                    <div class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu (Hidden by Default) -->
+    <div class="mobile-menu">
+        <div class="close-menu">
+            <i class="fas fa-times"></i>
+        </div>
+        <ul class="mobile-nav-list">
+            <li class="mobile-nav-item"><a href="index.html" class="mobile-nav-link">Home</a></li>
+            <li class="mobile-nav-item"><a href="shop.html" class="mobile-nav-link">Shop</a></li>
+            <li class="mobile-nav-item"><a href="about.html" class="mobile-nav-link">About Us</a></li>
+            <li class="mobile-nav-item"><a href="blog.html" class="mobile-nav-link">Blog</a></li>
+            <li class="mobile-nav-item"><a href="contact.html" class="mobile-nav-link">Contact</a></li>
+        </ul>
+        <div class="mobile-search">
+            <input type="text" placeholder="Search products...">
+            <button type="button" class="search-button"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+
+    <!-- Page Title Banner -->
+    <section class="page-title-section">
+        <div class="container">
+            <div class="page-title-content">
+                <h1>Shopping Cart</h1>
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a>
+                    <span class="separator">/</span>
+                    <span class="current">Shopping Cart</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Section -->
+    <section class="cart-section section-padding">
+        <div class="container">
+            <!-- Empty Cart Message (hidden when cart has items) -->
+            <div class="empty-cart" style="display: none;">
+                <div class="empty-cart-content" data-aos="fade-up">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h2>Your cart is empty</h2>
+                    <p>Looks like you haven't added any products to your cart yet.</p>
+                    <a href="shop.html" class="btn btn-primary">Continue Shopping</a>
+                </div>
+            </div>
+
+            <!-- Cart With Items -->
+            <div class="cart-with-items">
+                <div class="cart-wrapper">
+                    <!-- Cart Items -->
+                    <div class="cart-items" data-aos="fade-up">
+                        <h2>Your Cart (3 items)</h2>
+                        
+                        <div class="cart-header">
+                            <div class="product-col">Product</div>
+                            <div class="price-col">Price</div>
+                            <div class="quantity-col">Quantity</div>
+                            <div class="subtotal-col">Subtotal</div>
+                            <div class="remove-col"></div>
+                        </div>
+                        
+                        <div class="cart-item-list">
+                            <!-- Cart Item 1 -->
+                            <div class="cart-item" data-product-id="1">
+                                <div class="product-col">
+                                    <div class="product-info">
+                                        <div class="product-image">
+                                            <img src="assets/images/products/palm-oil.jpg" alt="Premium Palm Oil">
+                                        </div>
+                                        <div class="product-details">
+                                            <h3 class="product-title">Premium Palm Oil</h3>
+                                            <p class="product-variant">Size: 500ml</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="price-col">
+                                    <span class="price">$12.99</span>
+                                </div>
+                                <div class="quantity-col">
+                                    <div class="quantity-selector">
+                                        <button class="quantity-btn minus">-</button>
+                                        <input type="number" class="quantity-input" value="1" min="1" max="10">
+                                        <button class="quantity-btn plus">+</button>
+                                    </div>
+                                </div>
+                                <div class="subtotal-col">
+                                    <span class="subtotal">$12.99</span>
+                                </div>
+                                <div class="remove-col">
+                                    <button class="remove-item">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Cart Item 2 -->
+                            <div class="cart-item" data-product-id="2">
+                                <div class="product-col">
+                                    <div class="product-info">
+                                        <div class="product-image">
+                                            <img src="assets/images/products/suya-spice.jpg" alt="Suya Spice">
+                                        </div>
+                                        <div class="product-details">
+                                            <h3 class="product-title">Authentic Suya Spice</h3>
+                                            <p class="product-variant">Size: 100g</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="price-col">
+                                    <span class="price">$7.99</span>
+                                </div>
+                                <div class="quantity-col">
+                                    <div class="quantity-selector">
+                                        <button class="quantity-btn minus">-</button>
+                                        <input type="number" class="quantity-input" value="2" min="1" max="10">
+                                        <button class="quantity-btn plus">+</button>
+                                    </div>
+                                </div>
+                                <div class="subtotal-col">
+                                    <span class="subtotal">$15.98</span>
+                                </div>
+                                <div class="remove-col">
+                                    <button class="remove-item">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Cart Item 3 -->
+                            <div class="cart-item" data-product-id="3">
+                                <div class="product-col">
+                                    <div class="product-info">
+                                        <div class="product-image">
+                                            <img src="assets/images/products/dried-catfish.jpg" alt="Smoked Catfish">
+                                        </div>
+                                        <div class="product-details">
+                                            <h3 class="product-title">Smoked Catfish</h3>
+                                            <p class="product-variant">Size: 250g</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="price-col">
+                                    <span class="price">$14.99</span>
+                                </div>
+                                <div class="quantity-col">
+                                    <div class="quantity-selector">
+                                        <button class="quantity-btn minus">-</button>
+                                        <input type="number" class="quantity-input" value="1" min="1" max="10">
+                                        <button class="quantity-btn plus">+</button>
+                                    </div>
+                                </div>
+                                <div class="subtotal-col">
+                                    <span class="subtotal">$14.99</span>
+                                </div>
+                                <div class="remove-col">
+                                    <button class="remove-item">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="cart-actions">
+                            <a href="shop.html" class="btn btn-secondary">Continue Shopping</a>
+                            <button class="btn btn-outline" id="update-cart">Update Cart</button>
+                            <button class="btn btn-danger" id="clear-cart">Clear Cart</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Summary -->
+                    <div class="order-summary" data-aos="fade-up">
+                        <h2>Order Summary</h2>
+                        
+                        <div class="summary-content">
+                            <div class="summary-item subtotal-row">
+                                <span class="item-label">Subtotal</span>
+                                <span class="item-value" id="cart-subtotal">$43.96</span>
+                            </div>
+                            
+                            <!-- Discount Code -->
+                            <div class="discount-code">
+                                <p>Have a discount code?</p>
+                                <div class="code-input">
+                                    <input type="text" placeholder="Enter code" id="discount-code">
+                                    <button class="btn btn-apply" id="apply-discount">Apply</button>
+                                </div>
+                                <p class="discount-message success" style="display: none;">Discount applied successfully!</p>
+                                <p class="discount-message error" style="display: none;">Invalid discount code. Please try again.</p>
+                            </div>
+                            
+                            <!-- Discount Row (initially hidden) -->
+                            <div class="summary-item discount-row" style="display: none;">
+                                <span class="item-label">Discount</span>
+                                <span class="item-value" id="discount-amount">-$0.00</span>
+                            </div>
+                            
+                            <!-- Shipping Options -->
+                            <div class="shipping-options">
+                                <p>Select shipping method:</p>
+                                <div class="shipping-option">
+                                    <input type="radio" id="standard" name="shipping" value="standard" checked>
+                                    <label for="standard">
+                                        <span class="shipping-name">Standard Shipping</span>
+                                        <span class="shipping-price">$5.99</span>
+                                        <span class="shipping-time">3-5 business days</span>
+                                    </label>
+                                </div>
+                                <div class="shipping-option">
+                                    <input type="radio" id="express" name="shipping" value="express">
+                                    <label for="express">
+                                        <span class="shipping-name">Express Shipping</span>
+                                        <span class="shipping-price">$12.99</span>
+                                        <span class="shipping-time">1-2 business days</span>
+                                    </label>
+                                </div>
+                                <div class="shipping-option">
+                                    <input type="radio" id="free" name="shipping" value="free" disabled>
+                                    <label for="free" class="disabled">
+                                        <span class="shipping-name">Free Shipping</span>
+                                        <span class="shipping-price">$0.00</span>
+                                        <span class="shipping-time">Spend $50+ for free shipping</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Shipping Row -->
+                            <div class="summary-item shipping-row">
+                                <span class="item-label">Shipping</span>
+                                <span class="item-value" id="shipping-cost">$5.99</span>
+                            </div>
+                            
+                            <!-- Tax Row -->
+                            <div class="summary-item tax-row">
+                                <span class="item-label">Estimated Tax</span>
+                                <span class="item-value" id="tax-amount">$3.52</span>
+                            </div>
+                            
+                            <!-- Total Row -->
+                            <div class="summary-item total-row">
+                                <span class="item-label">Total</span>
+                                <span class="item-value" id="order-total">$53.47</span>
+                            </div>
+                            
+                            <!-- Checkout Button -->
+                            <a href="checkout.html" class="btn btn-primary checkout-btn">Proceed to Checkout</a>
+                            
+                            <!-- Secure Checkout Message -->
+                            <div class="secure-checkout">
+                                <i class="fas fa-lock"></i>
+                                <span>Secure Checkout</span>
+                            </div>
+                            
+                            <!-- Payment Methods -->
+                            <div class="payment-methods">
+                                <p>We accept:</p>
+                                <div class="payment-icons">
+                                    <i class="fab fa-cc-visa"></i>
+                                    <i class="fab fa-cc-mastercard"></i>
+                                    <i class="fab fa-cc-amex"></i>
+                                    <i class="fab fa-cc-discover"></i>
+                                    <i class="fab fa-cc-paypal"></i>
+                                    <i class="fab fa-apple-pay"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Related Products -->
+                <div class="related-products" data-aos="fade-up">
+                    <h2>You Might Also Like</h2>
+                    <div class="related-products-slider">
+                        <!-- Product 1 -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="assets/images/products/pepper-soup-spice.jpg" alt="Pepper Soup Spice">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=pepper-soup-spice">Pepper Soup Spice</a>
+                                </h3>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <span>(43)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$8.99</span>
+                                    <span class="unit">100g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Product 2 -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="assets/images/products/zobo-leaf.jpg" alt="Zobo Leaf">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=zobo-leaf">Zobo Leaf (Hibiscus)</a>
+                                </h3>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <span>(28)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$6.99</span>
+                                    <span class="unit">100g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Product 3 -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="assets/images/products/kilishi.jpg" alt="Kilishi">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=kilishi">Kilishi (Beef Jerky)</a>
+                                </h3>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <span>(38)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$13.99</span>
+                                    <span class="unit">100g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Product 4 -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="assets/images/products/cameroon-pepper.jpg" alt="Cameroon Pepper">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=cameroon-pepper">Cameroon & Red Chilli Pepper</a>
+                                </h3>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <span>(27)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$7.99</span>
+                                    <span class="unit">100g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section parallax-window" data-parallax="scroll" data-image-src="assets/images/newsletter-bg.jpg">
+        <div class="container">
+            <div class="newsletter-content" data-aos="fade-up">
+                <div class="section-header light">
+                    <h2>Join Our Newsletter</h2>
+                    <p>Sign up to receive updates, new recipes, and exclusive offers</p>
+                </div>
+                <form class="newsletter-form" data-aos="fade-up" data-aos-delay="200">
+                    <div class="form-group">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit" class="btn btn-accent">Subscribe</button>
+                    </div>
+                    <div class="form-terms">
+                        <label class="checkbox-container">
+                            <input type="checkbox" required>
+                            <span class="checkmark"></span>
+                            <span>I agree to receive emails from AfriMart Depot and accept the <a href="privacy-policy.html">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-col about-col">
+                        <div class="footer-logo">
+                            <img src="assets/images/logo-white.png" alt="AfriMart Depot Logo">
+                        </div>
+                        <p>Bringing authentic African flavors to food enthusiasts worldwide. Your one-stop shop for premium quality African and Ghanaian food products.</p>
+                        <div class="social-icons">
+                            <a href="https://facebook.com/afrimart_depot" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com/afrimart_depot" class="social-icon"><i class="fab fa-instagram"></i></a>
+                            <a href="https://twitter.com/afrimart_depot" class="social-icon"><i class="fab fa-twitter"></i></a>
+                            <a href="https://pinterest.com/afrimart_depot" class="social-icon"><i class="fab fa-pinterest-p"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Quick Links</h3>
+                        <ul class="footer-links">
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="shop.html">Shop</a></li>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="blog.html">Blog & Recipes</a></li>
+                            <li><a href="contact.html">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Categories</h3>
+                        <ul class="footer-links">
+                            <li><a href="shop.html?category=dried-seafood">Dried Seafood</a></li>
+                            <li><a href="shop.html?category=fresh-seafood">Fresh Seafood</a></li>
+                            <li><a href="shop.html?category=spices-herbs">Spices & Herbs</a></li>
+                            <li><a href="shop.html?category=vegetables">Vegetables</a></li>
+                            <li><a href="shop.html?category=snacks">Snacks</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Customer Service</h3>
+                        <ul class="footer-links">
+                            <li><a href="faq.html">FAQ</a></li>
+                            <li><a href="shipping.html">Shipping & Delivery</a></li>
+                            <li><a href="returns.html">Returns & Refunds</a></li>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms.html">Terms & Conditions</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col contact-col">
+                        <h3>Contact Us</h3>
+                        <ul class="contact-info">
+                            <li><i class="fas fa-map-marker-alt"></i> 123 Main Street, London, UK</li>
+                            <li><i class="fas fa-phone-alt"></i> +44 (0) 123 456 7890</li>
+                            <li><i class="fas fa-envelope"></i> info@afrimartdepot.com</li>
+                            <li><i class="fas fa-clock"></i> Mon-Fri: 9AM - 6PM</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom-content">
+                    <div class="copyright">
+                        <p>&copy; 2025 AfriMart Depot. All Rights Reserved.</p>
+                    </div>
+                    <div class="payment-methods">
+                        <img src="assets/images/payment-methods.png" alt="Payment Methods">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Parallax JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parallax.js/1.5.0/parallax.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+    <!-- Cart JS -->
+    <script src="js/cart.js"></script>
+</body>
+</html>

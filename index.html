@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AfriMart Depot - Authentic African & Ghanaian Food</title>
+    <meta name="description" content="AfriMart Depot offers authentic African and Ghanaian food products with worldwide shipping. Explore our selection of dried seafood, spices, snacks, and more.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="header-wrapper">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="assets/images/logo.png" alt="AfriMart Depot Logo">
+                    </a>
+                </div>
+                <nav class="nav-menu">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="index.html" class="nav-link active">Home</a></li>
+                        <li class="nav-item"><a href="shop.html" class="nav-link">Shop</a></li>
+                        <li class="nav-item"><a href="about.html" class="nav-link">About Us</a></li>
+                        <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
+                        <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search products...">
+                    </div>
+                    <div class="cart-icon">
+                        <a href="cart.html">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count">0</span>
+                        </a>
+                    </div>
+                    <div class="account-icon">
+                        <a href="account.html">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                    <div class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu (Hidden by Default) -->
+    <div class="mobile-menu">
+        <div class="close-menu">
+            <i class="fas fa-times"></i>
+        </div>
+        <ul class="mobile-nav-list">
+            <li class="mobile-nav-item"><a href="index.html" class="mobile-nav-link active">Home</a></li>
+            <li class="mobile-nav-item"><a href="shop.html" class="mobile-nav-link">Shop</a></li>
+            <li class="mobile-nav-item"><a href="about.html" class="mobile-nav-link">About Us</a></li>
+            <li class="mobile-nav-item"><a href="blog.html" class="mobile-nav-link">Blog</a></li>
+            <li class="mobile-nav-item"><a href="contact.html" class="mobile-nav-link">Contact</a></li>
+        </ul>
+        <div class="mobile-search">
+            <input type="text" placeholder="Search products...">
+            <button type="button" class="search-button"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+
+    <!-- Hero Section with Parallax -->
+    <section class="hero-section parallax-window" data-parallax="scroll" data-image-src="images/shrimps.jpg">
+        <div class="container">
+            <div class="hero-content" data-aos="fade-up" data-aos-delay="200">
+                <h1>Authentic African Flavors Delivered to Your Door</h1>
+                <p>Discover premium quality African and Ghanaian food products sourced directly from local suppliers</p>
+                <div class="hero-buttons">
+                    <a href="shop.html" class="btn btn-primary">Shop Now</a>
+                    <a href="#featured-products" class="btn btn-secondary">Featured Products</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Slider -->
+    <section id="featured-products" class="featured-products section-padding">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>Featured Products</h2>
+                <p>Discover our most popular authentic African delicacies</p>
+            </div>
+            <div class="product-slider" data-aos="fade-up" data-aos-delay="200">
+                <div class="product-slider-wrapper">
+                    <!-- Product 1: Palm Oil -->
+                    <div class="product-card">
+                        <div class="product-badge">Best Seller</div>
+                        <div class="product-image">
+                            <img src="images/palm-oil.png" alt="Premium Palm Oil">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Premium Palm Oil</h3>
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <span>(32)</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="price">$12.99</span>
+                                <span class="unit">500ml</span>
+                            </div>
+                            <button class="add-to-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 2: Dried Fish -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="images/dried-fish.jpg" alt="Smoked Catfish">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Smoked Catfish</h3>
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span>(18)</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="price">$14.99</span>
+                                <span class="unit">250g</span>
+                            </div>
+                            <button class="add-to-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 3: Pepper Soup Spice -->
+                    <div class="product-card">
+                        <div class="product-badge">New</div>
+                        <div class="product-image">
+                            <img src="images/pepper-soup-spices.webp" alt="Pepper Soup Spice">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Pepper Soup Spice Mix</h3>
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <span>(12)</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="price">$8.99</span>
+                                <span class="unit">100g</span>
+                            </div>
+                            <button class="add-to-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 4: Suya Spice -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="images/suya-spices.webp" alt="Suya Spice">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Authentic Suya Spice</h3>
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <span>(23)</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="price">$7.99</span>
+                                <span class="unit">100g</span>
+                            </div>
+                            <button class="add-to-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-controls">
+                    <button class="prev-slide"><i class="fas fa-chevron-left"></i></button>
+                    <button class="next-slide"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Categories -->
+    <section class="product-categories section-padding bg-light">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>Shop by Category</h2>
+                <p>Browse our wide selection of authentic African food products</p>
+            </div>
+            <div class="category-grid" data-aos="fade-up" data-aos-delay="200">
+                <!-- Category 1 -->
+                <a href="shop.html?category=dried-seafood" class="category-card" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="category-image">
+                        <img src="images/dried-sea-food.jpg" alt="Dried Seafood">
+                    </div>
+                    <div class="category-info">
+                        <h3>Dried Seafood</h3>
+                        <p>5 products</p>
+                    </div>
+                </a>
+                
+                <!-- Category 2 -->
+                <a href="shop.html?category=fresh-seafood" class="category-card" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="category-image">
+                        <img src="images/Fresh-Octopus.jpg" alt="Fresh Seafood">
+                    </div>
+                    <div class="category-info">
+                        <h3>Fresh Seafood</h3>
+                        <p>5 products</p>
+                    </div>
+                </a>
+                
+                <!-- Category 3 -->
+                <a href="shop.html?category=snacks" class="category-card" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="category-image">
+                        <img src="images/tombrown.jpg" alt="Snacks">
+                    </div>
+                    <div class="category-info">
+                        <h3>Snacks</h3>
+                        <p>2 products</p>
+                    </div>
+                </a>
+                
+                <!-- Category 4 -->
+                <a href="shop.html?category=spices-herbs" class="category-card" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="category-image">
+                        <img src="images/herbs.png" alt="Spices & Herbs">
+                    </div>
+                    <div class="category-info">
+                        <h3>Spices & Herbs</h3>
+                        <p>7 products</p>
+                    </div>
+                </a>
+                
+                <!-- Category 5 -->
+                <a href="shop.html?category=vegetables" class="category-card" data-aos="zoom-in" data-aos-delay="500">
+                    <div class="category-image">
+                        <img src="images/Cassava-leaves.webp" alt="Vegetables">
+                    </div>
+                    <div class="category-info">
+                        <h3>Vegetables</h3>
+                        <p>7 products</p>
+                    </div>
+                </a>
+                
+                <!-- Category 6 -->
+                <a href="shop.html?category=others" class="category-card" data-aos="zoom-in" data-aos-delay="600">
+                    <div class="category-image">
+                        <img src="images/specialty.webp" alt="Specialty Items">
+                    </div>
+                    <div class="category-info">
+                        <h3>Specialty Items</h3>
+                        <p>13 products</p>
+                    </div>
+                </a>
+            </div>
+            <div class="view-all-button" data-aos="fade-up" data-aos-delay="300">
+                <a href="shop.html" class="btn btn-primary">View All Products</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Special Offers Section with Parallax -->
+    <section class="special-offers parallax-window" data-parallax="scroll" data-image-src="images/wele-design.webp">
+        <div class="container">
+            <div class="offers-content" data-aos="fade-right">
+                <div class="offer-badge">Limited Time</div>
+                <h2>Special Bundle Offer</h2>
+                <h3>African Cooking Essentials Kit</h3>
+                <p>Get our curated selection of essential African cooking ingredients including premium Palm Oil, Suya Spice, Dried Catfish, and more.</p>
+                <div class="offer-price">
+                    <span class="original-price">$59.99</span>
+                    <span class="discounted-price">$42.99</span>
+                    <span class="discount-percentage">Save 28%</span>
+                </div>
+                <div class="countdown-timer">
+                    <div class="countdown-item">
+                        <span class="days">02</span>
+                        <span class="time-label">Days</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="hours">18</span>
+                        <span class="time-label">Hours</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="minutes">45</span>
+                        <span class="time-label">Mins</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="seconds">36</span>
+                        <span class="time-label">Secs</span>
+                    </div>
+                </div>
+                <a href="shop.html?product=cooking-kit" class="btn btn-accent">Shop This Deal</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section class="about-section section-padding">
+        <div class="container">
+            <div class="about-wrapper">
+                <div class="about-image" data-aos="fade-right">
+                    <img src="assets/images/about-image.jpg" alt="About AfriMart Depot">
+                </div>
+                <div class="about-content" data-aos="fade-left">
+                    <div class="section-header">
+                        <h2>About AfriMart Depot</h2>
+                    </div>
+                    <p>At AfriMart Depot, we're passionate about bringing authentic African and Ghanaian flavors to food enthusiasts around the world. Our journey began with a simple mission: to share the rich culinary heritage of Africa with everyone, everywhere.</p>
+                    <p>We carefully source our products directly from trusted local suppliers across Africa, ensuring that every item in our collection is of the highest quality and authenticity.</p>
+                    <div class="about-features">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>100% Authentic Products</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-shipping-fast"></i>
+                            <span>Worldwide Shipping</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>Premium Quality</span>
+                        </div>
+                    </div>
+                    <a href="about.html" class="btn btn-secondary">Learn More About Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section section-padding bg-light">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>What Our Customers Say</h2>
+                <p>Read reviews from our satisfied customers</p>
+            </div>
+            <div class="testimonials-slider" data-aos="fade-up" data-aos-delay="200">
+                <div class="testimonials-wrapper">
+                    <!-- Testimonial 1 -->
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <p>"I've been searching for authentic Suya spice for years, and AfriMart Depot's is by far the best I've ever had. It tastes just like the ones I used to enjoy at roadside grills in Lagos!"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-image">
+                                <img src="assets/images/testimonials/testimonial-1.jpg" alt="Customer">
+                            </div>
+                            <div class="author-info">
+                                <h4>Sarah Johnson</h4>
+                                <p>New York, USA</p>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 2 -->
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <p>"The palm oil from AfriMart Depot brings me right back to my grandmother's kitchen in Ghana. The quality is exceptional, and their shipping is fast and reliable. So grateful to have found this shop!"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-image">
+                                <img src="assets/images/testimonials/testimonial-2.jpg" alt="Customer">
+                            </div>
+                            <div class="author-info">
+                                <h4>Daniel Owusu</h4>
+                                <p>London, UK</p>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 3 -->
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <p>"As a chef specializing in African cuisine, I need authentic ingredients. AfriMart Depot consistently delivers the highest quality products that help me create truly authentic dishes for my restaurant."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-image">
+                                <img src="assets/images/testimonials/testimonial-3.jpg" alt="Customer">
+                            </div>
+                            <div class="author-info">
+                                <h4>Chef Maria Rodriguez</h4>
+                                <p>Toronto, Canada</p>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog & Recipes Section -->
+    <section class="blog-section section-padding">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>Blog & Recipes</h2>
+                <p>Discover delicious recipes and cooking tips</p>
+            </div>
+            <div class="blog-grid" data-aos="fade-up" data-aos-delay="200">
+                <!-- Blog Post 1 -->
+                <article class="blog-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="blog-image">
+                        <img src="assets/images/blog/jollof-rice.jpg" alt="Perfect Jollof Rice">
+                        <div class="blog-category">Recipe</div>
+                    </div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span><i class="far fa-calendar"></i> Feb 18, 2025</span>
+                            <span><i class="far fa-comment"></i> 12 Comments</span>
+                        </div>
+                        <h3 class="blog-title">How to Make the Perfect Jollof Rice</h3>
+                        <p class="blog-excerpt">Learn the secrets to making the most delicious, aromatic, and perfectly cooked Jollof Rice with our step-by-step recipe.</p>
+                        <a href="blog/perfect-jollof-rice.html" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                
+                <!-- Blog Post 2 -->
+                <article class="blog-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="blog-image">
+                        <img src="assets/images/blog/spices-guide.jpg" alt="African Spices Guide">
+                        <div class="blog-category">Guide</div>
+                    </div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span><i class="far fa-calendar"></i> Feb 10, 2025</span>
+                            <span><i class="far fa-comment"></i> 8 Comments</span>
+                        </div>
+                        <h3 class="blog-title">Essential African Spices: A Beginner's Guide</h3>
+                        <p class="blog-excerpt">Discover the rich world of African spices and how to use them to transform your everyday cooking with authentic flavors.</p>
+                        <a href="blog/african-spices-guide.html" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                
+                <!-- Blog Post 3 -->
+                <article class="blog-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="blog-image">
+                        <img src="assets/images/blog/egusi-soup.jpg" alt="Egusi Soup Recipe">
+                        <div class="blog-category">Recipe</div>
+                    </div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span><i class="far fa-calendar"></i> Feb 5, 2025</span>
+                            <span><i class="far fa-comment"></i> 15 Comments</span>
+                        </div>
+                        <h3 class="blog-title">Traditional Egusi Soup: A West African Delight</h3>
+                        <p class="blog-excerpt">Master the art of making this beloved West African soup with our authentic recipe and pro tips from our culinary experts.</p>
+                        <a href="blog/egusi-soup-recipe.html" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+            </div>
+            <div class="view-all-button" data-aos="fade-up" data-aos-delay="400">
+                <a href="blog.html" class="btn btn-secondary">View All Articles</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section parallax-window" data-parallax="scroll" data-image-src="assets/images/newsletter-bg.jpg">
+        <div class="container">
+            <div class="newsletter-content" data-aos="fade-up">
+                <div class="section-header light">
+                    <h2>Join Our Newsletter</h2>
+                    <p>Sign up to receive updates, new recipes, and exclusive offers</p>
+                </div>
+                <form class="newsletter-form" data-aos="fade-up" data-aos-delay="200">
+                    <div class="form-group">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit" class="btn btn-accent">Subscribe</button>
+                    </div>
+                    <div class="form-terms">
+                        <label class="checkbox-container">
+                            <input type="checkbox" required>
+                            <span class="checkmark"></span>
+                            <span>I agree to receive emails from AfriMart Depot and accept the <a href="privacy-policy.html">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-col about-col">
+                        <div class="footer-logo">
+                            <img src="assets/images/logo-white.png" alt="AfriMart Depot Logo">
+                        </div>
+                        <p>Bringing authentic African flavors to food enthusiasts worldwide. Your one-stop shop for premium quality African and Ghanaian food products.</p>
+                        <div class="social-icons">
+                            <a href="https://facebook.com/afrimart_depot" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com/afrimart_depot" class="social-icon"><i class="fab fa-instagram"></i></a>
+                            <a href="https://twitter.com/afrimart_depot" class="social-icon"><i class="fab fa-twitter"></i></a>
+                            <a href="https://pinterest.com/afrimart_depot" class="social-icon"><i class="fab fa-pinterest-p"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Quick Links</h3>
+                        <ul class="footer-links">
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="shop.html">Shop</a></li>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="blog.html">Blog & Recipes</a></li>
+                            <li><a href="contact.html">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Categories</h3>
+                        <ul class="footer-links">
+                            <li><a href="shop.html?category=dried-seafood">Dried Seafood</a></li>
+                            <li><a href="shop.html?category=fresh-seafood">Fresh Seafood</a></li>
+                            <li><a href="shop.html?category=spices-herbs">Spices & Herbs</a></li>
+                            <li><a href="shop.html?category=vegetables">Vegetables</a></li>
+                            <li><a href="shop.html?category=snacks">Snacks</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Customer Service</h3>
+                        <ul class="footer-links">
+                            <li><a href="faq.html">FAQ</a></li>
+                            <li><a href="shipping.html">Shipping & Delivery</a></li>
+                            <li><a href="returns.html">Returns & Refunds</a></li>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms.html">Terms & Conditions</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col contact-col">
+                        <h3>Contact Us</h3>
+                        <ul class="contact-info">
+                            <li><i class="fas fa-map-marker-alt"></i> 123 Main Street, London, UK</li>
+                            <li><i class="fas fa-phone-alt"></i> +44 (0) 123 456 7890</li>
+                            <li><i class="fas fa-envelope"></i> info@afrimartdepot.com</li>
+                            <li><i class="fas fa-clock"></i> Mon-Fri: 9AM - 6PM</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom-content">
+                    <div class="copyright">
+                        <p>&copy; 2025 AfriMart Depot. All Rights Reserved.</p>
+                    </div>
+                    <div class="payment-methods">
+                        <img src="assets/images/payment-methods.png" alt="Payment Methods">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Parallax JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parallax.js/1.5.0/parallax.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

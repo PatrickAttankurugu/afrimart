@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - AfriMart Depot | Authentic African & Ghanaian Food</title>
+    <meta name="description" content="Browse and shop our wide selection of authentic African and Ghanaian food products at AfriMart Depot. Dried seafood, spices, snacks, and more.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Shop Specific CSS -->
+    <link rel="stylesheet" href="css/shop.css">
+
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="header-wrapper">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="assets/images/logo.png" alt="AfriMart Depot Logo">
+                    </a>
+                </div>
+                <nav class="nav-menu">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                        <li class="nav-item"><a href="shop.html" class="nav-link active">Shop</a></li>
+                        <li class="nav-item"><a href="about.html" class="nav-link">About Us</a></li>
+                        <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
+                        <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search products...">
+                    </div>
+                    <div class="cart-icon">
+                        <a href="cart.html">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count">0</span>
+                        </a>
+                    </div>
+                    <div class="account-icon">
+                        <a href="account.html">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                    <div class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu (Hidden by Default) -->
+    <div class="mobile-menu">
+        <div class="close-menu">
+            <i class="fas fa-times"></i>
+        </div>
+        <ul class="mobile-nav-list">
+            <li class="mobile-nav-item"><a href="index.html" class="mobile-nav-link">Home</a></li>
+            <li class="mobile-nav-item"><a href="shop.html" class="mobile-nav-link active">Shop</a></li>
+            <li class="mobile-nav-item"><a href="about.html" class="mobile-nav-link">About Us</a></li>
+            <li class="mobile-nav-item"><a href="blog.html" class="mobile-nav-link">Blog</a></li>
+            <li class="mobile-nav-item"><a href="contact.html" class="mobile-nav-link">Contact</a></li>
+        </ul>
+        <div class="mobile-search">
+            <input type="text" placeholder="Search products...">
+            <button type="button" class="search-button"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+
+    <!-- Page Title Banner -->
+    <section class="page-title-section">
+        <div class="container">
+            <div class="page-title-content">
+                <h1>Shop</h1>
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a>
+                    <span class="separator">/</span>
+                    <span class="current">Shop</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shop Section -->
+    <section class="shop-section section-padding">
+        <div class="container">
+            <div class="shop-grid">
+                <!-- Sidebar with Filters -->
+                <div class="shop-sidebar" data-aos="fade-right">
+                    <div class="sidebar-widget categories-widget">
+                        <h3 class="widget-title">Categories</h3>
+                        <ul class="category-list">
+                            <li class="category-item">
+                                <a href="#" class="category-link active" data-category="all">
+                                    <span class="category-name">All Products</span>
+                                    <span class="category-count">39</span>
+                                </a>
+                            </li>
+                            <li class="category-item">
+                                <a href="#" class="category-link" data-category="dried-seafood">
+                                    <span class="category-name">Dried Seafood</span>
+                                    <span class="category-count">5</span>
+                                </a>
+                            </li>
+                            <li class="category-item">
+                                <a href="#" class="category-link" data-category="fresh-seafood">
+                                    <span class="category-name">Fresh Seafood</span>
+                                    <span class="category-count">5</span>
+                                </a>
+                            </li>
+                            <li class="category-item">
+                                <a href="#" class="category-link" data-category="snacks">
+                                    <span class="category-name">Snacks</span>
+                                    <span class="category-count">2</span>
+                                </a>
+                            </li>
+                            <li class="category-item">
+                                <a href="#" class="category-link" data-category="spices-herbs">
+                                    <span class="category-name">Spices & Herbs</span>
+                                    <span class="category-count">7</span>
+                                </a>
+                            </li>
+                            <li class="category-item">
+                                <a href="#" class="category-link" data-category="vegetables">
+                                    <span class="category-name">Vegetables & Products</span>
+                                    <span class="category-count">7</span>
+                                </a>
+                            </li>
+                            <li class="category-item">
+                                <a href="#" class="category-link" data-category="grains-flours">
+                                    <span class="category-name">Grains & Flours</span>
+                                    <span class="category-count">3</span>
+                                </a>
+                            </li>
+                            <li class="category-item">
+                                <a href="#" class="category-link" data-category="specialty">
+                                    <span class="category-name">Specialty Items</span>
+                                    <span class="category-count">10</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="sidebar-widget price-filter-widget">
+                        <h3 class="widget-title">Filter by Price</h3>
+                        <div class="price-range-slider">
+                            <div class="price-slider-ui"></div>
+                            <div class="price-range-values">
+                                <div class="price-range-from">
+                                    <span class="price-label">From:</span>
+                                    <span class="price-value">$0</span>
+                                </div>
+                                <div class="price-range-to">
+                                    <span class="price-label">To:</span>
+                                    <span class="price-value">$50</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary filter-price-btn">Filter</button>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-widget special-offers-widget">
+                        <h3 class="widget-title">Special Offers</h3>
+                        <div class="special-product">
+                            <div class="special-product-image">
+                                <img src="assets/images/products/palm-oil.jpg" alt="Palm Oil Special">
+                                <div class="special-badge">20% OFF</div>
+                            </div>
+                            <div class="special-product-info">
+                                <h4>Premium Palm Oil</h4>
+                                <div class="special-product-price">
+                                    <span class="old-price">$15.99</span>
+                                    <span class="current-price">$12.99</span>
+                                </div>
+                                <a href="product-details.html?product=palm-oil" class="view-offer">View Offer</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Shop Content -->
+                <div class="shop-content" data-aos="fade-left">
+                    <div class="shop-header">
+                        <div class="shop-results-count">
+                            <p>Showing 1-12 of 39 results</p>
+                        </div>
+                        <div class="shop-sorting">
+                            <label for="sort-by">Sort by:</label>
+                            <select id="sort-by" class="sort-select">
+                                <option value="popularity">Popularity</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="newest">Newest First</option>
+                            </select>
+                        </div>
+                        <div class="shop-view-options">
+                            <button class="view-option grid-view active"><i class="fas fa-th"></i></button>
+                            <button class="view-option list-view"><i class="fas fa-list"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="products-grid">
+                        <!-- DRIED SEAFOOD CATEGORY -->
+                        <!-- Product 1 -->
+                        <div class="product-card" data-category="dried-seafood" data-aos="fade-up" data-aos-delay="100">
+                            <div class="product-badge">Best Seller</div>
+                            <div class="product-image">
+                                <img src="assets/images/products/dried-red-prawns.jpg" alt="Dried Red Prawns">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="dried-red-prawns">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=dried-red-prawns">Dried Red Prawns</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Premium quality dried red prawns with rich flavor, perfect for soups and stews.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <span>(26)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$16.99</span>
+                                    <span class="unit">250g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- Product 2 -->
+                        <div class="product-card" data-category="dried-seafood" data-aos="fade-up" data-aos-delay="200">
+                            <div class="product-image">
+                                <img src="assets/images/products/dried-snail.jpg" alt="Dried Snail">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="dried-snail">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=dried-snail">Dried Snail</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Sun-dried snails with intense umami flavor, a traditional ingredient in West African cuisine.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <span>(14)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$18.99</span>
+                                    <span class="unit">200g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- Product 3 -->
+                        <div class="product-card" data-category="dried-seafood" data-aos="fade-up" data-aos-delay="300">
+                            <div class="product-image">
+                                <img src="assets/images/products/stock-fish.jpg" alt="Stock Fish">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="stock-fish">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=stock-fish">Stock Fish</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Traditional dried cod fish with concentrated flavor, essential for authentic Nigerian soups.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <span>(31)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$21.99</span>
+                                    <span class="unit">300g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                        <!-- Product 4 -->
+                        <div class="product-card" data-category="dried-seafood" data-aos="fade-up" data-aos-delay="400">
+                            <div class="product-badge">Popular</div>
+                            <div class="product-image">
+                                <img src="assets/images/products/dried-catfish.jpg" alt="Smoked Catfish">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="dried-catfish">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=dried-catfish">Smoked Catfish</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Smoked and dried catfish with rich, savory flavor perfect for soups and stews.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <span>(19)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$14.99</span>
+                                    <span class="unit">250g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- Product 5 -->
+                        <div class="product-card" data-category="dried-seafood" data-aos="fade-up" data-aos-delay="500">
+                            <div class="product-image">
+                                <img src="assets/images/products/dried-periwinkle.jpg" alt="Dried Periwinkle">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="dried-periwinkle">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=dried-periwinkle">Dried Periwinkle</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Sun-dried periwinkles with delicate seafood flavor, perfect for traditional soups and stews.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <span>(11)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$17.99</span>
+                                    <span class="unit">200g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- FRESH SEAFOOD CATEGORY -->
+                        <!-- Product 6 -->
+                        <div class="product-card" data-category="fresh-seafood" data-aos="fade-up" data-aos-delay="100">
+                            <div class="product-badge new">New</div>
+                            <div class="product-image">
+                                <img src="assets/images/products/fresh-snail.jpg" alt="Fresh Snail">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="fresh-snail">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=fresh-snail">Fresh Snail</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Fresh, cleaned African giant snails, flash-frozen to preserve flavor and texture.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <span>(8)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$22.99</span>
+                                    <span class="unit">500g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- Product 7 -->
+                        <div class="product-card" data-category="fresh-seafood" data-aos="fade-up" data-aos-delay="200">
+                            <div class="product-image">
+                                <img src="assets/images/products/shelled-periwinkle.jpg" alt="Shelled Periwinkle">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="shelled-periwinkle">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=shelled-periwinkle">Shelled Periwinkle</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Clean, shelled periwinkles ready for cooking, flash-frozen to maintain freshness.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <span>(12)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$19.99</span>
+                                    <span class="unit">250g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- Product 8 -->
+                        <div class="product-card" data-category="fresh-seafood" data-aos="fade-up" data-aos-delay="300">
+                            <div class="product-image">
+                                <img src="assets/images/products/periwinkle.jpg" alt="Fresh Periwinkle">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="periwinkle">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=periwinkle">Fresh Periwinkle</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Whole, unshelled periwinkles, flash-frozen at peak freshness for authentic flavor.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <i class="far fa-star"></i>
+                                    <span>(9)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$16.99</span>
+                                    <span class="unit">500g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- Product 9 -->
+                        <div class="product-card" data-category="fresh-seafood" data-aos="fade-up" data-aos-delay="400">
+                            <div class="product-badge">Limited</div>
+                            <div class="product-image">
+                                <img src="assets/images/products/octopus.jpg" alt="Fresh Octopus">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="octopus">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=octopus">Fresh Octopus</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Cleaned and flash-frozen octopus tentacles, perfect for grilling or traditional stews.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <span>(15)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$24.99</span>
+                                    <span class="unit">500g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- Product 10 -->
+                        <div class="product-card" data-category="fresh-seafood" data-aos="fade-up" data-aos-delay="500">
+                            <div class="product-image">
+                                <img src="assets/images/products/abobe.jpg" alt="Abobe">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="abobe">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=abobe">Abobe</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Fresh abobe, a traditional African seafood delicacy, flash-frozen for maximum freshness.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <span>(7)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$18.99</span>
+                                    <span class="unit">250g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- SNACKS CATEGORY -->
+                        <!-- Product 11 -->
+                        <div class="product-card" data-category="snacks" data-aos="fade-up" data-aos-delay="100">
+                            <div class="product-image">
+                                <img src="assets/images/products/kuli-kuli.jpg" alt="Kuli Kuli">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="kuli-kuli">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=kuli-kuli">Kuli Kuli</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Traditional Nigerian snack made from spicy groundnut paste, crunchy and full of flavor.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <span>(22)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$8.99</span>
+                                    <span class="unit">150g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- Product 12 -->
+                        <div class="product-card" data-category="snacks" data-aos="fade-up" data-aos-delay="200">
+                            <div class="product-badge">Popular</div>
+                            <div class="product-image">
+                                <img src="assets/images/products/kilishi.jpg" alt="Kilishi (Beef Jerky)">
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" data-product="kilishi">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn add-to-wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product-details.html?product=kilishi">Kilishi (Beef Jerky)</a>
+                                </h3>
+                                <div class="product-description">
+                                    <p>Traditional Nigerian spiced beef jerky with authentic seasoning and smoky flavor.</p>
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <span>(38)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="price">$13.99</span>
+                                    <span class="unit">100g</span>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <!-- MORE PRODUCTS WILL BE LOADED -->
+                        <div class="load-more" data-aos="fade-up">
+                            <button class="btn btn-secondary load-more-btn">Load More Products</button>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" data-aos="fade-up">
+                        <a href="#" class="page-link active">1</a>
+                        <a href="#" class="page-link">2</a>
+                        <a href="#" class="page-link">3</a>
+                        <a href="#" class="page-link">4</a>
+                        <span class="page-dots">...</span>
+                        <a href="#" class="page-link">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick View Modal -->
+    <div class="quick-view-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-container">
+            <div class="modal-close">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="modal-content">
+                <div class="product-quick-view">
+                    <div class="product-images">
+                        <div class="main-image">
+                            <img src="assets/images/products/dried-red-prawns.jpg" alt="Product Name">
+                        </div>
+                        <div class="thumbnail-images">
+                            <div class="thumbnail active">
+                                <img src="assets/images/products/dried-red-prawns.jpg" alt="Thumbnail 1">
+                            </div>
+                            <div class="thumbnail">
+                                <img src="assets/images/products/dried-red-prawns-2.jpg" alt="Thumbnail 2">
+                            </div>
+                            <div class="thumbnail">
+                                <img src="assets/images/products/dried-red-prawns-3.jpg" alt="Thumbnail 3">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <h2 class="product-title">Dried Red Prawns</h2>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="review-count">(26 reviews)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">$16.99</span>
+                            <span class="unit">250g</span>
+                        </div>
+                        <div class="product-description">
+                            <p>Premium quality dried red prawns with rich flavor, perfect for soups and stews. Our dried prawns are carefully selected and processed to maintain maximum flavor and nutritional value.</p>
+                        </div>
+                        <div class="product-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Category:</span>
+                                <span class="meta-value">Dried Seafood</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">SKU:</span>
+                                <span class="meta-value">DS001</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Availability:</span>
+                                <span class="meta-value in-stock">In Stock</span>
+                            </div>
+                        </div>
+                        <div class="product-quantity">
+                            <label>Quantity:</label>
+                            <div class="quantity-selector">
+                                <button class="quantity-btn minus">-</button>
+                                <input type="number" class="quantity-input" value="1" min="1">
+                                <button class="quantity-btn plus">+</button>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary add-to-cart-btn">Add to Cart</button>
+                            <button class="btn btn-secondary buy-now-btn">Buy Now</button>
+                            <button class="wishlist-btn">
+                                <i class="far fa-heart"></i>
+                                <span>Add to Wishlist</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section parallax-window" data-parallax="scroll" data-image-src="assets/images/newsletter-bg.jpg">
+        <div class="container">
+            <div class="newsletter-content" data-aos="fade-up">
+                <div class="section-header light">
+                    <h2>Join Our Newsletter</h2>
+                    <p>Sign up to receive updates, new recipes, and exclusive offers</p>
+                </div>
+                <form class="newsletter-form" data-aos="fade-up" data-aos-delay="200">
+                    <div class="form-group">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit" class="btn btn-accent">Subscribe</button>
+                    </div>
+                    <div class="form-terms">
+                        <label class="checkbox-container">
+                            <input type="checkbox" required>
+                            <span class="checkmark"></span>
+                            <span>I agree to receive emails from AfriMart Depot and accept the <a href="privacy-policy.html">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-col about-col">
+                        <div class="footer-logo">
+                            <img src="assets/images/logo-white.png" alt="AfriMart Depot Logo">
+                        </div>
+                        <p>Bringing authentic African flavors to food enthusiasts worldwide. Your one-stop shop for premium quality African and Ghanaian food products.</p>
+                        <div class="social-icons">
+                            <a href="https://facebook.com/afrimart_depot" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com/afrimart_depot" class="social-icon"><i class="fab fa-instagram"></i></a>
+                            <a href="https://twitter.com/afrimart_depot" class="social-icon"><i class="fab fa-twitter"></i></a>
+                            <a href="https://pinterest.com/afrimart_depot" class="social-icon"><i class="fab fa-pinterest-p"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Quick Links</h3>
+                        <ul class="footer-links">
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="shop.html">Shop</a></li>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="blog.html">Blog & Recipes</a></li>
+                            <li><a href="contact.html">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Categories</h3>
+                        <ul class="footer-links">
+                            <li><a href="shop.html?category=dried-seafood">Dried Seafood</a></li>
+                            <li><a href="shop.html?category=fresh-seafood">Fresh Seafood</a></li>
+                            <li><a href="shop.html?category=spices-herbs">Spices & Herbs</a></li>
+                            <li><a href="shop.html?category=vegetables">Vegetables</a></li>
+                            <li><a href="shop.html?category=snacks">Snacks</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Customer Service</h3>
+                        <ul class="footer-links">
+                            <li><a href="faq.html">FAQ</a></li>
+                            <li><a href="shipping.html">Shipping & Delivery</a></li>
+                            <li><a href="returns.html">Returns & Refunds</a></li>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms.html">Terms & Conditions</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col contact-col">
+                        <h3>Contact Us</h3>
+                        <ul class="contact-info">
+                            <li><i class="fas fa-map-marker-alt"></i> 123 Main Street, London, UK</li>
+                            <li><i class="fas fa-phone-alt"></i> +44 (0) 123 456 7890</li>
+                            <li><i class="fas fa-envelope"></i> info@afrimartdepot.com</li>
+                            <li><i class="fas fa-clock"></i> Mon-Fri: 9AM - 6PM</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom-content">
+                    <div class="copyright">
+                        <p>&copy; 2025 AfriMart Depot. All Rights Reserved.</p>
+                    </div>
+                    <div class="payment-methods">
+                        <img src="assets/images/payment-methods.png" alt="Payment Methods">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Parallax JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parallax.js/1.5.0/parallax.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+    <!-- Shop JS -->
+    <script src="js/shop.js"></script>
+</body>
+</html>
