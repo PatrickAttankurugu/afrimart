@@ -104,75 +104,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const testimonialsSlider = document.querySelector('.testimonials-slider');
     
     if (testimonialsSlider) {
-      const sliderWrapper = testimonialsSlider.querySelector('.testimonials-wrapper');
-      const slides = testimonialsSlider.querySelectorAll('.testimonial-card');
+      const wrapper = testimonialsSlider.querySelector('.testimonials-wrapper');
+      const cards = testimonialsSlider.querySelectorAll('.testimonial-card');
       const dots = testimonialsSlider.querySelectorAll('.dot');
-      
-      if (sliderWrapper && slides.length && dots.length) {
-        let currentIndex = 0;
-        const slidesToShow = getSlidesToShow();
-        const totalSlides = slides.length;
-        
-        function getSlidesToShow() {
-          if (window.innerWidth >= 992) {
-            return 3;
-          } else if (window.innerWidth >= 768) {
-            return 2;
-          } else {
-            return 1;
-          }
+      let currentSlide = 0;
+
+      function updateSlider() {
+        if (window.innerWidth < 769) {
+          wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+        } else {
+          currentSlide = 0; // Reset to the first slide on desktop
+          wrapper.style.transform = 'translateX(0)';
         }
-        
-        function updateSliderPosition() {
-          const slideWidth = slides[0].offsetWidth + 30; // Including margin
-          sliderWrapper.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
-          
-          // Update dots
-          dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === Math.floor(currentIndex / slidesToShow));
-          });
-        }
-        
-        function goToSlide(index) {
-          currentIndex = Math.max(0, Math.min(index * slidesToShow, totalSlides - slidesToShow));
-          updateSliderPosition();
-        }
-        
-        // Click on dots
+        updateDots();
+      }
+
+      window.addEventListener('resize', updateSlider);
+      updateSlider(); // Call initially to set the correct state
+
+      function updateDots() {
         dots.forEach((dot, index) => {
-          dot.addEventListener('click', function() {
-            goToSlide(index);
-          });
+          dot.classList.toggle('active', index === currentSlide);
         });
-        
-        // Auto play
-        let autoplayInterval = setInterval(function() {
-          const nextIndex = (Math.floor(currentIndex / slidesToShow) + 1) % Math.ceil(totalSlides / slidesToShow);
-          goToSlide(nextIndex);
-        }, 5000);
-        
-        // Pause autoplay on hover
-        testimonialsSlider.addEventListener('mouseenter', function() {
-          clearInterval(autoplayInterval);
-        });
-        
-        testimonialsSlider.addEventListener('mouseleave', function() {
-          autoplayInterval = setInterval(function() {
-            const nextIndex = (Math.floor(currentIndex / slidesToShow) + 1) % Math.ceil(totalSlides / slidesToShow);
-            goToSlide(nextIndex);
-          }, 5000);
-        });
-        
-        // Responsive slides
-        window.addEventListener('resize', function() {
-          const newSlidesToShow = getSlidesToShow();
-          if (slidesToShow !== newSlidesToShow) {
-            goToSlide(0);
-          }
-        });
-        
-        // Initialize
-        updateSliderPosition();
       }
     }
     
