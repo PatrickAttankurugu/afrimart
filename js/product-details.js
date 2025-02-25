@@ -1,685 +1,501 @@
 /**
- * AfriMart Depot - Product Details JavaScript
- * Version: 1.0
- * 
- * This file contains all the JavaScript functionality for the product details page,
- * including image gallery, zoom functionality, quantity selector, tab switching,
- * review form handling, and related product slider.
+ * Product Details JavaScript - Part 1
+ * Handles core functionality, product loading, gallery, and product options
+ * Version: 1.1
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize AOS animation library
-    AOS.init({
-        duration: 800,
-        easing: 'ease',
-        once: true
-    });
+// IIFE to avoid global scope pollution
+const ProductDetails = (() => {
+    // Private variables
+    let currentProduct = null;
+    let isLoading = false;
+    let zoomEnabled = window.innerWidth > 768;
 
-    // ==================
-    // 1. Image Gallery & Zoom Functionality
-    // ==================
-    initImageGallery();
-    initImageZoom();
-
-    // ==================
-    // 2. Quantity Selector
-    // ==================
-    initQuantitySelector();
-
-    // ==================
-    // 3. Size Options
-    // ==================
-    initSizeOptions();
-
-    // ==================
-    // 4. Product Tab Navigation
-    // ==================
-    initProductTabs();
-
-    // ==================
-    // 5. Reviews Functionality
-    // ==================
-    initReviewFunctionality();
-
-    // ==================
-    // 6. Back to Top Button
-    // ==================
-    initBackToTopButton();
-
-    // ==================
-    // 7. Cart Functionality
-    // ==================
-    initCartFunctionality();
-
-    // ==================
-    // 8. Wishlist Functionality
-    // ==================
-    initWishlistFunctionality();
-
-    // ==================
-    // 9. Social Share Functionality
-    // ==================
-    initSocialShareFunctionality();
-});
-
-/**
- * Initialize image gallery with thumbnail selection
- */
-function initImageGallery() {
-    const thumbnails = document.querySelectorAll('.thumbnail');
-    const mainImage = document.getElementById('main-product-image');
-
-    if (!thumbnails.length || !mainImage) return;
-
-    thumbnails.forEach(thumbnail => {
-        thumbnail.addEventListener('click', function() {
-            // Remove active class from all thumbnails
-            thumbnails.forEach(thumb => thumb.classList.remove('active'));
-            
-            // Add active class to clicked thumbnail
-            this.classList.add('active');
-            
-            // Update main image source
-            const imgSrc = this.getAttribute('data-img');
-            if (imgSrc) {
-                mainImage.src = imgSrc;
-                
-                // Also update zoom result background image if zoom is active
-                updateZoomResultBackground(imgSrc);
-            }
-        });
-    });
-}
-
-/**
- * Initialize image zoom functionality
- */
-function initImageZoom() {
-    const mainImage = document.getElementById('main-product-image');
-    const zoomContainer = document.querySelector('.image-zoom-container');
-    const zoomLens = document.querySelector('.zoom-lens');
-    const zoomResult = document.querySelector('.zoom-result');
-
-    if (!mainImage || !zoomContainer || !zoomLens || !zoomResult) return;
-
-    let isZoomActive = false;
-
-    // Calculate zoom ratios based on image and container sizes
-    function calculateZoomRatio() {
-        const zoomResultWidth = zoomResult.offsetWidth;
-        const zoomResultHeight = zoomResult.offsetHeight;
-        const zoomLensWidth = zoomLens.offsetWidth;
-        const zoomLensHeight = zoomLens.offsetHeight;
-        
-        const xRatio = zoomResultWidth / zoomLensWidth;
-        const yRatio = zoomResultHeight / zoomLensHeight;
-        
-        return { xRatio, yRatio };
-    }
-
-    // Update zoom result background based on current main image
-    function updateZoomBackground(x, y, ratio) {
-        const { xRatio, yRatio } = ratio;
-        const backgroundX = -x * xRatio;
-        const backgroundY = -y * yRatio;
-        
-        zoomResult.style.backgroundImage = `url('${mainImage.src}')`;
-        zoomResult.style.backgroundSize = `${mainImage.width * xRatio}px ${mainImage.height * yRatio}px`;
-        zoomResult.style.backgroundPosition = `${backgroundX}px ${backgroundY}px`;
-    }
-
-    // Update zoom result background when main image changes
-    window.updateZoomResultBackground = function(imgSrc) {
-        if (isZoomActive) {
-            zoomResult.style.backgroundImage = `url('${imgSrc}')`;
-        }
+    // Cache DOM elements
+    const elements = {
+        container: document.querySelector('.product-details-section'),
+        gallery: {
+            mainImage: document.querySelector('.main-product-image'),
+            thumbnails: document.querySelector('.thumbnail-gallery'),
+            zoomLens: document.querySelector('.zoom-lens'),
+            zoomResult: document.querySelector('.zoom-result')
+        },
+        info: {
+            title: document.querySelector('.product-title'),
+            price: document.querySelector('.current-price'),
+            oldPrice: document.querySelector('.old-price'),
+            rating: document.querySelector('.rating-stars'),
+            ratingCount: document.querySelector('.rating-count'),
+            stock: document.querySelector('.stock-status'),
+            sku: document.querySelector('.sku-value')
+        },
+        options: {
+            variantsContainer: document.querySelector('.product-variants'),
+            quantityInput: document.querySelector('.quantity-input'),
+            quantityPlus: document.querySelector('.quantity-btn.plus'),
+            quantityMinus: document.querySelector('.quantity-btn.minus')
+        },
+        actions: {
+            addToCart: document.querySelector('.add-to-cart-btn'),
+            wishlist: document.querySelector('.wishlist-btn')
+        },
+        breadcrumb: {
+            category: document.querySelector('.category-link'),
+            product: document.querySelector('.product-name')
+        },
+        loadingOverlay: document.querySelector('.loading-overlay'),
+        errorMessage: document.querySelector('.error-message')
     };
 
-    // Move zoom lens and update zoom result
-    function moveLens(e) {
-        // Prevent any default action
-        e.preventDefault();
-        
-        // Get cursor position
-        let pos = getCursorPos(e);
-        let x = pos.x;
-        let y = pos.y;
-        
-        // Prevent lens from going outside the image
-        if (x > mainImage.width - zoomLens.offsetWidth) x = mainImage.width - zoomLens.offsetWidth;
-        if (x < 0) x = 0;
-        if (y > mainImage.height - zoomLens.offsetHeight) y = mainImage.height - zoomLens.offsetHeight;
-        if (y < 0) y = 0;
-        
-        // Set position of the lens
-        zoomLens.style.left = x + "px";
-        zoomLens.style.top = y + "px";
-        
-        // Update zoom result
-        const ratio = calculateZoomRatio();
-        updateZoomBackground(x, y, ratio);
+    /**
+     * Initialize the product details page
+     */
+    async function init() {
+        try {
+            // Get product ID from URL
+            const productId = getProductIdFromUrl();
+            if (!productId) throw new Error('Product ID not found');
+
+            // Show loading state
+            showLoading(true);
+
+            // Load product data
+            currentProduct = await loadProductData(productId);
+            
+            // Initialize all components
+            initializeProduct();
+            
+            // Hide loading state
+            showLoading(false);
+
+        } catch (error) {
+            console.error('Failed to initialize product page:', error);
+            showError(true);
+        }
     }
 
-    // Get cursor position relative to the image
-    function getCursorPos(e) {
-        let rect = mainImage.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
-        x = x - window.pageXOffset;
-        y = y - window.pageYOffset;
+    /**
+     * Load product data from server
+     * @param {string} productId - The product ID to load
+     * @returns {Promise<Object>} The product data
+     */
+    async function loadProductData(productId) {
+        try {
+            const response = await fetch(`/api/products/${productId}`);
+            if (!response.ok) throw new Error('Product not found');
+            
+            const product = await response.json();
+            return product;
+
+        } catch (error) {
+            throw new Error(`Failed to load product: ${error.message}`);
+        }
+    }
+
+    /**
+     * Initialize all product components with loaded data
+     */
+    function initializeProduct() {
+        if (!currentProduct) return;
+
+        // Update page metadata
+        updateMetadata();
+        
+        // Update breadcrumb
+        updateBreadcrumb();
+        
+        // Initialize gallery
+        initGallery();
+        
+        // Initialize product options
+        initProductOptions();
+        
+        // Initialize quantity selector
+        initQuantitySelector();
+        
+        // Initialize product actions
+        initProductActions();
+        
+        // Update product information
+        updateProductInfo();
+    }
+
+    /**
+     * Initialize the product gallery and zoom functionality
+     */
+    function initGallery() {
+        if (!elements.gallery.mainImage || !currentProduct.images.length) return;
+
+        // Set main image
+        elements.gallery.mainImage.src = currentProduct.images[0].large;
+        elements.gallery.mainImage.alt = currentProduct.name;
+
+        // Create thumbnails
+        const thumbnailsHtml = currentProduct.images.map((image, index) => `
+            <div class="thumbnail ${index === 0 ? 'active' : ''}" 
+                 data-image="${image.large}"
+                 role="button"
+                 tabindex="0"
+                 aria-label="Product image ${index + 1}">
+                <img src="${image.thumbnail}" alt="${currentProduct.name} - View ${index + 1}">
+            </div>
+        `).join('');
+
+        elements.gallery.thumbnails.innerHTML = thumbnailsHtml;
+
+        // Add thumbnail click handlers
+        elements.gallery.thumbnails.querySelectorAll('.thumbnail').forEach(thumb => {
+            thumb.addEventListener('click', handleThumbnailClick);
+            thumb.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleThumbnailClick.call(thumb);
+                }
+            });
+        });
+
+        // Initialize zoom functionality if enabled
+        if (zoomEnabled) {
+            initZoom();
+        }
+    }
+
+    /**
+     * Handle thumbnail click event
+     * @param {Event} e - The click event
+     */
+    function handleThumbnailClick(e) {
+        // Remove active class from all thumbnails
+        elements.gallery.thumbnails.querySelectorAll('.thumbnail')
+            .forEach(thumb => thumb.classList.remove('active'));
+
+        // Add active class to clicked thumbnail
+        this.classList.add('active');
+
+        // Update main image
+        const newImage = this.dataset.image;
+        elements.gallery.mainImage.src = newImage;
+
+        // Update zoom if enabled
+        if (zoomEnabled) {
+            updateZoom();
+        }
+    }
+
+    /**
+     * Initialize zoom functionality
+     */
+    function initZoom() {
+        if (!elements.gallery.zoomLens || !elements.gallery.zoomResult) return;
+
+        const mainImage = elements.gallery.mainImage;
+        const zoomLens = elements.gallery.zoomLens;
+        const zoomResult = elements.gallery.zoomResult;
+
+        mainImage.addEventListener('mousemove', (e) => {
+            e.preventDefault();
+            
+            // Show zoom elements
+            zoomLens.style.display = 'block';
+            zoomResult.style.display = 'block';
+
+            // Calculate zoom
+            const { x, y } = getZoomPosition(e);
+
+            // Update lens position
+            zoomLens.style.left = `${x}px`;
+            zoomLens.style.top = `${y}px`;
+
+            // Update zoom result
+            const cx = zoomResult.offsetWidth / zoomLens.offsetWidth;
+            const cy = zoomResult.offsetHeight / zoomLens.offsetHeight;
+
+            zoomResult.style.backgroundImage = `url(${mainImage.src})`;
+            zoomResult.style.backgroundSize = `${mainImage.width * cx}px ${mainImage.height * cy}px`;
+            zoomResult.style.backgroundPosition = `-${x * cx}px -${y * cy}px`;
+        });
+
+        // Hide zoom on mouse leave
+        mainImage.addEventListener('mouseleave', () => {
+            zoomLens.style.display = 'none';
+            zoomResult.style.display = 'none';
+        });
+    }
+
+    /**
+     * Calculate zoom position
+     * @param {Event} e - Mouse event
+     * @returns {Object} x and y coordinates
+     */
+    function getZoomPosition(e) {
+        const mainImage = elements.gallery.mainImage;
+        const zoomLens = elements.gallery.zoomLens;
+        
+        const rect = mainImage.getBoundingClientRect();
+        let x = e.clientX - rect.left - (zoomLens.offsetWidth / 2);
+        let y = e.clientY - rect.top - (zoomLens.offsetHeight / 2);
+
+        // Boundary checks
+        const maxX = mainImage.width - zoomLens.offsetWidth;
+        const maxY = mainImage.height - zoomLens.offsetHeight;
+
+        x = Math.min(Math.max(0, x), maxX);
+        y = Math.min(Math.max(0, y), maxY);
+
         return { x, y };
     }
 
-    // Show zoom functionality on mouse enter
-    zoomContainer.addEventListener('mouseenter', function() {
-        isZoomActive = true;
-        zoomLens.style.display = 'block';
-        zoomResult.style.display = 'block';
-        
-        // Set initial background image
-        zoomResult.style.backgroundImage = `url('${mainImage.src}')`;
-        
-        // Set initial position
-        const rect = mainImage.getBoundingClientRect();
-        const initialX = rect.width / 2 - zoomLens.offsetWidth / 2;
-        const initialY = rect.height / 2 - zoomLens.offsetHeight / 2;
-        zoomLens.style.left = initialX + "px";
-        zoomLens.style.top = initialY + "px";
-        
-        // Update zoom result
-        const ratio = calculateZoomRatio();
-        updateZoomBackground(initialX, initialY, ratio);
-    });
+    /**
+     * Initialize product options (variants)
+     */
+    function initProductOptions() {
+        if (!currentProduct.variants || !elements.options.variantsContainer) return;
 
-    // Hide zoom functionality on mouse leave
-    zoomContainer.addEventListener('mouseleave', function() {
-        isZoomActive = false;
-        zoomLens.style.display = 'none';
-        zoomResult.style.display = 'none';
-    });
+        // Create HTML for each variant type
+        const variantsHtml = Object.entries(currentProduct.variants).map(([type, options]) => `
+            <div class="variant-group" data-variant-type="${type}">
+                <label class="variant-label">${type}</label>
+                <div class="variant-options">
+                    ${options.map((option, index) => `
+                        <button class="variant-option ${index === 0 ? 'active' : ''} 
+                                ${option.available ? '' : 'disabled'}"
+                                data-variant-id="${option.id}"
+                                ${option.available ? '' : 'disabled'}
+                                aria-label="${option.name}"
+                                title="${option.available ? option.name : 'Out of stock'}">
+                            ${option.name}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
 
-    // Move lens on mouse move
-    zoomContainer.addEventListener('mousemove', moveLens);
-}
+        elements.options.variantsContainer.innerHTML = variantsHtml;
 
-/**
- * Initialize quantity selector with increment/decrement buttons
- */
-function initQuantitySelector() {
-    const quantityInputs = document.querySelectorAll('.quantity-input');
-    
-    quantityInputs.forEach(input => {
-        const minusBtn = input.previousElementSibling;
-        const plusBtn = input.nextElementSibling;
-        
-        if (minusBtn && plusBtn) {
-            // Decrement quantity
-            minusBtn.addEventListener('click', function() {
-                let currentValue = parseInt(input.value);
-                let minValue = parseInt(input.getAttribute('min')) || 1;
-                
-                if (currentValue > minValue) {
-                    input.value = currentValue - 1;
-                    // Trigger change event to update any dependent elements
-                    input.dispatchEvent(new Event('change'));
-                }
-            });
-            
-            // Increment quantity
-            plusBtn.addEventListener('click', function() {
-                let currentValue = parseInt(input.value);
-                let maxValue = parseInt(input.getAttribute('max')) || 99;
-                
-                if (currentValue < maxValue) {
-                    input.value = currentValue + 1;
-                    // Trigger change event to update any dependent elements
-                    input.dispatchEvent(new Event('change'));
-                }
-            });
-            
-            // Validate input on change
-            input.addEventListener('change', function() {
-                let currentValue = parseInt(input.value);
-                let minValue = parseInt(input.getAttribute('min')) || 1;
-                let maxValue = parseInt(input.getAttribute('max')) || 99;
-                
-                if (isNaN(currentValue) || currentValue < minValue) {
-                    input.value = minValue;
-                } else if (currentValue > maxValue) {
-                    input.value = maxValue;
-                }
-            });
-        }
-    });
-}
-
-/**
- * Initialize size options with price updates
- */
-function initSizeOptions() {
-    const sizeButtons = document.querySelectorAll('.size-option .option-btn');
-    const priceElement = document.querySelector('.product-price .current-price');
-    const unitElement = document.querySelector('.product-price .unit');
-    
-    if (!sizeButtons.length || !priceElement || !unitElement) return;
-    
-    sizeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all size buttons
-            sizeButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            // Update price and unit
-            const price = this.getAttribute('data-price');
-            const unit = this.getAttribute('data-unit');
-            
-            if (price) priceElement.textContent = `$${price}`;
-            if (unit) unitElement.textContent = unit;
+        // Add event listeners to variant options
+        elements.options.variantsContainer.querySelectorAll('.variant-option').forEach(option => {
+            option.addEventListener('click', handleVariantSelection);
         });
-    });
-}
+    }
 
-/**
- * Initialize product tabs functionality
- */
-function initProductTabs() {
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-    
-    if (!tabButtons.length || !tabPanes.length) return;
-    
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Get tab ID
-            const tabId = this.getAttribute('data-tab');
-            
-            if (!tabId) return;
-            
-            // Remove active class from all tab buttons and panes
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-            
-            // Add active class to clicked button and corresponding pane
-            this.classList.add('active');
-            document.getElementById(tabId)?.classList.add('active');
-            
-            // Scroll to the tab content if on mobile
-            if (window.innerWidth < 768) {
-                const tabsContent = document.querySelector('.tabs-content');
-                if (tabsContent) {
-                    setTimeout(() => {
-                        tabsContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                }
+    /**
+     * Handle variant selection
+     * @param {Event} e - Click event
+     */
+    function handleVariantSelection(e) {
+        const variantGroup = e.target.closest('.variant-group');
+        
+        // Remove active class from all options in this group
+        variantGroup.querySelectorAll('.variant-option')
+            .forEach(opt => opt.classList.remove('active'));
+
+        // Add active class to selected option
+        e.target.classList.add('active');
+
+        // Update product based on selected variants
+        updateProductVariant();
+    }
+
+    /**
+     * Update product information based on selected variant
+     */
+    function updateProductVariant() {
+        const selectedVariants = {};
+        
+        // Get all selected variants
+        elements.options.variantsContainer.querySelectorAll('.variant-group').forEach(group => {
+            const type = group.dataset.variantType;
+            const selectedOption = group.querySelector('.variant-option.active');
+            if (selectedOption) {
+                selectedVariants[type] = selectedOption.dataset.variantId;
             }
         });
-    });
-}
 
-/**
- * Initialize reviews section functionality
- */
-function initReviewFunctionality() {
-    // Initialize write review button
-    const writeReviewBtn = document.querySelector('.write-review-btn');
-    const reviewFormContainer = document.querySelector('.review-form-container');
-    const reviewForm = document.getElementById('review-form');
-    const cancelReviewBtn = document.querySelector('.cancel-review');
-    const successMessage = document.querySelector('.review-form-container .success-message');
-
-    if (writeReviewBtn && reviewFormContainer) {
-        writeReviewBtn.addEventListener('click', function() {
-            reviewFormContainer.style.display = 'block';
-            reviewFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-    }
-
-    if (cancelReviewBtn && reviewFormContainer) {
-        cancelReviewBtn.addEventListener('click', function() {
-            reviewFormContainer.style.display = 'none';
-        });
-    }
-
-    // Initialize star rating selection in review form
-    const starRating = document.querySelector('.star-rating');
-    const ratingInput = document.getElementById('selected-rating');
-
-    if (starRating && ratingInput) {
-        const stars = starRating.querySelectorAll('i');
-
-        stars.forEach(star => {
-            // Hover effect
-            star.addEventListener('mouseenter', function() {
-                const rating = parseInt(this.getAttribute('data-rating'));
-
-                // Update stars appearance on hover
-                stars.forEach((s, index) => {
-                    if (index < rating) {
-                        s.className = 'fas fa-star';
-                    } else {
-                        s.className = 'far fa-star';
-                    }
-                });
-            });
-
-            // Click to select rating
-            star.addEventListener('click', function() {
-                const rating = parseInt(this.getAttribute('data-rating'));
-                ratingInput.value = rating;
-
-                // Update stars appearance
-                stars.forEach((s, index) => {
-                    if (index < rating) {
-                        s.className = 'fas fa-star';
-                    } else {
-                        s.className = 'far fa-star';
-                    }
-                });
-            });
-        });
-
-        // Reset stars on mouse leave if no rating selected
-        starRating.addEventListener('mouseleave', function() {
-            const currentRating = parseInt(ratingInput.value) || 0;
-
-            stars.forEach((star, index) => {
-                if (index < currentRating) {
-                    star.className = 'fas fa-star';
-                } else {
-                    star.className = 'far fa-star';
-                }
-            });
-        });
-    }
-
-    // Initialize helpful buttons
-    const helpfulButtons = document.querySelectorAll('.helpful-btn');
-
-    helpfulButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Get current count
-            let text = this.textContent.trim();
-            let count = parseInt(text.match(/\d+/)[0]) || 0;
-
-            // Check if button is already active
-            if (this.classList.contains('active')) {
-                // Remove active class and decrease count
-                this.classList.remove('active');
-                count--;
+        // Find matching variant combination
+        const variant = findMatchingVariant(selectedVariants);
+        
+        if (variant) {
+            // Update price
+            elements.info.price.textContent = formatPrice(variant.price);
+            if (variant.oldPrice) {
+                elements.info.oldPrice.textContent = formatPrice(variant.oldPrice);
+                elements.info.oldPrice.style.display = 'inline';
             } else {
-                // Add active class and increase count
-                this.classList.add('active');
-                count++;
+                elements.info.oldPrice.style.display = 'none';
             }
 
-            // Update button text
-            if (this.classList.contains('yes')) {
-                this.innerHTML = `<i class="fas fa-thumbs-up"></i> Yes (${count})`;
-            } else {
-                this.innerHTML = `<i class="fas fa-thumbs-down"></i> No (${count})`;
+            // Update stock status
+            updateStockStatus(variant.stock);
+
+            // Update SKU
+            if (elements.info.sku) {
+                elements.info.sku.textContent = variant.sku;
+            }
+
+            // Enable/disable add to cart button
+            elements.actions.addToCart.disabled = variant.stock === 0;
+        }
+    }
+
+    /**
+     * Initialize quantity selector
+     */
+    function initQuantitySelector() {
+        if (!elements.options.quantityInput) return;
+
+        const input = elements.options.quantityInput;
+        const plus = elements.options.quantityPlus;
+        const minus = elements.options.quantityMinus;
+
+        plus.addEventListener('click', () => {
+            const currentValue = parseInt(input.value);
+            const maxValue = parseInt(input.getAttribute('max')) || 99;
+            if (currentValue < maxValue) {
+                input.value = currentValue + 1;
+                updateQuantityState();
             }
         });
-    });
 
-    // Initialize review filters
-    const sortReviews = document.getElementById('sort-reviews');
-    const filterReviews = document.getElementById('filter-reviews');
-
-    if (sortReviews) {
-        sortReviews.addEventListener('change', function() {
-            // Sort reviews based on selection
-            console.log('Sort reviews by:', this.value);
-        });
-    }
-
-    if (filterReviews) {
-        filterReviews.addEventListener('change', function() {
-            // Filter reviews based on selection
-            console.log('Filter reviews by:', this.value);
-        });
-    }
-
-    // Initialize load more reviews button
-    const loadMoreBtn = document.querySelector('.load-more-reviews');
-
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', function() {
-            console.log('Load more reviews');
-            this.disabled = true;
-            this.textContent = 'Loading...';
-
-            setTimeout(() => {
-                this.textContent = 'No More Reviews';
-            }, 1000);
-        });
-    }
-
-    // Initialize review form submission
-    if (reviewForm) {
-        reviewForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            console.log('Review form submitted');
-
-            if (successMessage) {
-                successMessage.style.display = 'block';
-
-                // Reset form
-                reviewForm.reset();
-
-                // Hide form after delay
-                setTimeout(() => {
-                    reviewFormContainer.style.display = 'none';
-                    successMessage.style.display = 'none';
-                }, 3000);
+        minus.addEventListener('click', () => {
+            const currentValue = parseInt(input.value);
+            const minValue = parseInt(input.getAttribute('min')) || 1;
+            if (currentValue > minValue) {
+                input.value = currentValue - 1;
+                updateQuantityState();
             }
         });
-    }
-}
 
-/**
- * Initialize back to top button functionality
- */
-function initBackToTopButton() {
-    const backToTopBtn = document.getElementById('backToTop');
-    
-    if (!backToTopBtn) return;
-    
-    // Show/hide button based on scroll position
-    window.addEventListener('scroll', function() {
-        if (window.pageYOffset > 300) {
-            backToTopBtn.style.display = 'flex';
-            backToTopBtn.classList.add('show');
-        } else {
-            backToTopBtn.classList.remove('show');
-            setTimeout(() => {
-                if (!backToTopBtn.classList.contains('show')) {
-                    backToTopBtn.style.display = 'none';
-                }
-            }, 300);
+        input.addEventListener('change', () => {
+            let value = parseInt(input.value);
+            const min = parseInt(input.getAttribute('min')) || 1;
+            const max = parseInt(input.getAttribute('max')) || 99;
+
+            value = Math.min(Math.max(value, min), max);
+            input.value = value;
+            updateQuantityState();
+        });
+
+        // Initialize quantity state
+        updateQuantityState();
+    }
+
+    /**
+     * Update quantity selector state
+     */
+    function updateQuantityState() {
+        const input = elements.options.quantityInput;
+        const plus = elements.options.quantityPlus;
+        const minus = elements.options.quantityMinus;
+
+        const currentValue = parseInt(input.value);
+        const minValue = parseInt(input.getAttribute('min')) || 1;
+        const maxValue = parseInt(input.getAttribute('max')) || 99;
+
+        minus.disabled = currentValue <= minValue;
+        plus.disabled = currentValue >= maxValue;
+    }
+
+    /**
+     * Update page metadata
+     */
+    function updateMetadata() {
+        document.title = currentProduct.name;
+        const metaDescription = document.querySelector('meta[name="description"]');
+        if (metaDescription) {
+            metaDescription.setAttribute('content', currentProduct.description);
+        }
+    }
+
+    /**
+     * Update breadcrumb navigation
+     */
+    function updateBreadcrumb() {
+        elements.breadcrumb.product.textContent = currentProduct.name;
+        // Assuming category is available in currentProduct
+        elements.breadcrumb.category.textContent = currentProduct.category;
+    }
+
+    /**
+     * Initialize product actions (like add to cart)
+     */
+    function initProductActions() {
+        elements.actions.addToCart.addEventListener('click', () => {
+            // Logic to add product to cart
+            console.log('Add to cart clicked');
+        });
+        // Add more actions as needed
+    }
+
+    /**
+     * Update product information displayed on the page
+     */
+    function updateProductInfo() {
+        elements.info.title.textContent = currentProduct.name;
+        elements.info.price.textContent = formatPrice(currentProduct.price);
+        elements.info.ratingCount.textContent = currentProduct.ratingCount || 0;
+        elements.info.stock.textContent = currentProduct.stock > 0 ? 'In Stock' : 'Out of Stock';
+        elements.info.sku.textContent = currentProduct.sku || 'N/A';
+    }
+
+    /**
+     * Find matching variant based on selected options
+     * @param {Object} selectedVariants - Selected variant IDs
+     * @returns {Object|null} - Matching variant or null
+     */
+    function findMatchingVariant(selectedVariants) {
+        return currentProduct.variants.find(variant => {
+            return Object.keys(selectedVariants).every(type => {
+                return variant[type] === selectedVariants[type];
+            });
+        }) || null;
+    }
+
+    /**
+     * Update stock status based on selected variant
+     * @param {number} stock - Stock amount
+     */
+    function updateStockStatus(stock) {
+        elements.info.stock.textContent = stock > 0 ? 'In Stock' : 'Out of Stock';
+        elements.actions.addToCart.disabled = stock === 0;
+    }
+
+    // Utility functions
+    function getProductIdFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('id');
+    }
+
+    function showLoading(show) {
+        elements.loadingOverlay.style.display = show ? 'flex' : 'none';
+        isLoading = show;
+    }
+
+    function showError(show) {
+        elements.errorMessage.style.display = show ? 'block' : 'none';
+        elements.container.style.display = show ? 'none' : 'block';
+    }
+
+    function formatPrice(price) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(price);
+    }
+
+    // Event listeners
+    window.addEventListener('resize', () => {
+        zoomEnabled = window.innerWidth > 768;
+        if (zoomEnabled) {
+            initZoom();
         }
     });
-    
-    // Scroll to top when button is clicked
-    backToTopBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-}
 
-/**
- * Initialize cart functionality
- */
-function initCartFunctionality() {
-    const addToCartBtn = document.querySelector('.add-to-cart-btn');
-    
-    if (!addToCartBtn) return;
-    
-    addToCartBtn.addEventListener('click', function() {
-        // Get product details
-        const productTitle = document.querySelector('.product-title').textContent;
-        const productPrice = document.querySelector('.current-price').textContent;
-        const productQuantity = parseInt(document.querySelector('.quantity-input').value) || 1;
-        
-        // Add animation effect
-        this.classList.add('adding');
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-        
-        // Simulate adding to cart (in a real implementation, this would be an AJAX call)
-        setTimeout(() => {
-            // Reset button
-            this.classList.remove('adding');
-            this.innerHTML = '<i class="fas fa-check"></i> Added to Cart';
-            
-            // Update cart counter
-            const cartCount = document.querySelector('.cart-count');
-            if (cartCount) {
-                const currentCount = parseInt(cartCount.textContent) || 0;
-                cartCount.textContent = currentCount + productQuantity;
-                
-                // Add pulse animation to cart icon
-                cartCount.classList.add('pulse');
-                setTimeout(() => {
-                    cartCount.classList.remove('pulse');
-                }, 1000);
-            }
-            
-            // Show success message
-            showNotification(`${productTitle} has been added to your cart`, 'success');
-            
-            // Reset button after delay
-            setTimeout(() => {
-                this.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
-            }, 2000);
-        }, 1000);
-    });
-}
+    // Return public methods
+    return {
+        init,
+        updateProductInfo: updateProductInfo
+    };
+})();
 
-/**
- * Initialize wishlist functionality
- */
-function initWishlistFunctionality() {
-    const wishlistBtn = document.querySelector('.wishlist-btn');
-    
-    if (!wishlistBtn) return;
-    
-    wishlistBtn.addEventListener('click', function() {
-        // Toggle active class
-        this.classList.toggle('active');
-        
-        // Update icon
-        const icon = this.querySelector('i');
-        
-        if (this.classList.contains('active')) {
-            icon.className = 'fas fa-heart';
-            showNotification('Product added to your wishlist', 'success');
-        } else {
-            icon.className = 'far fa-heart';
-            showNotification('Product removed from your wishlist', 'info');
-        }
-    });
-}
-
-/**
- * Initialize social share functionality
- */
-function initSocialShareFunctionality() {
-    const shareButtons = document.querySelectorAll('.share-btn');
-    
-    if (!shareButtons.length) return;
-    
-    shareButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Get current page URL
-            const url = encodeURIComponent(window.location.href);
-            const title = encodeURIComponent(document.title);
-            
-            // Determine which platform was clicked
-            if (this.classList.contains('facebook')) {
-                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, 'facebook-share', 'width=580,height=296');
-            } else if (this.classList.contains('twitter')) {
-                window.open(`https://twitter.com/intent/tweet?text=${title}&url=${url}`, 'twitter-share', 'width=550,height=235');
-            } else if (this.classList.contains('pinterest')) {
-                // Get product image
-                const image = encodeURIComponent(document.querySelector('.main-product-image').src);
-                window.open(`https://pinterest.com/pin/create/button/?url=${url}&media=${image}&description=${title}`, 'pinterest-share', 'width=750,height=350');
-            } else if (this.classList.contains('whatsapp')) {
-                window.open(`https://api.whatsapp.com/send?text=${title} ${url}`, 'whatsapp-share', 'width=580,height=296');
-            } else if (this.classList.contains('email')) {
-                window.location.href = `mailto:?subject=${title}&body=Check out this product: ${url}`;
-            }
-        });
-    });
-}
-
-/**
- * Show notification message
- * @param {string} message - The message to display
- * @param {string} type - The type of notification (success, error, info, warning)
- */
-function showNotification(message, type = 'info') {
-    // Check if a notification container already exists
-    let notificationContainer = document.querySelector('.notification-container');
-    
-    // If not, create one
-    if (!notificationContainer) {
-        notificationContainer = document.createElement('div');
-        notificationContainer.className = 'notification-container';
-        document.body.appendChild(notificationContainer);
-        
-        // Add styles for the notification container
-        notificationContainer.style.position = 'fixed';
-        notificationContainer.style.top = '20px';
-        notificationContainer.style.right = '20px';
-        notificationContainer.style.zIndex = '9999';
-        notificationContainer.style.display = 'flex';
-        notificationContainer.style.flexDirection = 'column';
-        notificationContainer.style.alignItems = 'flex-end';
-    }
-    
-    // Create a new notification
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    
-    // Add styles for the notification
-    notification.style.backgroundColor = type === 'success' ? '#28a745' : 
-                                          type === 'error' ? '#dc3545' : 
-                                          type === 'warning' ? '#ffc107' : '#17a2b8';
-    notification.style.color = type === 'warning' ? '#212529' : '#fff';
-    notification.style.padding = '12px 20px';
-    notification.style.borderRadius = '4px';
-    notification.style.marginBottom = '10px';
-    notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-    notification.style.transform = 'translateX(100%)';
-    notification.style.opacity = '0';
-    notification.style.transition = 'all 0.3s ease-in-out';
-    
-    // Add the notification to the container
-    notificationContainer.appendChild(notification);
-    
-    // Trigger animation
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-        notification.style.opacity = '1';
-    }, 10);
-    
-    // Remove the notification after a delay
-    setTimeout(() => {
-        notification.style.transform = 'translateX(100%)';
-        notification.style.opacity = '0';
-        
-        setTimeout(() => {
-            notification.remove();
-            
-            // Remove the container if it's empty
-            if (notificationContainer.children.length === 0) {
-                notificationContainer.remove();
-            }
-        }, 300);
-    }, 3000);
-}
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', ProductDetails.init);
