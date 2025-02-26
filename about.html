@@ -6,7 +6,7 @@
     <title>About Us - AfriMart Depot | Authentic African & Ghanaian Food</title>
     <meta name="description" content="Learn about AfriMart Depot, our mission, values, and commitment to bringing authentic African and Ghanaian food products to customers worldwide.">
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <link rel="icon" type="image/png" href="images/logo.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
@@ -18,9 +18,6 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/about.css">
-
-
-
 </head>
 <body>
     <!-- Header Section -->
@@ -29,7 +26,7 @@
             <div class="header-wrapper">
                 <div class="logo">
                     <a href="index.html">
-                        <img src="assets/images/logo.png" alt="AfriMart Depot Logo">
+                        <img src="images/logo.png" alt="AfriMart Depot Logo">
                     </a>
                 </div>
                 <nav class="nav-menu">
@@ -83,208 +80,166 @@
         </div>
     </div>
 
-    <!-- Page Title Banner -->
-    <section class="page-title-section">
+    <!-- Hero Banner Section with Parallax -->
+    <section class="about-hero-section parallax-window" data-parallax="scroll" data-image-src="images/wele-design.webp">
         <div class="container">
-            <div class="page-title-content">
-                <h1>About Us</h1>
-                <div class="breadcrumb">
-                    <a href="index.html">Home</a>
-                    <span class="separator">/</span>
-                    <span class="current">About Us</span>
+            <div class="about-hero-content" data-aos="fade-up">
+                <h1>Our Story</h1>
+                <p>Bringing authentic African flavors to your doorstep since 2015</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Introduction Section -->
+    <section class="video-section section-padding">
+        <div class="container">
+            <div class="video-wrapper" data-aos="zoom-in">
+                <div class="video-container">
+                    <img src="images/about-store.jpg" alt="AfriMart Depot Store" class="video-placeholder">
+                    <button class="play-button" id="playVideo" aria-label="Play video">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <div class="video-text" data-aos="fade-up">
+                    <h2>AfriMart Depot</h2>
+                    <p>We're passionate about bringing the rich flavors of Africa to food enthusiasts worldwide, providing authentic African and Ghanaian products sourced directly from trusted local suppliers.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Our Story Section -->
-    <section class="story-section section-padding">
-        <div class="container">
-            <div class="story-wrapper">
-                <div class="story-content" data-aos="fade-right">
-                    <div class="section-header text-left">
-                        <h2>Our Story</h2>
-                    </div>
-                    <p>AfriMart Depot was born out of a passion for African cuisine and a desire to share the rich culinary heritage of Ghana and West Africa with the world. Our journey began in 2015 when our founder, Adwoa Mensah, moved to London and struggled to find authentic ingredients for her favorite dishes from home.</p>
-                    <p>What started as small care packages from family back in Ghana quickly grew into a mission to create a reliable source for authentic African foods that would bring the tastes of home to the diaspora community and introduce these incredible flavors to food enthusiasts everywhere.</p>
-                    <p>Over the years, we've grown from a small market stall in East London to an established online store with global shipping, but our commitment remains the same: providing the highest quality African ingredients with the authenticity and spirit of the continent in every product.</p>
-                    <blockquote class="founder-quote">
-                        <p>"Food is not just sustenance; it's a bridge that connects us to our heritage, our memories, and each other. Our mission at AfriMart Depot is to strengthen those connections through authentic flavors that tell the story of Africa."</p>
-                        <cite>— Adwoa Mensah, Founder</cite>
-                    </blockquote>
-                </div>
-                <div class="story-image" data-aos="fade-left">
-                    <img src="assets/images/about/our-story.jpg" alt="AfriMart Depot Founder">
-                    <div class="experience-badge">
-                        <span class="years">10+</span>
-                        <span class="text">Years of Excellence</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Mission & Values Section -->
-    <section class="mission-section section-padding bg-light">
+    <!-- Image Gallery Section -->
+    <section class="gallery-section section-padding bg-light">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
-                <h2>Our Mission & Values</h2>
-                <p>Guided by our passion for African cuisine and commitment to quality</p>
+                <h2>Our Journey</h2>
+                <p>From humble beginnings to your table</p>
             </div>
-            <div class="mission-content" data-aos="fade-up" data-aos-delay="200">
-                <div class="mission-block">
-                    <h3>Our Mission</h3>
-                    <p>To bring the authentic flavors of Africa to kitchens around the world by providing high-quality, ethically sourced African food products while promoting the rich culinary heritage of the continent.</p>
+            <div class="gallery-grid">
+                <div class="gallery-item large" data-aos="fade-right">
+                    <img src="images/herbs.png" alt="Authentic African Ingredients">
+                    <div class="gallery-caption">
+                        <h3>Authentic Ingredients</h3>
+                    </div>
+                </div>
+                <div class="gallery-item" data-aos="fade-up">
+                    <img src="images/fresh-octopus.jpg" alt="Premium Quality">
+                    <div class="gallery-caption">
+                        <h3>Premium Quality</h3>
+                    </div>
+                </div>
+                <div class="gallery-item" data-aos="fade-up" data-aos-delay="100">
+                    <img src="images/wele.jpg" alt="Traditional Recipes">
+                    <div class="gallery-caption">
+                        <h3>Traditional Products</h3>
+                    </div>
+                </div>
+                <div class="gallery-item" data-aos="fade-up" data-aos-delay="200">
+                    <img src="images/dry-meat.jpg" alt="Direct Sourcing">
+                    <div class="gallery-caption">
+                        <h3>Direct Sourcing</h3>
+                    </div>
+                </div>
+                <div class="gallery-item large" data-aos="fade-left">
+                    <img src="images/specialty.webp" alt="Global Delivery">
+                    <div class="gallery-caption">
+                        <h3>Global Delivery</h3>
+                    </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Our Values Section -->
+    <section class="values-section section-padding">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>Our Values</h2>
+                <p>The principles that guide us every day</p>
+            </div>
             <div class="values-grid">
-                <div class="value-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="value-card" data-aos="flip-left" data-aos-delay="100">
                     <div class="value-icon">
                         <i class="fas fa-certificate"></i>
                     </div>
                     <h3>Authenticity</h3>
-                    <p>We are committed to providing truly authentic African food products, with traditional preparation methods and original recipes.</p>
+                    <p>Providing truly authentic African food products</p>
                 </div>
-                <div class="value-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="value-card" data-aos="flip-left" data-aos-delay="200">
                     <div class="value-icon">
                         <i class="fas fa-award"></i>
                     </div>
                     <h3>Quality</h3>
-                    <p>We maintain the highest standards for every product in our collection, carefully selecting and examining each item before it reaches our customers.</p>
+                    <p>Maintaining the highest standards for every product</p>
                 </div>
-                <div class="value-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="value-card" data-aos="flip-left" data-aos-delay="300">
                     <div class="value-icon">
                         <i class="fas fa-handshake"></i>
                     </div>
                     <h3>Community</h3>
-                    <p>We believe in supporting local communities in Africa by working directly with small-scale farmers and producers, ensuring fair compensation.</p>
+                    <p>Supporting local farmers and producers in Africa</p>
                 </div>
-                <div class="value-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="value-card" data-aos="flip-left" data-aos-delay="400">
                     <div class="value-icon">
                         <i class="fas fa-leaf"></i>
                     </div>
                     <h3>Sustainability</h3>
-                    <p>We are committed to environmentally responsible practices, from sourcing to packaging, minimizing our ecological footprint.</p>
+                    <p>Committed to environmentally responsible practices</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Our Team Section -->
-    <section class="team-section section-padding">
+    <!-- Meet Our Team Section -->
+    <section class="team-section section-padding bg-light">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
-                <h2>Meet Our Team</h2>
+                <h2>Meet The Founders</h2>
                 <p>The passionate individuals behind AfriMart Depot</p>
             </div>
             <div class="team-grid">
                 <div class="team-member" data-aos="fade-up" data-aos-delay="100">
-                    <div class="member-image">
-                        <img src="assets/images/about/team-1.jpg" alt="Adwoa Mensah">
-                    </div>
-                    <div class="member-info">
-                        <h3>Adwoa Mensah</h3>
-                        <p class="member-role">Founder & CEO</p>
-                        <p class="member-bio">Born and raised in Accra, Ghana, Adwoa brings her passion for authentic African cuisine and business acumen to lead AfriMart Depot.</p>
-                        <div class="member-social">
-                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
+                    <div class="member-card">
+                        <div class="member-front">
+                            <div class="member-image">
+                                <img src="images/michael-medie.jpg" alt="Michael Medie">
+                            </div>
+                            <div class="member-info">
+                                <h3>Michael Medie</h3>
+                                <p class="member-role">Co-Founder & CEO</p>
+                            </div>
+                        </div>
+                        <div class="member-back">
+                            <div class="member-bio">
+                                <p>Michael brings years of experience in food sourcing and business development, ensuring that AfriMart Depot delivers only the highest quality African products to our customers.</p>
+                                <div class="member-social">
+                                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="team-member" data-aos="fade-up" data-aos-delay="200">
-                    <div class="member-image">
-                        <img src="assets/images/about/team-2.jpg" alt="Kwame Osei">
-                    </div>
-                    <div class="member-info">
-                        <h3>Kwame Osei</h3>
-                        <p class="member-role">Head of Sourcing</p>
-                        <p class="member-bio">With over 15 years in food sourcing, Kwame ensures that every product meets our strict quality and authenticity standards.</p>
-                        <div class="member-social">
-                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="team-member" data-aos="fade-up" data-aos-delay="300">
-                    <div class="member-image">
-                        <img src="assets/images/about/team-3.jpg" alt="Sarah Johnson">
-                    </div>
-                    <div class="member-info">
-                        <h3>Sarah Johnson</h3>
-                        <p class="member-role">Customer Experience Manager</p>
-                        <p class="member-bio">Sarah ensures that every customer interaction with AfriMart Depot is exceptional, from browsing to delivery.</p>
-                        <div class="member-social">
-                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="team-member" data-aos="fade-up" data-aos-delay="400">
-                    <div class="member-image">
-                        <img src="assets/images/about/team-4.jpg" alt="Kofi Addo">
-                    </div>
-                    <div class="member-info">
-                        <h3>Kofi Addo</h3>
-                        <p class="member-role">Head Chef & Food Educator</p>
-                        <p class="member-bio">A trained chef with a specialty in West African cuisine, Kofi develops recipes and educates customers on traditional cooking methods.</p>
-                        <div class="member-social">
-                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Sourcing & Authenticity Section -->
-    <section class="sourcing-section section-padding bg-light">
-        <div class="container">
-            <div class="sourcing-wrapper">
-                <div class="sourcing-image" data-aos="fade-right">
-                    <img src="assets/images/about/sourcing.jpg" alt="Sourcing in Africa">
-                </div>
-                <div class="sourcing-content" data-aos="fade-left">
-                    <div class="section-header text-left">
-                        <h2>Our Sourcing & Authenticity Commitment</h2>
-                    </div>
-                    <p>At AfriMart Depot, we are deeply committed to the authenticity and quality of every product we offer. Our sourcing process is built on direct relationships with farmers and producers across Ghana and other parts of Africa.</p>
-                    <div class="sourcing-features">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-users"></i>
+                    <div class="member-card">
+                        <div class="member-front">
+                            <div class="member-image">
+                                <img src="images/christiana-medie.jpg" alt="Christiana Medie">
                             </div>
-                            <div class="feature-content">
-                                <h4>Direct Partnerships</h4>
-                                <p>We work directly with local farmers and artisanal producers, cutting out middlemen and ensuring fair compensation.</p>
+                            <div class="member-info">
+                                <h3>Christiana Medie</h3>
+                                <p class="member-role">Co-Founder & Creative Director</p>
                             </div>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="feature-content">
-                                <h4>Quality Control</h4>
-                                <p>Every product undergoes rigorous quality checks before being approved for our collection.</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            <div class="feature-content">
-                                <h4>Traditional Methods</h4>
-                                <p>We prioritize products made using traditional processing methods to preserve authentic flavors and cultural significance.</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-seedling"></i>
-                            </div>
-                            <div class="feature-content">
-                                <h4>Sustainable Practices</h4>
-                                <p>We partner with suppliers who implement sustainable farming and production practices.</p>
+                        <div class="member-back">
+                            <div class="member-bio">
+                                <p>With a deep passion for African cuisine and culture, Christiana leads our product curation and creative direction, ensuring authentic flavors and experiences for our customers.</p>
+                                <div class="member-social">
+                                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -293,66 +248,217 @@
         </div>
     </section>
 
-    <!-- African Cuisine Section -->
-    <section class="cuisine-section section-padding">
+    <!-- Interactive Map Section -->
+    <section class="map-section section-padding">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
-                <h2>African Cuisine: A Culinary Journey</h2>
-                <p>Discover the rich flavors and traditions of Ghanaian and African cooking</p>
+                <h2>Our Global Reach</h2>
+                <p>Delivering authentic African flavors worldwide</p>
             </div>
-            <div class="cuisine-content" data-aos="fade-up" data-aos-delay="200">
-                <p class="intro-text">African cuisine, particularly Ghanaian food, is characterized by its bold flavors, nutritious ingredients, and cultural significance. Each dish tells a story of tradition, community, and the abundant natural resources of the continent.</p>
-            </div>
-            <div class="cuisine-grid">
-                <div class="cuisine-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="cuisine-image">
-                        <img src="assets/images/about/cuisine-1.jpg" alt="Diverse Ingredients">
+            <div class="map-wrapper" data-aos="zoom-in">
+                <div class="map-container">
+                    <img src="images/world-map.jpg" alt="World Map" class="world-map">
+                    <div class="map-marker us active" data-location="usa">
+                        <div class="marker-dot"></div>
+                        <div class="marker-pulse"></div>
                     </div>
-                    <div class="cuisine-info">
-                        <h3>Diverse Ingredients</h3>
-                        <p>African cuisine uses a wide variety of ingredients including nutrient-rich grains like millet and fonio, starchy tubers like yam and cassava, and an array of vegetables, legumes, and proteins.</p>
+                    <div class="map-marker uk" data-location="uk">
+                        <div class="marker-dot"></div>
+                        <div class="marker-pulse"></div>
                     </div>
-                </div>
-                <div class="cuisine-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="cuisine-image">
-                        <img src="assets/images/about/cuisine-2.jpg" alt="Bold Flavors">
+                    <div class="map-marker ghana" data-location="ghana">
+                        <div class="marker-dot"></div>
+                        <div class="marker-pulse"></div>
                     </div>
-                    <div class="cuisine-info">
-                        <h3>Bold Flavors</h3>
-                        <p>The distinct flavors of African cooking come from aromatic spices, herbs, and fermented ingredients. Dishes often balance spiciness, smokiness, and umami with natural sweetness.</p>
+                    <div class="map-marker canada" data-location="canada">
+                        <div class="marker-dot"></div>
+                        <div class="marker-pulse"></div>
                     </div>
                 </div>
-                <div class="cuisine-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="cuisine-image">
-                        <img src="assets/images/about/cuisine-3.jpg" alt="Traditional Techniques">
+                <div class="map-info" id="mapInfo">
+                    <div class="location-info usa active">
+                        <h3>United States</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> 8907 Patterson Avenue, Richmond, Virginia, 23229</p>
+                        <p><i class="fas fa-phone"></i> +(804) 806-0130</p>
                     </div>
-                    <div class="cuisine-info">
-                        <h3>Traditional Techniques</h3>
-                        <p>Many traditional cooking methods, such as slow-cooking stews, smoking fish, or fermenting grains, have been passed down through generations, preserving the authentic taste of recipes.</p>
+                    <div class="location-info uk">
+                        <h3>United Kingdom</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Distribution Center</p>
+                        <p><i class="fas fa-globe"></i> Serving all of Europe</p>
+                    </div>
+                    <div class="location-info ghana">
+                        <h3>Ghana</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Sourcing Headquarters</p>
+                        <p><i class="fas fa-people-carry"></i> Working with local farmers</p>
+                    </div>
+                    <div class="location-info canada">
+                        <h3>Canada</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Distribution Partner</p>
+                        <p><i class="fas fa-shipping-fast"></i> Fast shipping nationwide</p>
                     </div>
                 </div>
-                <div class="cuisine-card" data-aos="fade-up" data-aos-delay="400">
-                    <div class="cuisine-image">
-                        <img src="assets/images/about/cuisine-4.jpg" alt="Cultural Significance">
-                    </div>
-                    <div class="cuisine-info">
-                        <h3>Cultural Significance</h3>
-                        <p>Food in African cultures is more than sustenance; it's a central part of celebrations, ceremonies, and daily life, bringing families and communities together.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="cuisine-cta" data-aos="fade-up">
-                <p>Ready to explore African cuisine in your own kitchen?</p>
-                <a href="blog.html" class="btn btn-primary">Explore Our Recipes</a>
             </div>
         </div>
     </section>
-   <!-- CTA Section -->
-    <section class="cta-section parallax-window" data-parallax="scroll" data-image-src="assets/images/cta-bg.jpg">
+
+    <!-- Testimonials Carousel Section -->
+    <section class="testimonial-section section-padding bg-light">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>What People Say</h2>
+                <p>Feedback from our valued customers</p>
+            </div>
+            <div class="testimonial-carousel" data-aos="fade-up">
+                <div class="testimonial-track">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <p>"AfriMart Depot's products have transformed my cooking. The authenticity and quality are unmatched!"</p>
+                            <div class="testimonial-author">
+                                <div class="author-image">
+                                    <img src="images/testimonial-1.jpg" alt="Sarah J.">
+                                </div>
+                                <div class="author-info">
+                                    <h4>Sarah J.</h4>
+                                    <p>New York, USA</p>
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <p>"As a chef, I need authentic ingredients, and AfriMart Depot consistently delivers the highest quality products for my restaurant."</p>
+                            <div class="testimonial-author">
+                                <div class="author-image">
+                                    <img src="images/testimonial-2.jpg" alt="Chef Maria">
+                                </div>
+                                <div class="author-info">
+                                    <h4>Chef Maria R.</h4>
+                                    <p>Toronto, Canada</p>
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <p>"The palm oil from AfriMart Depot brings me right back to my grandmother's kitchen in Ghana. The quality is exceptional!"</p>
+                            <div class="testimonial-author">
+                                <div class="author-image">
+                                    <img src="images/testimonial-3.jpg" alt="Daniel O.">
+                                </div>
+                                <div class="author-info">
+                                    <h4>Daniel O.</h4>
+                                    <p>London, UK</p>
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-nav">
+                    <button class="prev-testimonial" aria-label="Previous testimonial">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="testimonial-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <button class="next-testimonial" aria-label="Next testimonial">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Section with Marquee -->
+    <section class="partners-section section-padding">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>Our Partners</h2>
+                <p>Working together to bring authentic African flavors worldwide</p>
+            </div>
+            <div class="partners-marquee" data-aos="fade-up">
+                <div class="marquee-wrapper">
+                    <div class="marquee-content">
+                        <div class="partner-logo">
+                            <img src="images/partner-1.png" alt="Partner 1">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-2.png" alt="Partner 2">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-3.png" alt="Partner 3">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-4.png" alt="Partner 4">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-5.png" alt="Partner 5">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-6.png" alt="Partner 6">
+                        </div>
+                        <!-- Duplicate for infinite scroll effect -->
+                        <div class="partner-logo">
+                            <img src="images/partner-1.png" alt="Partner 1">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-2.png" alt="Partner 2">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-3.png" alt="Partner 3">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-4.png" alt="Partner 4">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-5.png" alt="Partner 5">
+                        </div>
+                        <div class="partner-logo">
+                            <img src="images/partner-6.png" alt="Partner 6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section with Parallax -->
+    <section class="cta-section parallax-window" data-parallax="scroll" data-image-src="images/wele-design.webp">
         <div class="container">
             <div class="cta-content" data-aos="fade-up">
-                <h2>Ready to Experience Authentic African Flavors?</h2>
-                <p>Shop our collection of premium African and Ghanaian food products and bring the taste of Africa to your kitchen.</p>
+                <h2>Experience Authentic African Flavors</h2>
+                <p>Bring the taste of Africa to your kitchen today</p>
                 <div class="cta-buttons">
                     <a href="shop.html" class="btn btn-primary">Shop Now</a>
                     <a href="contact.html" class="btn btn-secondary">Contact Us</a>
@@ -365,7 +471,7 @@
     <section class="newsletter-section">
         <div class="container">
             <div class="newsletter-content" data-aos="fade-up">
-                <div class="section-header light">
+                <div class="section-header">
                     <h2>Join Our Newsletter</h2>
                     <p>Sign up to receive updates, new recipes, and exclusive offers</p>
                 </div>
@@ -387,113 +493,113 @@
     </section>
 
     <!-- Footer -->
-<footer class="footer">
-    <div class="footer-top">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h3 class="footer-title">Quick Links</h3>
-                    <ul class="footer-menu">
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="shop.html">Shop</a></li>
-                        <li><a href="about.html">About Us</a></li>
-                        <li><a href="blog.html">Blog & Recipes</a></li>
-                        <li><a href="contact.html">Contact Us</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-col">
-                    <h3 class="footer-title">Categories</h3>
-                    <ul class="footer-menu">
-                        <li><a href="shop.html?category=dried-seafood">Dried Seafood</a></li>
-                        <li><a href="shop.html?category=fresh-seafood">Fresh Seafood</a></li>
-                        <li><a href="shop.html?category=spices-herbs">Spices & Herbs</a></li>
-                        <li><a href="shop.html?category=vegetables">Vegetables</a></li>
-                        <li><a href="shop.html?category=snacks">Snacks</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-col">
-                    <h3 class="footer-title">Customer Service</h3>
-                    <ul class="footer-menu">
-                        <li><a href="faq.html">FAQ</a></li>
-                        <li><a href="shipping.html">Shipping & Delivery</a></li>
-                        <li><a href="returns.html">Returns & Refunds</a></li>
-                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
-                        <li><a href="terms.html">Terms & Conditions</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-col">
-                    <h3 class="footer-title">Contact Us</h3>
-                    <ul class="contact-info">
-                        <li>
-                            <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
-                            <span class="text">8907 Patterson Avenue, Richmond, Virginia, 23229</span>
-                        </li>
-                        <li>
-                            <span class="icon"><i class="fas fa-phone-alt"></i></span>
-                            <span class="text"><a href="tel:+18048060130">+(804) 806-0130</a></span>
-                        </li>
-                        <li>
-                            <span class="icon"><i class="fas fa-envelope"></i></span>
-                            <span class="text"><a href="mailto:info@afrimartdepot.com">info@afrimartdepot.com</a></span>
-                        </li>
-                        <li>
-                            <span class="icon"><i class="fas fa-clock"></i></span>
-                            <span class="text">Mon-Fri: 9AM - 6PM</span>
-                        </li>
-                    </ul>
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-col">
+                        <h3 class="footer-title">Quick Links</h3>
+                        <ul class="footer-menu">
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="shop.html">Shop</a></li>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="blog.html">Blog & Recipes</a></li>
+                            <li><a href="contact.html">Contact Us</a></li>
+                        </ul>
+                    </div>
                     
-                    <div class="social-links">
-                        <a href="https://facebook.com/afrimart_depot" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://instagram.com/afrimart_depot" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="https://twitter.com/afrimart_depot" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="https://pinterest.com/afrimart_depot" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                    <div class="footer-col">
+                        <h3 class="footer-title">Categories</h3>
+                        <ul class="footer-menu">
+                            <li><a href="shop.html?category=dried-seafood">Dried Seafood</a></li>
+                            <li><a href="shop.html?category=fresh-seafood">Fresh Seafood</a></li>
+                            <li><a href="shop.html?category=spices-herbs">Spices & Herbs</a></li>
+                            <li><a href="shop.html?category=vegetables">Vegetables</a></li>
+                            <li><a href="shop.html?category=snacks">Snacks</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-col">
+                        <h3 class="footer-title">Customer Service</h3>
+                        <ul class="footer-menu">
+                            <li><a href="faq.html">FAQ</a></li>
+                            <li><a href="shipping.html">Shipping & Delivery</a></li>
+                            <li><a href="returns.html">Returns & Refunds</a></li>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms.html">Terms & Conditions</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-col">
+                        <h3 class="footer-title">Contact Us</h3>
+                        <ul class="contact-info">
+                            <li>
+                                <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                                <span class="text">8907 Patterson Avenue, Richmond, Virginia, 23229</span>
+                            </li>
+                            <li>
+                                <span class="icon"><i class="fas fa-phone-alt"></i></span>
+                                <span class="text"><a href="tel:+18048060130">+(804) 806-0130</a></span>
+                            </li>
+                            <li>
+                                <span class="icon"><i class="fas fa-envelope"></i></span>
+                                <span class="text"><a href="mailto:info@afrimartdepot.com">info@afrimartdepot.com</a></span>
+                            </li>
+                            <li>
+                                <span class="icon"><i class="fas fa-clock"></i></span>
+                                <span class="text">Mon-Fri: 9AM - 6PM</span>
+                            </li>
+                        </ul>
+                        
+                        <div class="social-links">
+                            <a href="https://facebook.com/afrimart_depot" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com/afrimart_depot" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="https://twitter.com/afrimart_depot" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="https://pinterest.com/afrimart_depot" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <div class="footer-middle">
-        <div class="container">
-            <div class="newsletter-box">
-                <div class="newsletter-content">
-                    <h3>Subscribe to Our Newsletter</h3>
-                    <p>Stay updated with new products and exclusive offers</p>
-                </div>
-                <form class="newsletter-form">
-                    <div class="input-group">
-                        <input type="email" placeholder="Your email address" required>
-                        <button type="submit" class="subscribe-btn">Subscribe</button>
+        
+        <div class="footer-middle">
+            <div class="container">
+                <div class="newsletter-box">
+                    <div class="newsletter-content">
+                        <h3>Subscribe to Our Newsletter</h3>
+                        <p>Stay updated with new products and exclusive offers</p>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <div class="footer-bottom">
-        <div class="container">
-            <div class="footer-bottom-content">
-                <div class="copyright">
-                    <p>&copy; 2025 AfriMart Depot. All Rights Reserved.</p>
-                </div>
-                <div class="designer-credit">
-                    <p>Designed by <a href="https://wa.me/233545014267" target="_blank">Patrick Attankurugu</a></p>
-                </div>
-                <div class="payment-methods">
-                    <img src="images/payment-methods.png" alt="Payment Methods">
+                    <form class="newsletter-form">
+                        <div class="input-group">
+                            <input type="email" placeholder="Your email address" required>
+                            <button type="submit" class="subscribe-btn">Subscribe</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
-</footer>
+        
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom-content">
+                    <div class="copyright">
+                        <p>&copy; 2025 AfriMart Depot. All Rights Reserved.</p>
+                    </div>
+                    <div class="designer-credit">
+                        <p>Designed by <a href="https://wa.me/233545014267" target="_blank">Patrick Attankurugu</a></p>
+                    </div>
+                    <div class="payment-methods">
+                        <img src="images/payment-methods.png" alt="Payment Methods">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-<!-- Back to Top Button -->
-<a href="#" class="back-to-top" id="backToTop" aria-label="Back to top">
-    <i class="fas fa-chevron-up"></i>
-</a>
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </a>
 
     <!-- Scripts -->
     <!-- jQuery -->
