@@ -3,6 +3,179 @@
 * Version: 2.0
 */
 
+// API configuration
+const API_BASE_URL = 'https://35.175.245.151/api';
+// Fallback to local development if needed
+// const API_BASE_URL = 'http://localhost:5000/api';
+
+// Common utility functions for API requests
+const ApiService = {
+  /**
+   * Make a GET request to the API
+   * @param {string} endpoint - API endpoint to call
+   * @returns {Promise} - Promise with the response data
+   */
+  get: async function(endpoint) {
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`);
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  },
+  
+  /**
+   * Make a POST request to the API
+   * @param {string} endpoint - API endpoint to call
+   * @param {Object} data - Data to send in the request body
+   * @returns {Promise} - Promise with the response data
+   */
+  post: async function(endpoint, data) {
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
+};
+
+// Cart service to manage shopping cart
+const CartService = {
+  // Key for storing cart in localStorage
+  STORAGE_KEY: 'afrimart_cart',
+  
+  /**
+   * Get current cart from localStorage
+   * @returns {Array} - Array of cart items
+   */
+  getCart: function() {
+    const cart = localStorage.getItem(this.STORAGE_KEY);
+    return cart ? JSON.parse(cart) : [];
+  },
+  
+  /**
+   * Save cart to localStorage
+   * @param {Array} cart - Cart items to save
+   */
+  saveCart: function(cart) {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cart));
+    this.updateCartCount();
+  },
+  
+  /**
+   * Add item to cart
+   * @param {Object} product - Product to add to cart
+   * @param {number} quantity - Quantity to add
+   */
+  addToCart: function(product, quantity = 1) {
+    const cart = this.getCart();
+    
+    // Check if product already exists in cart
+    const existingItemIndex = cart.findIndex(item => item.id === product.id);
+    
+    if (existingItemIndex !== -1) {
+      // Update quantity if product already in cart
+      cart[existingItemIndex].quantity += quantity;
+    } else {
+      // Add new item to cart
+      cart.push({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.image_main,
+        quantity: quantity,
+        unit: product.unit || ''
+      });
+    }
+    
+    this.saveCart(cart);
+    return cart;
+  },
+  
+  /**
+   * Update item quantity in cart
+   * @param {number} productId - Product ID to update
+   * @param {number} quantity - New quantity
+   */
+  updateQuantity: function(productId, quantity) {
+    const cart = this.getCart();
+    const itemIndex = cart.findIndex(item => item.id === productId);
+    
+    if (itemIndex !== -1) {
+      if (quantity > 0) {
+        cart[itemIndex].quantity = quantity;
+      } else {
+        // Remove item if quantity is 0 or negative
+        cart.splice(itemIndex, 1);
+      }
+      
+      this.saveCart(cart);
+    }
+    
+    return cart;
+  },
+  
+  /**
+   * Remove item from cart
+   * @param {number} productId - Product ID to remove
+   */
+  removeItem: function(productId) {
+    const cart = this.getCart();
+    const updatedCart = cart.filter(item => item.id !== productId);
+    this.saveCart(updatedCart);
+    return updatedCart;
+  },
+  
+  /**
+   * Clear entire cart
+   */
+  clearCart: function() {
+    localStorage.removeItem(this.STORAGE_KEY);
+    this.updateCartCount();
+  },
+  
+  /**
+   * Calculate cart subtotal
+   * @returns {number} - Cart subtotal
+   */
+  calculateSubtotal: function() {
+    const cart = this.getCart();
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  },
+  
+  /**
+   * Update cart count in the UI
+   */
+  updateCartCount: function() {
+    const cart = this.getCart();
+    const count = cart.reduce((total, item) => total + item.quantity, 0);
+    
+    // Update all cart count elements
+    document.querySelectorAll('.cart-count').forEach(el => {
+      el.textContent = count;
+    });
+  }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
 
@@ -98,263 +271,89 @@ document.addEventListener('DOMContentLoaded', function() {
       updateHeaderSizing();
     }
   }
-  
-  // Product Slider
-  const productSlider = document.querySelector('.product-slider');
-  
-  if (productSlider) {
-    const sliderWrapper = productSlider.querySelector('.product-slider-wrapper');
-    const slides = productSlider.querySelectorAll('.product-card');
-    const prevButton = productSlider.querySelector('.prev-slide');
-    const nextButton = productSlider.querySelector('.next-slide');
-    
-    if (sliderWrapper && slides.length && prevButton && nextButton) {
-      let currentIndex = 0;
-      const slidesToShow = getSlidesToShow();
-      const totalSlides = slides.length;
-      
-      function getSlidesToShow() {
-        if (window.innerWidth >= 992) {
-          return 4;
-        } else if (window.innerWidth >= 768) {
-          return 2;
-        } else {
-          return 1;
-        }
-      }
-      
-      function updateSliderPosition() {
-        const slideWidth = slides[0].offsetWidth + 30; // Including margin
-        sliderWrapper.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
-      }
-      
-      function goToSlide(index) {
-        currentIndex = Math.max(0, Math.min(index, totalSlides - slidesToShow));
-        updateSliderPosition();
-        
-        // Update button states (optional)
-        prevButton.classList.toggle('disabled', currentIndex === 0);
-        nextButton.classList.toggle('disabled', currentIndex === totalSlides - slidesToShow);
-      }
-      
-      prevButton.addEventListener('click', function() {
-        if (currentIndex > 0) {
-          goToSlide(currentIndex - 1);
-        }
-      });
-      
-      nextButton.addEventListener('click', function() {
-        if (currentIndex < totalSlides - slidesToShow) {
-          goToSlide(currentIndex + 1);
-        }
-      });
-      
-      // Responsive slides
-      window.addEventListener('resize', function() {
-        const newSlidesToShow = getSlidesToShow();
-        if (slidesToShow !== newSlidesToShow) {
-          goToSlide(0);
-        }
-        
-        // Update slider position after resize
-        setTimeout(updateSliderPosition, 100);
-      });
-      
-      // Initialize
-      updateSliderPosition();
-      
-      // Optional: Add touch swipe support for mobile
-      let touchStartX = 0;
-      let touchEndX = 0;
-      
-      sliderWrapper.addEventListener('touchstart', function(e) {
-        touchStartX = e.changedTouches[0].screenX;
-      }, { passive: true });
-      
-      sliderWrapper.addEventListener('touchend', function(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-      }, { passive: true });
-      
-      function handleSwipe() {
-        if (touchEndX < touchStartX - 50) {
-          // Swipe left
-          goToSlide(currentIndex + 1);
-        } else if (touchEndX > touchStartX + 50) {
-          // Swipe right
-          goToSlide(currentIndex - 1);
-        }
-      }
-    }
-  }
-  
-  // Testimonials Slider
-  const testimonialsSlider = document.querySelector('.testimonials-slider');
-  
-  if (testimonialsSlider) {
-    const wrapper = testimonialsSlider.querySelector('.testimonials-wrapper');
-    const cards = testimonialsSlider.querySelectorAll('.testimonial-card');
-    const dots = testimonialsSlider.querySelectorAll('.dot');
-    let currentSlide = 0;
 
-    function updateSlider() {
-      if (window.innerWidth < 769) {
-        wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-      } else {
-        currentSlide = 0; // Reset to the first slide on desktop
-        wrapper.style.transform = 'translateX(0)';
-      }
-      updateDots();
-    }
-    
-    // Add click event to dots
-    dots.forEach((dot, index) => {
-      dot.addEventListener('click', function() {
-        currentSlide = index;
-        updateSlider();
-      });
-    });
-    
-    // Add touch/swipe support
-    let touchStartX = 0;
-    let touchEndX = 0;
-    
-    wrapper.addEventListener('touchstart', function(e) {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-    
-    wrapper.addEventListener('touchend', function(e) {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    }, { passive: true });
-    
-    function handleSwipe() {
-      const threshold = 50;
-      
-      if (touchEndX < touchStartX - threshold && currentSlide < cards.length - 1) {
-        // Swipe left - next slide
-        currentSlide++;
-        updateSlider();
-      } else if (touchEndX > touchStartX + threshold && currentSlide > 0) {
-        // Swipe right - previous slide
-        currentSlide--;
-        updateSlider();
-      }
-    }
-
-    window.addEventListener('resize', updateSlider);
-    updateSlider(); // Call initially to set the correct state
-
-    function updateDots() {
-      dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentSlide);
-      });
-    }
-  }
-  
-  // Countdown Timer
-  const countdownTimer = document.querySelector('.countdown-timer');
-  
-  if (countdownTimer) {
-    const daysElement = countdownTimer.querySelector('.days');
-    const hoursElement = countdownTimer.querySelector('.hours');
-    const minutesElement = countdownTimer.querySelector('.minutes');
-    const secondsElement = countdownTimer.querySelector('.seconds');
-    
-    // Set the date we're counting down to (3 days from now)
-    const now = new Date();
-    const countDownDate = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
-    
-    function updateCountdown() {
-      // Get current date and time
-      const now = new Date().getTime();
-      
-      // Find the distance between now and the countdown date
-      const distance = countDownDate - now;
-      
-      // Time calculations for days, hours, minutes and seconds
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-      
-      // Display the result
-      daysElement.textContent = String(days).padStart(2, '0');
-      hoursElement.textContent = String(hours).padStart(2, '0');
-      minutesElement.textContent = String(minutes).padStart(2, '0');
-      secondsElement.textContent = String(seconds).padStart(2, '0');
-      
-      // If the countdown is over, clear interval
-      if (distance < 0) {
-        clearInterval(countdownInterval);
-        daysElement.textContent = '00';
-        hoursElement.textContent = '00';
-        minutesElement.textContent = '00';
-        secondsElement.textContent = '00';
-      }
-    }
-    
-    // Initialize countdown
-    updateCountdown();
-    
-    // Update the countdown every 1 second
-    const countdownInterval = setInterval(updateCountdown, 1000);
-  }
+  // Update cart count on page load
+  CartService.updateCartCount();
   
   // Add to Cart Functionality
   const addToCartButtons = document.querySelectorAll('.add-to-cart');
-  const cartCount = document.querySelector('.cart-count');
   
-  if (addToCartButtons.length && cartCount) {
+  if (addToCartButtons.length) {
     // Get initial count from localStorage or default to 0
-    let count = parseInt(localStorage.getItem('cartCount') || '0');
+    let count = CartService.getCart().reduce((total, item) => total + item.quantity, 0);
     
     // Update cart count display initially
-    cartCount.textContent = count;
+    document.querySelectorAll('.cart-count').forEach(el => {
+      el.textContent = count;
+    });
     
     addToCartButtons.forEach(button => {
       button.addEventListener('click', function() {
-        count++;
-        cartCount.textContent = count;
+        // Get product information from data attributes or parent elements
+        const productCard = this.closest('.product-card');
         
-        // Save to localStorage
-        localStorage.setItem('cartCount', count.toString());
-        
-        // Add animation effect
-        const originalText = button.textContent;
-        button.innerHTML = '<i class="fas fa-check"></i> Added!';
-        button.classList.add('added');
-        
-        setTimeout(() => {
-          button.innerHTML = originalText;
-          button.classList.remove('added');
-        }, 1500);
-        
-        // Optional: Show mini cart notification
-        showCartNotification();
+        if (productCard) {
+          const productId = parseInt(productCard.dataset.productId || productCard.dataset.id || 0);
+          const productTitle = productCard.querySelector('.product-title a').textContent;
+          const productPrice = parseFloat(productCard.querySelector('.price').textContent.replace('$', ''));
+          const productImage = productCard.querySelector('.product-image img').src;
+          const productUnit = productCard.querySelector('.unit')?.textContent || '';
+          
+          // Add to cart
+          const product = {
+            id: productId,
+            title: productTitle,
+            price: productPrice,
+            image_main: productImage,
+            unit: productUnit
+          };
+          
+          CartService.addToCart(product);
+          
+          // Update UI
+          count = CartService.getCart().reduce((total, item) => total + item.quantity, 0);
+          document.querySelectorAll('.cart-count').forEach(el => {
+            el.textContent = count;
+          });
+          
+          // Add animation effect
+          const originalText = button.textContent;
+          button.innerHTML = '<i class="fas fa-check"></i> Added!';
+          button.classList.add('added');
+          
+          setTimeout(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('added');
+          }, 1500);
+          
+          // Show mini cart notification
+          showCartNotification(productTitle);
+        }
       });
     });
+  }
+  
+  function showCartNotification(productName) {
+    // Check if notification already exists
+    let notification = document.querySelector('.cart-notification');
     
-    function showCartNotification() {
-      // Check if notification already exists
-      let notification = document.querySelector('.cart-notification');
-      
-      if (!notification) {
-        // Create notification if it doesn't exist
-        notification = document.createElement('div');
-        notification.className = 'cart-notification';
-        notification.innerHTML = '<i class="fas fa-check-circle"></i> Item added to cart';
-        document.body.appendChild(notification);
-      }
-      
-      // Show notification
-      notification.classList.add('active');
-      
-      // Hide after 3 seconds
-      setTimeout(() => {
-        notification.classList.remove('active');
-      }, 3000);
+    if (!notification) {
+      // Create notification if it doesn't exist
+      notification = document.createElement('div');
+      notification.className = 'cart-notification';
+      notification.innerHTML = `<i class="fas fa-check-circle"></i> ${productName} added to cart`;
+      document.body.appendChild(notification);
+    } else {
+      notification.innerHTML = `<i class="fas fa-check-circle"></i> ${productName} added to cart`;
     }
+    
+    // Show notification
+    notification.classList.add('active');
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+      notification.classList.remove('active');
+    }, 3000);
   }
   
   // Newsletter Form Submission
@@ -503,6 +502,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+  // Expose global utilities and services
+  window.ApiService = ApiService;
+  window.CartService = CartService;
+  
   // Add CSS for cart notification
   const style = document.createElement('style');
   style.textContent = `
@@ -510,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function() {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: var(--primary-color);
+      background-color: var(--primary-color, #28a745);
       color: white;
       padding: 12px 20px;
       border-radius: 8px;
