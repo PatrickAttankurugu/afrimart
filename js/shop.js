@@ -1,18 +1,20 @@
 /*
 * AfriMart Depot - Shop Page JavaScript
-* Version: 1.0
+* Version: 2.0
 */
 
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
 
   // Initialize AOS Animation
-  AOS.init({
-    duration: 800,
-    easing: 'ease-in-out',
-    once: true,
-    mirror: false
-  });
+  if (typeof AOS !== 'undefined') {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-in-out',
+      once: true,
+      mirror: false
+    });
+  }
 
   // State Management
   const state = {
@@ -121,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         params.append('search', searchQuery);
       }
       
-      // Make API request
+      // Make API request using the ApiService
       const response = await window.ApiService.get(`/products?${params.toString()}`);
       
       if (response.success) {
@@ -143,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Fetch all categories from the API
   async function fetchCategories() {
     try {
-      // Make API request
+      // Make API request using ApiService
       const response = await window.ApiService.get('/categories');
       
       if (response.success) {
@@ -396,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       `;
       
-      // Fetch product details
+      // Fetch product details using ApiService
       const response = await window.ApiService.get(`/products/${productSlug}`);
       
       if (response.success) {
@@ -662,8 +664,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Style the toast
     toast.style.backgroundColor = type === 'success' ? '#28a745' : 
-                                type === 'error' ? '#dc3545' : 
-                                type === 'warning' ? '#ffc107' : '#17a2b8';
+                              type === 'error' ? '#dc3545' : 
+                              type === 'warning' ? '#ffc107' : '#17a2b8';
     toast.style.color = type === 'warning' ? '#212529' : '#fff';
     toast.style.padding = '12px 20px';
     toast.style.borderRadius = '4px';
@@ -777,19 +779,16 @@ document.addEventListener('DOMContentLoaded', function() {
       state.priceRange.min = minPrice;
       state.priceRange.max = maxPrice;
       
-      // Filter products by price (client-side for now, could be API-based in future)
-      const filteredProducts = state.products.filter(product => {
-        return product.price >= minPrice && product.price <= maxPrice;
-      });
+      // Add price range to URL parameters for API request
+      const params = new URLSearchParams(window.location.search);
+      params.set('min_price', minPrice);
+      params.set('max_price', maxPrice);
       
-      // Update state with filtered products
-      state.products = filteredProducts;
-      renderProducts();
+      // Update browser URL without reload
+      window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
       
-      // Update results count
-      updateResultsCount();
-      
-      showToast(`Showing products between $${minPrice} and $${maxPrice}`, 'success');
+      // Fetch products with filters
+      fetchProducts();
     });
   }
 
@@ -811,7 +810,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Load More Products (simulated for now)
+  // Load More Products
   if (loadMoreBtn) {
     loadMoreBtn.addEventListener('click', function() {
       this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
@@ -858,6 +857,12 @@ document.addEventListener('DOMContentLoaded', function() {
     await fetchProducts();
   }
 
-  // Start initialization
-  initPage();
+  // Check if ApiService is available
+  if (window.ApiService) {
+    // Start initialization
+    initPage();
+  } else {
+    console.error('ApiService not found. Make sure api-service.js is loaded before shop.js');
+    showError('Could not connect to product service. Please try again later.');
+  }
 });

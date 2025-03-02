@@ -59,7 +59,7 @@ const ProductDetails = (() => {
             // Show loading state
             showLoading(true);
 
-            // Load product data
+            // Load product data from API
             currentProduct = await loadProductData(productSlug);
             
             // Initialize all components
@@ -81,6 +81,11 @@ const ProductDetails = (() => {
      */
     async function loadProductData(productSlug) {
         try {
+            // Check if ApiService is available
+            if (!window.ApiService) {
+                throw new Error('API service not available');
+            }
+            
             const response = await window.ApiService.get(`/products/${productSlug}`);
             
             if (!response.success) {
@@ -524,10 +529,17 @@ const ProductDetails = (() => {
                 if (currentProduct.stock <= 0) return;
                 
                 const quantity = parseInt(elements.options.quantityInput.value) || 1;
-                window.CartService.addToCart(currentProduct, quantity);
                 
-                // Show success message
-                showSuccessModal(currentProduct.title, quantity);
+                // Check if CartService is available
+                if (window.CartService) {
+                    window.CartService.addToCart(currentProduct, quantity);
+                    
+                    // Show success message
+                    showSuccessModal(currentProduct.title, quantity);
+                } else {
+                    console.error('CartService not available');
+                    showToast('Unable to add to cart. Please try again later.', 'error');
+                }
             });
         }
         
@@ -606,7 +618,7 @@ const ProductDetails = (() => {
                     // Find this product in related products
                     const product = currentProduct.related_products.find(p => p.id === productId);
                     
-                    if (product) {
+                    if (product && window.CartService) {
                         window.CartService.addToCart(product);
                         
                         // Update UI
@@ -823,4 +835,19 @@ const ProductDetails = (() => {
 })();
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', ProductDetails.init);
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if ApiService is available
+    if (window.ApiService) {
+        ProductDetails.init();
+    } else {
+        console.error('ApiService not available. Make sure api-service.js is loaded before product-details.js');
+        if (document.querySelector('.loading-overlay')) {
+            document.querySelector('.loading-overlay').style.display = 'none';
+        }
+        if (document.querySelector('.error-message')) {
+            const errorMessage = document.querySelector('.error-message');
+            errorMessage.querySelector('p').textContent = 'Could not connect to product service. Please try again later.';
+            errorMessage.hidden = false;
+        }
+    }
+});
