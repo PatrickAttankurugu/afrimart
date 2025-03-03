@@ -1,180 +1,7 @@
 /*
 * AfriMart Depot - Main JavaScript
-* Version: 2.0
+* Version: 2.1
 */
-
-// API configuration
-const API_BASE_URL = 'https://35.175.245.151/api';
-// Fallback to local development if needed
-// const API_BASE_URL = 'http://localhost:5000/api';
-
-// Common utility functions for API requests
-const ApiService = {
-  /**
-   * Make a GET request to the API
-   * @param {string} endpoint - API endpoint to call
-   * @returns {Promise} - Promise with the response data
-   */
-  get: async function(endpoint) {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`);
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
-    }
-  },
-  
-  /**
-   * Make a POST request to the API
-   * @param {string} endpoint - API endpoint to call
-   * @param {Object} data - Data to send in the request body
-   * @returns {Promise} - Promise with the response data
-   */
-  post: async function(endpoint, data) {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
-    }
-  }
-};
-
-// Cart service to manage shopping cart
-const CartService = {
-  // Key for storing cart in localStorage
-  STORAGE_KEY: 'afrimart_cart',
-  
-  /**
-   * Get current cart from localStorage
-   * @returns {Array} - Array of cart items
-   */
-  getCart: function() {
-    const cart = localStorage.getItem(this.STORAGE_KEY);
-    return cart ? JSON.parse(cart) : [];
-  },
-  
-  /**
-   * Save cart to localStorage
-   * @param {Array} cart - Cart items to save
-   */
-  saveCart: function(cart) {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cart));
-    this.updateCartCount();
-  },
-  
-  /**
-   * Add item to cart
-   * @param {Object} product - Product to add to cart
-   * @param {number} quantity - Quantity to add
-   */
-  addToCart: function(product, quantity = 1) {
-    const cart = this.getCart();
-    
-    // Check if product already exists in cart
-    const existingItemIndex = cart.findIndex(item => item.id === product.id);
-    
-    if (existingItemIndex !== -1) {
-      // Update quantity if product already in cart
-      cart[existingItemIndex].quantity += quantity;
-    } else {
-      // Add new item to cart
-      cart.push({
-        id: product.id,
-        title: product.title,
-        price: product.price,
-        image: product.image_main,
-        quantity: quantity,
-        unit: product.unit || ''
-      });
-    }
-    
-    this.saveCart(cart);
-    return cart;
-  },
-  
-  /**
-   * Update item quantity in cart
-   * @param {number} productId - Product ID to update
-   * @param {number} quantity - New quantity
-   */
-  updateQuantity: function(productId, quantity) {
-    const cart = this.getCart();
-    const itemIndex = cart.findIndex(item => item.id === productId);
-    
-    if (itemIndex !== -1) {
-      if (quantity > 0) {
-        cart[itemIndex].quantity = quantity;
-      } else {
-        // Remove item if quantity is 0 or negative
-        cart.splice(itemIndex, 1);
-      }
-      
-      this.saveCart(cart);
-    }
-    
-    return cart;
-  },
-  
-  /**
-   * Remove item from cart
-   * @param {number} productId - Product ID to remove
-   */
-  removeItem: function(productId) {
-    const cart = this.getCart();
-    const updatedCart = cart.filter(item => item.id !== productId);
-    this.saveCart(updatedCart);
-    return updatedCart;
-  },
-  
-  /**
-   * Clear entire cart
-   */
-  clearCart: function() {
-    localStorage.removeItem(this.STORAGE_KEY);
-    this.updateCartCount();
-  },
-  
-  /**
-   * Calculate cart subtotal
-   * @returns {number} - Cart subtotal
-   */
-  calculateSubtotal: function() {
-    const cart = this.getCart();
-    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-  },
-  
-  /**
-   * Update cart count in the UI
-   */
-  updateCartCount: function() {
-    const cart = this.getCart();
-    const count = cart.reduce((total, item) => total + item.quantity, 0);
-    
-    // Update all cart count elements
-    document.querySelectorAll('.cart-count').forEach(el => {
-      el.textContent = count;
-    });
-  }
-};
 
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
@@ -273,14 +100,16 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Update cart count on page load
-  CartService.updateCartCount();
+  if (window.CartService) {
+    window.CartService.updateCartCount();
+  }
   
   // Add to Cart Functionality
   const addToCartButtons = document.querySelectorAll('.add-to-cart');
   
-  if (addToCartButtons.length) {
+  if (addToCartButtons.length && window.CartService) {
     // Get initial count from localStorage or default to 0
-    let count = CartService.getCart().reduce((total, item) => total + item.quantity, 0);
+    let count = window.CartService.getCart().reduce((total, item) => total + item.quantity, 0);
     
     // Update cart count display initially
     document.querySelectorAll('.cart-count').forEach(el => {
@@ -288,46 +117,86 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     addToCartButtons.forEach(button => {
-      button.addEventListener('click', function() {
+      button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
         // Get product information from data attributes or parent elements
         const productCard = this.closest('.product-card');
         
         if (productCard) {
           const productId = parseInt(productCard.dataset.productId || productCard.dataset.id || 0);
-          const productTitle = productCard.querySelector('.product-title a').textContent;
-          const productPrice = parseFloat(productCard.querySelector('.price').textContent.replace('$', ''));
-          const productImage = productCard.querySelector('.product-image img').src;
-          const productUnit = productCard.querySelector('.unit')?.textContent || '';
           
-          // Add to cart
-          const product = {
-            id: productId,
-            title: productTitle,
-            price: productPrice,
-            image_main: productImage,
-            unit: productUnit
-          };
-          
-          CartService.addToCart(product);
-          
-          // Update UI
-          count = CartService.getCart().reduce((total, item) => total + item.quantity, 0);
-          document.querySelectorAll('.cart-count').forEach(el => {
-            el.textContent = count;
-          });
-          
-          // Add animation effect
-          const originalText = button.textContent;
-          button.innerHTML = '<i class="fas fa-check"></i> Added!';
-          button.classList.add('added');
-          
-          setTimeout(() => {
-            button.innerHTML = originalText;
-            button.classList.remove('added');
-          }, 1500);
-          
-          // Show mini cart notification
-          showCartNotification(productTitle);
+          try {
+            // Get fresh product data from API to ensure latest price and availability
+            const response = await window.ApiService.get(`/products/${productId}`);
+            
+            if (response.success && response.product) {
+              const product = response.product;
+              window.CartService.addToCart(product);
+              
+              // Update UI
+              count = window.CartService.getCart().reduce((total, item) => total + item.quantity, 0);
+              document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = count;
+              });
+              
+              // Add animation effect
+              const originalText = button.textContent;
+              button.innerHTML = '<i class="fas fa-check"></i> Added!';
+              button.classList.add('added');
+              
+              setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('added');
+              }, 1500);
+              
+              // Show mini cart notification
+              showCartNotification(product.title);
+            } else {
+              console.error('Failed to get product data', response);
+              
+              // Fallback to using data from the page
+              const productTitle = productCard.querySelector('.product-title a').textContent;
+              const productPrice = parseFloat(productCard.querySelector('.price').textContent.replace('$', ''));
+              const productImage = productCard.querySelector('.product-image img').src;
+              const productUnit = productCard.querySelector('.unit')?.textContent || '';
+              
+              const product = {
+                id: productId,
+                title: productTitle,
+                price: productPrice,
+                image_main: productImage,
+                unit: productUnit
+              };
+              
+              window.CartService.addToCart(product);
+              
+              // Update UI
+              count = window.CartService.getCart().reduce((total, item) => total + item.quantity, 0);
+              document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = count;
+              });
+              
+              // Add animation effect
+              const originalText = button.textContent;
+              button.innerHTML = '<i class="fas fa-check"></i> Added!';
+              button.classList.add('added');
+              
+              setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('added');
+              }, 1500);
+              
+              // Show mini cart notification
+              showCartNotification(productTitle);
+            }
+          } catch (error) {
+            console.error('Error adding product to cart:', error);
+            
+            // Fallback to using data from the page
+            const productTitle = productCard.querySelector('.product-title a').textContent;
+            showCartNotification(productTitle);
+          }
         }
       });
     });
@@ -501,10 +370,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
-  
-  // Expose global utilities and services
-  window.ApiService = ApiService;
-  window.CartService = CartService;
   
   // Add CSS for cart notification
   const style = document.createElement('style');
