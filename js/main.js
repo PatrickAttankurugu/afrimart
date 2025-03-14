@@ -503,6 +503,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+  // Create WhatsApp floating button
+  const whatsappFloat = document.createElement('a');
+  whatsappFloat.className = 'whatsapp-float pulse';
+  whatsappFloat.href = 'https://wa.me/18048060130';
+  whatsappFloat.target = '_blank';
+  whatsappFloat.rel = 'noopener noreferrer';
+  whatsappFloat.setAttribute('aria-label', 'Chat on WhatsApp');
+  
+  // Create icon
+  const icon = document.createElement('i');
+  icon.className = 'fab fa-whatsapp';
+  
+  // Create tooltip
+  const tooltip = document.createElement('span');
+  tooltip.className = 'tooltip';
+  tooltip.textContent = 'Chat with us!';
+  
+  // Append elements
+  whatsappFloat.appendChild(icon);
+  whatsappFloat.appendChild(tooltip);
+  document.body.appendChild(whatsappFloat);
+  
   // Add CSS for cart notification
   const style = document.createElement('style');
   style.textContent = `
@@ -535,6 +557,83 @@ document.addEventListener('DOMContentLoaded', function() {
     
     .add-to-cart.added {
       background-color: #28a745;
+    }
+    
+    /* WhatsApp Floating Button */
+    .whatsapp-float {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      bottom: 90px;
+      right: 30px;
+      background-color: #25D366;
+      color: #FFF;
+      border-radius: 50px;
+      text-align: center;
+      font-size: 30px;
+      box-shadow: 2px 2px 3px #999;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .whatsapp-float:hover {
+      background-color: #20b956;
+      color: #fff;
+      transform: translateY(-5px);
+    }
+
+    .whatsapp-float i {
+      margin-top: 16px;
+    }
+
+    /* WhatsApp tooltip */
+    .whatsapp-float .tooltip {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      background-color: #333;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+
+    .whatsapp-float:hover .tooltip {
+      opacity: 1;
+    }
+
+    /* Animation */
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+      }
+    }
+
+    .whatsapp-float.pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @media screen and (max-width: 768px) {
+      .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 20px;
+        font-size: 25px;
+      }
     }
   `;
   document.head.appendChild(style);

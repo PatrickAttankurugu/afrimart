@@ -525,7 +525,7 @@
                         <a href="https://facebook.com/afrimart_depot" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
                         <a href="https://instagram.com/afrimart_depot" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                         <a href="https://twitter.com/afrimart_depot" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="https://pinterest.com/afrimart_depot" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                        <a href="https://wa.me/18048060130" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             </div>
@@ -566,6 +566,12 @@
     </div>
 </footer>
 
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/18048060130" class="whatsapp-float pulse" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+  <span class="tooltip">Chat with us!</span>
+</a>
+
 <!-- Back to Top Button -->
 <a href="#" class="back-to-top" id="backToTop" aria-label="Back to top">
     <i class="fas fa-chevron-up"></i>
@@ -580,5 +586,48 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <!-- Custom JS -->
     <script src="js/main.js"></script>
+
+    <!-- Additional Styles for WhatsApp button -->
+    <style>
+      /* Additional WhatsApp-specific styles that might not be in the main.js */
+      .social-links a[aria-label="WhatsApp"] {
+        background-color: #25D366;
+        color: white;
+      }
+      
+      .social-links a[aria-label="WhatsApp"]:hover {
+        background-color: #128C7E;
+        transform: translateY(-5px);
+      }
+      
+      /* Quick order button for mobile */
+      .quick-order-mobile {
+        display: none;
+      }
+      
+      @media screen and (max-width: 768px) {
+        .quick-order-mobile {
+          display: flex;
+          position: fixed;
+          bottom: 20px;
+          left: 20px;
+          align-items: center;
+          background-color: #25D366;
+          color: white;
+          padding: 8px 15px;
+          border-radius: 25px;
+          font-size: 14px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          z-index: 99;
+          text-decoration: none;
+          animation: pulse 2s infinite;
+        }
+        
+        .quick-order-mobile i {
+          margin-right: 5px;
+          font-size: 18px;
+        }
+      }
+    </style>
 </body>
 </html>
