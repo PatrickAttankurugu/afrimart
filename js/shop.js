@@ -1,6 +1,6 @@
 /*
 * AfriMart Depot - Shop Page JavaScript
-* Version: 1.0
+* Version: 1.1
 */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -262,41 +262,96 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Add to Cart
-  const addToCartButtons = document.querySelectorAll('.add-to-cart, .add-to-cart-btn');
-  const cartCount = document.querySelector('.cart-count');
+  // IMPROVED ADD TO CART FUNCTIONALITY
+  const addToCartButtons = document.querySelectorAll('.add-to-cart');
   
-  if (addToCartButtons.length && cartCount) {
-    let count = parseInt(cartCount.textContent);
-    
+  if (addToCartButtons.length) {
     addToCartButtons.forEach(button => {
       button.addEventListener('click', function() {
-        count++;
-        cartCount.textContent = count;
+        // Get product info
+        const productCard = this.closest('.product-card');
+        if (!productCard) return;
         
-        // Add animation effect
-        button.innerHTML = '<i class="fas fa-check"></i> Added!';
-        button.style.backgroundColor = '#28a745';
+        const productTitle = productCard.querySelector('.product-title a').textContent;
+        const productImage = productCard.querySelector('.product-image img').src;
+        const productPrice = productCard.querySelector('.price').textContent;
+        const productId = productCard.dataset.productId || 'product_' + Date.now();
         
-        // Get product info for notification
-        const productCard = this.closest('.product-card') || this.closest('.product-details');
-        let productName = "Product";
-        
-        if (productCard) {
-          const titleEl = productCard.querySelector('.product-title') || productCard.querySelector('.product-title a');
-          if (titleEl) {
-            productName = titleEl.textContent;
-          }
+        // Get quantity if there's a quantity input, otherwise default to 1
+        let quantity = 1;
+        const quantityInput = productCard.querySelector('.quick-quantity');
+        if (quantityInput) {
+          quantity = parseInt(quantityInput.value) || 1;
         }
         
-        // Show toast notification
-        showToast(`${productName} added to cart!`, 'success');
+        // Create product object
+        const product = {
+          id: productId,
+          title: productTitle,
+          price: productPrice,
+          quantity: quantity,
+          image: productImage
+        };
         
-        setTimeout(() => {
-          button.innerHTML = button.classList.contains('add-to-cart-btn') ? 'Add to Cart' : 'Add to Cart';
-          button.style.backgroundColor = '';
-        }, 1500);
+        // Add to cart (using the global function defined in cart.js)
+        if (typeof window.addToCart === 'function') {
+          window.addToCart(product);
+        } else {
+          console.error('addToCart function not found. Make sure cart.js is loaded before shop.js');
+          
+          // Fallback implementation if cart.js isn't loaded correctly
+          // This is just a visual feedback for the user
+          button.innerHTML = '<i class="fas fa-check"></i> Added!';
+          button.style.backgroundColor = '#28a745';
+          
+          setTimeout(() => {
+            button.innerHTML = 'Add to Cart';
+            button.style.backgroundColor = '';
+          }, 1500);
+        }
       });
+    });
+  }
+  
+  // Quick Add Quantity Controls (for products with quantity selectors)
+  const quickAddControls = document.querySelectorAll('.quick-add-container');
+  
+  if (quickAddControls.length) {
+    quickAddControls.forEach(container => {
+      const minusBtn = container.querySelector('.quick-minus');
+      const plusBtn = container.querySelector('.quick-plus');
+      const input = container.querySelector('.quick-quantity');
+      
+      if (minusBtn && plusBtn && input) {
+        minusBtn.addEventListener('click', function() {
+          let value = parseInt(input.value);
+          if (value > 1) {
+            input.value = value - 1;
+          }
+        });
+        
+        plusBtn.addEventListener('click', function() {
+          let value = parseInt(input.value);
+          const maxValue = parseInt(input.getAttribute('max') || 10);
+          if (value < maxValue) {
+            input.value = value + 1;
+          }
+        });
+        
+        input.addEventListener('change', function() {
+          let value = parseInt(this.value);
+          const minValue = parseInt(this.getAttribute('min') || 1);
+          const maxValue = parseInt(this.getAttribute('max') || 10);
+          
+          if (isNaN(value) || value < minValue) {
+            value = minValue;
+          } else if (value > maxValue) {
+            value = maxValue;
+          }
+          
+          this.value = value;
+        });
+      }
     });
   }
   

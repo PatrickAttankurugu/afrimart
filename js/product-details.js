@@ -1,7 +1,7 @@
 /**
  * Product Details JavaScript - Part 1
  * Handles core functionality, product loading, gallery, and product options
- * Version: 1.1
+ * Version: 1.2
  */
 
 // IIFE to avoid global scope pollution
@@ -246,6 +246,14 @@ const ProductDetails = (() => {
     }
 
     /**
+     * Update zoom background when switching images
+     */
+    function updateZoom() {
+        if (!elements.gallery.zoomResult) return;
+        elements.gallery.zoomResult.style.backgroundImage = `url(${elements.gallery.mainImage.src})`;
+    }
+
+    /**
      * Initialize product options (variants)
      */
     function initProductOptions() {
@@ -419,11 +427,71 @@ const ProductDetails = (() => {
      * Initialize product actions (like add to cart)
      */
     function initProductActions() {
-        elements.actions.addToCart.addEventListener('click', () => {
-            // Logic to add product to cart
-            console.log('Add to cart clicked');
+        if (!elements.actions.addToCart) return;
+        
+        elements.actions.addToCart.addEventListener('click', function() {
+            // Get quantity
+            const quantity = parseInt(elements.options.quantityInput.value) || 1;
+            
+            // Get selected variant info (if applicable)
+            let variantInfo = "";
+            if (elements.options.variantsContainer) {
+                const selectedVariants = [];
+                elements.options.variantsContainer.querySelectorAll('.variant-group').forEach(group => {
+                    const type = group.dataset.variantType;
+                    const selectedOption = group.querySelector('.variant-option.active');
+                    if (selectedOption) {
+                        selectedVariants.push(`${type}: ${selectedOption.textContent.trim()}`);
+                    }
+                });
+                
+                if (selectedVariants.length > 0) {
+                    variantInfo = selectedVariants.join(", ");
+                }
+            }
+            
+            // Create product object
+            const product = {
+                id: getProductIdFromUrl() || 'product_' + Date.now(),
+                title: currentProduct.name,
+                price: elements.info.price.textContent,
+                quantity: quantity,
+                image: elements.gallery.mainImage.src,
+                variant: variantInfo
+            };
+            
+            // Add to cart using global function from cart.js
+            if (typeof window.addToCart === 'function') {
+                window.addToCart(product);
+                
+                // Add animation effect
+                const originalText = this.textContent;
+                this.innerHTML = '<i class="fas fa-check"></i> Added to Cart!';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 1500);
+            } else {
+                console.error('addToCart function not found. Make sure cart.js is loaded before product-details.js');
+            }
         });
-        // Add more actions as needed
+        
+        // Wishlist functionality
+        if (elements.actions.wishlist) {
+            elements.actions.wishlist.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const icon = this.querySelector('i');
+                if (icon) {
+                    if (icon.classList.contains('far')) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                }
+            });
+        }
     }
 
     /**

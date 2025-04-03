@@ -1,6 +1,6 @@
 /*
 * AfriMart Depot - Shopping Cart JavaScript
-* Version: 2.0 - Enhanced Shopping Experience
+* Version: 2.1 - Fixed Shopping Experience
 */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -82,14 +82,18 @@ document.addEventListener('DOMContentLoaded', function() {
   // Function to create the mini-cart if it doesn't exist
   function createMiniCart() {
     // Check if mini-cart already exists
-    if (!document.querySelector('.mini-cart')) {
+    let miniCart = document.querySelector('.mini-cart');
+    
+    if (!miniCart) {
       // Create mini-cart element
       const miniCartElement = document.createElement('div');
       miniCartElement.innerHTML = miniCartTemplate;
       document.body.appendChild(miniCartElement.firstElementChild);
       
+      // Get the newly created mini-cart
+      miniCart = document.querySelector('.mini-cart');
+      
       // Add event listeners
-      const miniCart = document.querySelector('.mini-cart');
       const closeBtn = miniCart.querySelector('.mini-cart-close');
       const checkoutBtn = miniCart.querySelector('.mini-checkout-btn');
       
@@ -102,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
     
-    return document.querySelector('.mini-cart');
+    return miniCart;
   }
 
   // Function to show notification when item is added to cart
@@ -224,7 +228,9 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Update count
       const cart = getCartFromStorage();
-      floatingCart.querySelector('.floating-count').textContent = cart.items.length;
+      // Calculate total quantity
+      const totalQuantity = cart.items.reduce((total, item) => total + parseInt(item.quantity || 1), 0);
+      floatingCart.querySelector('.floating-count').textContent = totalQuantity;
       
       // Add click event
       floatingCart.addEventListener('click', () => {
@@ -283,28 +289,33 @@ document.addEventListener('DOMContentLoaded', function() {
   // Function to update cart counts across the site
   function updateCartCounts() {
     const cart = getCartFromStorage();
-    const count = cart.items.length;
+    
+    // Calculate total items by summing quantities
+    let totalItems = 0;
+    cart.items.forEach(item => {
+      totalItems += parseInt(item.quantity || 1);
+    });
     
     // Update all cart count badges
     document.querySelectorAll('.cart-count').forEach(badge => {
-      badge.textContent = count;
+      badge.textContent = totalItems;
     });
     
     // Update floating cart count if it exists
     const floatingCount = document.querySelector('.floating-count');
     if (floatingCount) {
-      floatingCount.textContent = count;
+      floatingCount.textContent = totalItems;
     }
     
     // Update cart title on cart page
     const cartTitle = document.querySelector('.cart-items h2');
     if (cartTitle) {
-      cartTitle.textContent = `Your Cart (${count} items)`;
+      cartTitle.textContent = `Your Cart (${totalItems} items)`;
     }
     
     // Show/hide empty cart message on cart page
     if (isCartPage) {
-      if (count === 0) {
+      if (cart.items.length === 0) {
         emptyCartSection.style.display = 'block';
         cartWithItemsSection.style.display = 'none';
       } else {
@@ -319,14 +330,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get current cart
     const cart = getCartFromStorage();
     
-    // Check if product already exists in cart
+    // Check if product already exists in cart by ID
     const existingProductIndex = cart.items.findIndex(item => item.id === product.id);
     
     if (existingProductIndex !== -1) {
       // Product exists, update quantity
-      const newQty = parseInt(cart.items[existingProductIndex].quantity) + parseInt(product.quantity);
+      const newQty = parseInt(cart.items[existingProductIndex].quantity) + parseInt(product.quantity || 1);
       cart.items[existingProductIndex].quantity = newQty;
     } else {
+      // Make sure product has a quantity property
+      if (!product.quantity) {
+        product.quantity = 1;
+      }
       // Product doesn't exist, add it
       cart.items.push(product);
     }
@@ -368,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
           calculateTotals();
           
           // Check if cart is now empty
-          if (cart.items.length === 0) {
+          if (updatedItems.length === 0) {
             emptyCartSection.style.display = 'block';
             cartWithItemsSection.style.display = 'none';
           }
@@ -392,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     cartItems.forEach(item => {
       const price = parseFloat(item.price.replace('$', ''));
-      const quantity = parseInt(item.quantity);
+      const quantity = parseInt(item.quantity || 1);
       subtotal += price * quantity;
     });
     
@@ -553,6 +568,26 @@ document.addEventListener('DOMContentLoaded', function() {
   // ==================
   // Event Handlers
   // ==================
+
+  // Setup cart icon click handler
+  function setupCartIconClickHandler() {
+    // Get all cart icons
+    const cartIcons = document.querySelectorAll('.cart-icon a');
+    
+    cartIcons.forEach(icon => {
+      icon.addEventListener('click', function(e) {
+        // Get cart from localStorage
+        const cart = getCartFromStorage();
+        
+        // If cart has items, show mini-cart instead of navigating
+        if (cart.items && cart.items.length > 0) {
+          e.preventDefault();
+          showMiniCart();
+        }
+        // Otherwise, let default behavior navigate to cart.html
+      });
+    });
+  }
 
   // If on cart page, set up cart functionality
   if (isCartPage) {
@@ -822,17 +857,17 @@ document.addEventListener('DOMContentLoaded', function() {
       const productImage = productCard.querySelector('.product-image img').src;
       const productPrice = productCard.querySelector('.price').textContent;
       const productId = productCard.dataset.productId || 'related_' + Date.now();
+      const productQuantity = productCard.querySelector('.quick-quantity') ? 
+                             parseInt(productCard.querySelector('.quick-quantity').value) : 1;
       
       // Create product object
       const product = {
         id: productId,
         title: productTitle,
         price: productPrice,
-        quantity: 1,
+        quantity: productQuantity,
         image: productImage
-      };
-      
-      // Add to cart
+      };// Add to cart
       addItemToCart(product);
       
       // Animation
@@ -856,6 +891,9 @@ document.addEventListener('DOMContentLoaded', function() {
   if (!isCartPage && window.innerWidth <= 768) {
     createFloatingCartButton();
   }
+
+  // Set up the click handler for the cart icon
+  setupCartIconClickHandler();
 
   // Update cart counts on page load
   updateCartCounts();
