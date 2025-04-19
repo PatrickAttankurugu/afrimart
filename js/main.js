@@ -1,6 +1,6 @@
 /*
 * AfriMart Depot - Main JavaScript
-* Version: 2.0
+* Version: 2.1 - Fixed cart initialization issue
 */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -301,61 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const countdownInterval = setInterval(updateCountdown, 1000);
   }
   
-  // Add to Cart Functionality
-  const addToCartButtons = document.querySelectorAll('.add-to-cart');
-  const cartCount = document.querySelector('.cart-count');
-  
-  if (addToCartButtons.length && cartCount) {
-    // Get initial count from localStorage or default to 0
-    let count = parseInt(localStorage.getItem('cartCount') || '0');
-    
-    // Update cart count display initially
-    cartCount.textContent = count;
-    
-    addToCartButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        count++;
-        cartCount.textContent = count;
-        
-        // Save to localStorage
-        localStorage.setItem('cartCount', count.toString());
-        
-        // Add animation effect
-        const originalText = button.textContent;
-        button.innerHTML = '<i class="fas fa-check"></i> Added!';
-        button.classList.add('added');
-        
-        setTimeout(() => {
-          button.innerHTML = originalText;
-          button.classList.remove('added');
-        }, 1500);
-        
-        // Optional: Show mini cart notification
-        showCartNotification();
-      });
-    });
-    
-    function showCartNotification() {
-      // Check if notification already exists
-      let notification = document.querySelector('.cart-notification');
-      
-      if (!notification) {
-        // Create notification if it doesn't exist
-        notification = document.createElement('div');
-        notification.className = 'cart-notification';
-        notification.innerHTML = '<i class="fas fa-check-circle"></i> Item added to cart';
-        document.body.appendChild(notification);
-      }
-      
-      // Show notification
-      notification.classList.add('active');
-      
-      // Hide after 3 seconds
-      setTimeout(() => {
-        notification.classList.remove('active');
-      }, 3000);
-    }
-  }
+  // Note: Removed direct cart count initialization from here
+  // Cart functionality is now entirely managed by cart.js
   
   // Newsletter Form Submission
   const newsletterForm = document.querySelector('.newsletter-form');

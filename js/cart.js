@@ -1,6 +1,6 @@
 /*
 * AfriMart Depot - Shopping Cart JavaScript
-* Version: 3.0 - Centralized Cart Management
+* Version: 3.2 - Fixed cart count update issue
 */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -52,6 +52,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const isShopPage = document.querySelector('.shop-section') !== null;
   const isProductPage = document.querySelector('.product-details-section') !== null;
 
+  // Find all cart count elements
+  const cartCountElements = document.querySelectorAll('.cart-count');
+
   // Discount codes (in a real application, these would be validated server-side)
   const validDiscountCodes = {
     'WELCOME10': 10, // 10% off
@@ -99,6 +102,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Save to localStorage
     try {
       localStorage.setItem('afrimartCart', JSON.stringify(cartData));
+      
+      // Remove old cartCount from localStorage to prevent conflicts
+      if (localStorage.getItem('cartCount')) {
+        localStorage.removeItem('cartCount');
+      }
     } catch (e) {
       console.error('Error saving cart data to localStorage', e);
     }
@@ -398,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update all cart count badges
     document.querySelectorAll('.cart-count').forEach(badge => {
-      badge.textContent = totalItems;
+      badge.textContent = totalItems.toString();
     });
     
     // Update items count on cart page
@@ -1200,7 +1208,9 @@ document.addEventListener('DOMContentLoaded', function() {
       saveCartToStorage([]);
       updateCartDisplay();
     },
-    showMiniCart: showMiniCart
+    showMiniCart: showMiniCart,
+    // Add direct access to update function for external calls
+    updateCartDisplay: updateCartDisplay
   };
   
   // Export the global addToCart function for backward compatibility
@@ -1209,6 +1219,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // ==================
   // Initialization
   // ==================
+  
+  // Initialize cart display as early as possible
+  updateCartDisplay();
   
   // Initialize cart functionality
   initCartPage();
@@ -1219,6 +1232,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Setup cart icon click handlers
   setupCartIconClickHandlers();
   
-  // Update cart display on page load
-  updateCartDisplay();
+  // Add a delayed update to ensure all elements are properly loaded
+  setTimeout(updateCartDisplay, 500);
 });
