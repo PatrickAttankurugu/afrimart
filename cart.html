@@ -5,23 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart - AfriMart Depot | Authentic African & Ghanaian Food</title>
     <meta name="description" content="Review your cart, adjust quantities, select shipping options, and securely checkout at AfriMart Depot, your source for authentic African and Ghanaian food products.">
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="images/logo.png">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- AOS Animation Library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Cart Specific CSS -->
     <link rel="stylesheet" href="css/cart.css">
 </head>
 <body>
-    <!-- Header Section -->
     <header class="header">
         <div class="container">
             <div class="header-wrapper">
@@ -63,7 +56,6 @@
         </div>
     </header>
 
-    <!-- Mobile Menu (Hidden by Default) -->
     <div class="mobile-menu">
         <div class="close-menu">
             <i class="fas fa-times"></i>
@@ -81,7 +73,6 @@
         </div>
     </div>
 
-    <!-- Page Title Banner -->
     <section class="page-title-section">
         <div class="container">
             <div class="page-title-content">
@@ -95,16 +86,13 @@
         </div>
     </section>
 
-    <!-- Cart Section -->
     <section class="cart-section section-padding">
         <div class="container">
-            <!-- Loading State (initially hidden) -->
             <div class="cart-loading" style="display: none;">
                 <div class="spinner"></div>
                 <p>Loading your cart...</p>
             </div>
 
-            <!-- Empty Cart Message (hidden when cart has items) -->
             <div class="empty-cart" style="display: none;">
                 <div class="empty-cart-content" data-aos="fade-up">
                     <i class="fas fa-shopping-cart"></i>
@@ -114,13 +102,11 @@
                 </div>
             </div>
 
-            <!-- Cart With Items -->
             <div class="cart-with-items">
                 <div class="cart-wrapper">
-                    <!-- Cart Items -->
                     <div class="cart-items" data-aos="fade-up">
                         <h2>Your Cart (<span class="items-count">0</span> items)</h2>
-                        
+
                         <div class="cart-header">
                             <div class="product-col">Product</div>
                             <div class="price-col">Price</div>
@@ -128,11 +114,10 @@
                             <div class="subtotal-col">Subtotal</div>
                             <div class="remove-col"></div>
                         </div>
-                        
+
                         <div class="cart-item-list">
-                            <!-- Cart items will be dynamically loaded here -->
-                        </div>
-                        
+                            </div>
+
                         <div class="cart-actions">
                             <a href="shop.html" class="btn btn-outline">
                                 <i class="fas fa-arrow-left"></i> Continue Shopping
@@ -145,18 +130,16 @@
                             </button>
                         </div>
                     </div>
-                    
-                    <!-- Order Summary -->
+
                     <div class="order-summary" data-aos="fade-up">
                         <h2>Order Summary</h2>
-                        
+
                         <div class="summary-content">
                             <div class="summary-item subtotal-row">
                                 <span class="item-label">Subtotal</span>
                                 <span class="item-value" id="cart-subtotal">$0.00</span>
                             </div>
-                            
-                            <!-- Discount Code -->
+
                             <div class="discount-code">
                                 <p>Have a discount code?</p>
                                 <div class="code-input">
@@ -166,14 +149,12 @@
                                 <p class="discount-message success" style="display: none;">Discount applied successfully!</p>
                                 <p class="discount-message error" style="display: none;">Invalid discount code. Please try again.</p>
                             </div>
-                            
-                            <!-- Discount Row (initially hidden) -->
+
                             <div class="summary-item discount-row" style="display: none;">
                                 <span class="item-label">Discount</span>
                                 <span class="item-value" id="discount-amount">-$0.00</span>
                             </div>
-                            
-                            <!-- Shipping Options -->
+
                             <div class="shipping-options">
                                 <p>Select shipping method:</p>
                                 <div class="shipping-option">
@@ -201,26 +182,22 @@
                                     </label>
                                 </div>
                             </div>
-                            
-                            <!-- Shipping Row -->
+
                             <div class="summary-item shipping-row">
                                 <span class="item-label">Shipping</span>
                                 <span class="item-value" id="shipping-cost">$5.99</span>
                             </div>
-                            
-                            <!-- Tax Row -->
+
                             <div class="summary-item tax-row">
                                 <span class="item-label">Estimated Tax</span>
                                 <span class="item-value" id="tax-amount">$0.00</span>
                             </div>
-                            
-                            <!-- Total Row -->
+
                             <div class="summary-item total-row">
                                 <span class="item-label">Total</span>
                                 <span class="item-value" id="order-total">$0.00</span>
                             </div>
-                            
-                            <!-- WhatsApp Info Box -->
+
                             <div class="whatsapp-info">
                                 <h4><i class="fab fa-whatsapp"></i> Order via WhatsApp</h4>
                                 <p>Complete your purchase quickly through WhatsApp:</p>
@@ -231,19 +208,16 @@
                                     <li>Confirm your order and payment method</li>
                                 </ol>
                             </div>
-                            
-                            <!-- Checkout Button -->
+
                             <button class="btn checkout-btn">
                                 <i class="fab fa-whatsapp"></i> Checkout via WhatsApp
                             </button>
-                            
-                            <!-- Secure Checkout Message -->
+
                             <div class="secure-checkout">
                                 <i class="fas fa-lock"></i>
                                 <span>Secure Ordering</span>
                             </div>
-                            
-                            <!-- Payment Methods -->
+
                             <div class="payment-methods">
                                 <p>We accept:</p>
                                 <div class="payment-icons">
@@ -257,7 +231,6 @@
                             </div>
                         </div>
 
-                        <!-- Success Message (initially hidden) -->
                         <div class="checkout-success-message">
                             <i class="fas fa-check-circle"></i>
                             <h3>Order Sent Successfully!</h3>
@@ -266,15 +239,15 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Related Products -->
+
                 <div class="related-products" data-aos="fade-up">
                     <h2>You Might Also Like</h2>
                     <div class="related-products-slider">
-                        <!-- Product 1 -->
                         <div class="product-card" data-product-id="pepper-soup-spice">
                             <div class="product-image">
-                                <img src="images/pepper-soup-spices.webp" alt="Pepper Soup Spice">
+                                <a href="product-details.html?product=pepper-soup-spice">
+                                    <img src="images/pepper-soup-spices.webp" alt="Pepper Soup Spice">
+                                </a>
                                 <div class="product-actions">
                                     <button class="action-btn quick-view">
                                         <i class="fas fa-eye"></i>
@@ -296,23 +269,19 @@
                                     <i class="fas fa-star"></i>
                                     <span>(43)</span>
                                 </div>
-                                <div class="quick-add-container">
-                                    <button class="quick-minus">-</button>
-                                    <input type="number" class="quick-quantity" value="1" min="1" max="10">
-                                    <button class="quick-plus">+</button>
-                                </div>
                                 <div class="product-price">
                                     <span class="price">$8.99</span>
                                     <span class="unit">100g</span>
                                 </div>
-                                <button class="add-to-cart">Add to Cart</button>
+                                <a href="product-details.html?product=pepper-soup-spice" class="btn btn-secondary">View Details</a>
                             </div>
                         </div>
-                        
-                        <!-- Product 2 -->
+
                         <div class="product-card" data-product-id="zobo-leaf">
                             <div class="product-image">
-                                <img src="images/Zobo-Leaf.webp" alt="Zobo Leaf">
+                                <a href="product-details.html?product=zobo-leaf">
+                                    <img src="images/Zobo-Leaf.webp" alt="Zobo Leaf">
+                                </a>
                                 <div class="product-actions">
                                     <button class="action-btn quick-view">
                                         <i class="fas fa-eye"></i>
@@ -334,23 +303,19 @@
                                     <i class="fas fa-star-half-alt"></i>
                                     <span>(28)</span>
                                 </div>
-                                <div class="quick-add-container">
-                                    <button class="quick-minus">-</button>
-                                    <input type="number" class="quick-quantity" value="1" min="1" max="10">
-                                    <button class="quick-plus">+</button>
-                                </div>
                                 <div class="product-price">
                                     <span class="price">$6.99</span>
                                     <span class="unit">100g</span>
                                 </div>
-                                <button class="add-to-cart">Add to Cart</button>
+                                 <a href="product-details.html?product=zobo-leaf" class="btn btn-secondary">View Details</a>
                             </div>
                         </div>
-                        
-                        <!-- Product 3 -->
+
                         <div class="product-card" data-product-id="kilishi">
                             <div class="product-image">
-                                <img src="images/dry-meat.jpg" alt="Kilishi">
+                                <a href="product-details.html?product=kilishi">
+                                    <img src="images/dry-meat.jpg" alt="Kilishi">
+                                </a>
                                 <div class="product-actions">
                                     <button class="action-btn quick-view">
                                         <i class="fas fa-eye"></i>
@@ -372,23 +337,19 @@
                                     <i class="fas fa-star"></i>
                                     <span>(38)</span>
                                 </div>
-                                <div class="quick-add-container">
-                                    <button class="quick-minus">-</button>
-                                    <input type="number" class="quick-quantity" value="1" min="1" max="10">
-                                    <button class="quick-plus">+</button>
-                                </div>
                                 <div class="product-price">
                                     <span class="price">$13.99</span>
                                     <span class="unit">100g</span>
                                 </div>
-                                <button class="add-to-cart">Add to Cart</button>
+                                 <a href="product-details.html?product=kilishi" class="btn btn-secondary">View Details</a>
                             </div>
                         </div>
-                        
-                        <!-- Product 4 -->
+
                         <div class="product-card" data-product-id="cameroon-pepper">
                             <div class="product-image">
-                                <img src="images/dry-pepper.webp" alt="Cameroon Pepper">
+                                <a href="product-details.html?product=cameroon-pepper">
+                                    <img src="images/dry-pepper.webp" alt="Cameroon Pepper">
+                                </a>
                                 <div class="product-actions">
                                     <button class="action-btn quick-view">
                                         <i class="fas fa-eye"></i>
@@ -410,16 +371,11 @@
                                     <i class="fas fa-star-half-alt"></i>
                                     <span>(27)</span>
                                 </div>
-                                <div class="quick-add-container">
-                                    <button class="quick-minus">-</button>
-                                    <input type="number" class="quick-quantity" value="1" min="1" max="10">
-                                    <button class="quick-plus">+</button>
-                                </div>
                                 <div class="product-price">
                                     <span class="price">$7.99</span>
                                     <span class="unit">100g</span>
                                 </div>
-                                <button class="add-to-cart">Add to Cart</button>
+                                 <a href="product-details.html?product=cameroon-pepper" class="btn btn-secondary">View Details</a>
                             </div>
                         </div>
                     </div>
@@ -428,7 +384,6 @@
         </div>
     </section>
 
-    <!-- Newsletter Section -->
     <section class="newsletter-section parallax-window" data-parallax="scroll" data-image-src="images/wele-design.webp">
         <div class="container">
             <div class="newsletter-content" data-aos="fade-up">
@@ -453,8 +408,7 @@
         </div>
     </section>
 
-   <!-- Footer -->
-<footer class="footer">
+   <footer class="footer">
     <div class="footer-top">
         <div class="container">
             <div class="footer-grid">
@@ -468,7 +422,7 @@
                         <li><a href="contact.html">Contact Us</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-col">
                     <h3 class="footer-title">Categories</h3>
                     <ul class="footer-menu">
@@ -479,7 +433,7 @@
                         <li><a href="shop.html?category=snacks">Snacks</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-col">
                     <h3 class="footer-title">Customer Service</h3>
                     <ul class="footer-menu">
@@ -490,7 +444,7 @@
                         <li><a href="terms.html">Terms & Conditions</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-col">
                     <h3 class="footer-title">Contact Us</h3>
                     <ul class="contact-info">
@@ -511,7 +465,7 @@
                             <span class="text">Mon-Fri: 9AM - 6PM</span>
                         </li>
                     </ul>
-                    
+
                     <div class="social-links">
                         <a href="https://facebook.com/afrimart_depot" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
                         <a href="https://instagram.com/afrimart_depot" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
@@ -522,7 +476,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="footer-middle">
         <div class="container">
             <div class="newsletter-box">
@@ -539,7 +493,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="footer-bottom">
         <div class="container">
             <div class="footer-bottom-content">
@@ -557,25 +511,21 @@
     </div>
 </footer>
 
-<!-- WhatsApp Floating Button -->
 <a href="https://wa.me/18048060130" class="whatsapp-float pulse" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
   <i class="fab fa-whatsapp"></i>
   <span class="tooltip">Chat with us!</span>
 </a>
 
-<!-- Back to Top Button -->
 <a href="#" class="back-to-top" id="backToTop" aria-label="Back to top">
     <i class="fas fa-chevron-up"></i>
 </a>
 
-<!-- Mini Cart Template (hidden by default) -->
 <div class="mini-cart">
     <div class="mini-cart-header">
         <h3>Cart</h3>
         <button class="mini-cart-close"><i class="fas fa-times"></i></button>
     </div>
     <div class="mini-cart-items">
-        <!-- Mini cart items will be dynamically added here -->
         <p class="mini-cart-empty">Your cart is empty</p>
     </div>
     <div class="mini-cart-footer">
@@ -592,7 +542,6 @@
     </div>
 </div>
 
-<!-- Cart Item Template (for JavaScript use) hidden by default -->
 <template id="cart-item-template">
     <div class="cart-item" data-product-id="">
         <div class="product-col">
@@ -627,84 +576,18 @@
     </div>
 </template>
 
-<!-- Scripts -->
-<!-- jQuery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<!-- Parallax JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/parallax.js/1.5.0/parallax.min.js"></script>
-<!-- AOS Animation Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script></script>
-<!-- Custom JS -->
 <script src="js/main.js"></script>
-<!-- Cart JS -->
 <script src="js/cart.js"></script>
 
 <script>
   // Additional cart page specific JavaScript
   document.addEventListener('DOMContentLoaded', function() {
-    // Quick Add functionality for related products
-    const quickAddContainers = document.querySelectorAll('.quick-add-container');
-    
-    if (quickAddContainers.length) {
-      quickAddContainers.forEach(container => {
-        const minusBtn = container.querySelector('.quick-minus');
-        const plusBtn = container.querySelector('.quick-plus');
-        const qtyInput = container.querySelector('.quick-quantity');
-        const addBtn = container.parentElement.querySelector('.add-to-cart');
-        
-        // Minus button click
-        minusBtn.addEventListener('click', function() {
-          let value = parseInt(qtyInput.value);
-          if (value > 1) {
-            qtyInput.value = value - 1;
-          }
-        });
-        
-        // Plus button click
-        plusBtn.addEventListener('click', function() {
-          let value = parseInt(qtyInput.value);
-          if (value < 10) {
-            qtyInput.value = value + 1;
-          }
-        });
-        
-        // Add to cart with quantity
-        addBtn.addEventListener('click', function() {
-          const productCard = this.closest('.product-card');
-          const productId = productCard.dataset.productId;
-          const productTitle = productCard.querySelector('.product-title a').textContent;
-          const productImage = productCard.querySelector('.product-image img').src;
-          const productPrice = productCard.querySelector('.price').textContent;
-          const productQuantity = parseInt(qtyInput.value);
-          
-          // Build product object for cart
-          const product = {
-            id: productId,
-            title: productTitle,
-            price: productPrice,
-            quantity: productQuantity,
-            image: productImage
-          };
-          
-          // Call addToCart function in cart.js if it exists
-          if (typeof window.addToCart === 'function') {
-            window.addToCart(product);
-          }
-          
-          // Visual feedback
-          this.innerHTML = '<i class="fas fa-check"></i> Added!';
-          this.style.backgroundColor = '#28a745';
-          
-          // Reset after animation
-          setTimeout(() => {
-            this.innerHTML = 'Add to Cart';
-            this.style.backgroundColor = '';
-            qtyInput.value = 1; // Reset quantity to 1
-          }, 1500);
-        });
-      });
-    }
-    
+    // Note: The quick add functionality for related products is removed from cart.js
+    // as per the requirement to only allow adding to cart from shop.html.
+
     // Display cart count on page load
     const updateItemsCount = () => {
       const cartData = localStorage.getItem('afrimartCart');
@@ -716,9 +599,9 @@
         }
       }
     };
-    
+
     updateItemsCount();
-    
+
     // Handle checkout button success feedback
     const checkoutBtn = document.querySelector('.checkout-btn');
     if (checkoutBtn) {
@@ -728,7 +611,7 @@
           const successMessage = document.querySelector('.checkout-success-message');
           if (successMessage) {
             successMessage.classList.add('active');
-            
+
             // Hide other summary content
             const summaryContent = document.querySelector('.summary-content');
             if (summaryContent) {
@@ -738,30 +621,40 @@
         }, 1000);
       });
     }
-    
+
     // Show loading state initially, then hide it
     const cartLoading = document.querySelector('.cart-loading');
     if (cartLoading) {
       cartLoading.style.display = 'flex';
-      
+
       // Hide loading after a short delay
       setTimeout(() => {
         cartLoading.style.display = 'none';
-        
+
         // Check if cart is empty and show appropriate content
         const cartData = localStorage.getItem('afrimartCart');
         if (cartData) {
           const cart = JSON.parse(cartData);
           const emptyCart = document.querySelector('.empty-cart');
           const cartWithItems = document.querySelector('.cart-with-items');
-          
+
           if (cart.items && cart.items.length === 0) {
             if (emptyCart) emptyCart.style.display = 'block';
             if (cartWithItems) cartWithItems.style.display = 'none';
           } else {
             if (emptyCart) emptyCart.style.display = 'none';
             if (cartWithItems) cartWithItems.style.display = 'block';
+            // Ensure totals are calculated if cart has items
+            if (typeof calculateTotals === 'function') {
+              calculateTotals();
+            }
           }
+        } else {
+             // If no cart data, show empty cart
+             const emptyCart = document.querySelector('.empty-cart');
+             const cartWithItems = document.querySelector('.cart-with-items');
+             if (emptyCart) emptyCart.style.display = 'block';
+             if (cartWithItems) cartWithItems.style.display = 'none';
         }
       }, 800);
     }

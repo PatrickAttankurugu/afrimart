@@ -1,22 +1,27 @@
 /*
 * AfriMart Depot - Shopping Cart JavaScript
-* Version: 2.1 - Fixed Shopping Experience
+* Version: 3.0 - Centralized Cart Management
 */
 
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
 
   // Initialize AOS Animation
-  AOS.init({
-    duration: 800,
-    easing: 'ease-in-out',
-    once: true,
-    mirror: false
-  });
+  if (typeof AOS !== 'undefined') {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-in-out',
+      once: true,
+      mirror: false
+    });
+  }
 
-  // Cart DOM Elements
+  // ==================
+  // DOM Element References
+  // ==================
+  
+  // Cart page elements
   const cartItemsContainer = document.querySelector('.cart-item-list');
-  const cartItems = document.querySelectorAll('.cart-item');
   const cartSubtotal = document.getElementById('cart-subtotal');
   const shippingCost = document.getElementById('shipping-cost');
   const taxAmount = document.getElementById('tax-amount');
@@ -25,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const discountRow = document.querySelector('.discount-row');
   const emptyCartSection = document.querySelector('.empty-cart');
   const cartWithItemsSection = document.querySelector('.cart-with-items');
-  const cartCountBadges = document.querySelectorAll('.cart-count');
+  const itemsCountDisplay = document.querySelector('.items-count');
   
   // Shipping options
   const shippingOptions = document.querySelectorAll('input[name="shipping"]');
@@ -54,89 +59,415 @@ document.addEventListener('DOMContentLoaded', function() {
     'FREESHIP': 'freeshipping' // Free shipping
   };
 
-  // Mini-cart HTML template
-  const miniCartTemplate = `
-    <div class="mini-cart">
-      <div class="mini-cart-header">
-        <h3>Cart</h3>
-        <button class="mini-cart-close"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="mini-cart-items">
-        <!-- Items will be dynamically added here -->
-      </div>
-      <div class="mini-cart-footer">
-        <div class="mini-cart-subtotal">
-          <span>Subtotal:</span>
-          <span class="mini-subtotal-value">$0.00</span>
-        </div>
-        <div class="mini-cart-actions">
-          <a href="cart.html" class="btn btn-secondary view-cart-btn">View Cart</a>
-          <button class="btn btn-primary mini-checkout-btn">
-            <i class="fab fa-whatsapp"></i> Checkout
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+  // ==================
+  // Cart Core Functions
+  // ==================
 
-  // Function to create the mini-cart if it doesn't exist
-  function createMiniCart() {
-    // Check if mini-cart already exists
-    let miniCart = document.querySelector('.mini-cart');
+  /**
+   * Get cart data from localStorage
+   * @returns {Object} Cart data with items array and metadata
+   */
+  function getCartFromStorage() {
+    const savedCart = localStorage.getItem('afrimartCart');
+    if (savedCart) {
+      try {
+        return JSON.parse(savedCart);
+      } catch (e) {
+        console.error('Error parsing cart data from localStorage', e);
+        return { items: [], subtotal: 0 };
+      }
+    } else {
+      return { items: [], subtotal: 0 };
+    }
+  }
+
+  /**
+   * Save cart data to localStorage
+   * @param {Array} cartItems - Array of cart item objects
+   */
+  function saveCartToStorage(cartItems) {
+    // Calculate subtotal
+    const subtotal = calculateSubtotal(cartItems);
     
-    if (!miniCart) {
-      // Create mini-cart element
-      const miniCartElement = document.createElement('div');
-      miniCartElement.innerHTML = miniCartTemplate;
-      document.body.appendChild(miniCartElement.firstElementChild);
-      
-      // Get the newly created mini-cart
-      miniCart = document.querySelector('.mini-cart');
-      
-      // Add event listeners
-      const closeBtn = miniCart.querySelector('.mini-cart-close');
-      const checkoutBtn = miniCart.querySelector('.mini-checkout-btn');
-      
-      closeBtn.addEventListener('click', () => {
-        miniCart.classList.remove('active');
-      });
-      
-      checkoutBtn.addEventListener('click', () => {
-        checkoutViaWhatsApp();
+    // Format the cart data
+    const cartData = {
+      items: cartItems,
+      subtotal: subtotal,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('afrimartCart', JSON.stringify(cartData));
+    } catch (e) {
+      console.error('Error saving cart data to localStorage', e);
+    }
+    
+    // Update cart counts and displays
+    updateCartDisplay();
+  }
+
+  /**
+   * Add a product to the cart
+   * @param {Object} product - Product object to add to cart
+   */
+  function addToCart(product) {
+    // Validate product has required fields
+    if (!product || !product.id || !product.title || !product.price) {
+      console.error('Invalid product object', product);
+      return;
+    }
+    
+    // Ensure product has a quantity
+    if (!product.quantity || isNaN(parseInt(product.quantity))) {
+      product.quantity = 1;
+    } else {
+      product.quantity = parseInt(product.quantity);
+    }
+    
+    // Get current cart
+    const cart = getCartFromStorage();
+    
+    // Check if product already exists in cart by ID
+    const existingProductIndex = cart.items.findIndex(item => item.id === product.id);
+    
+    if (existingProductIndex !== -1) {
+      // Product exists, update quantity
+      const newQty = parseInt(cart.items[existingProductIndex].quantity) + product.quantity;
+      cart.items[existingProductIndex].quantity = Math.min(newQty, 99); // Cap at 99
+    } else {
+      // Product doesn't exist, add it
+      cart.items.push({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        quantity: Math.min(product.quantity, 99), // Cap at 99
+        image: product.image || '',
+        variant: product.variant || ''
       });
     }
     
-    return miniCart;
+    // Save updated cart
+    saveCartToStorage(cart.items);
+    
+    // Show notification
+    showAddedToCartNotification(product.title);
+    
+    // Show mini-cart
+    showMiniCart();
+    
+    return true;
   }
 
-  // Function to show notification when item is added to cart
+  /**
+   * Remove an item from the cart
+   * @param {string} productId - ID of product to remove
+   */
+  function removeCartItem(productId) {
+    if (!productId) return false;
+    
+    // Get current cart
+    const cart = getCartFromStorage();
+    
+    // Remove item
+    const updatedItems = cart.items.filter(item => item.id !== productId);
+    
+    // Save updated cart
+    saveCartToStorage(updatedItems);
+    
+    // If on cart page, update UI by removing the element
+    if (isCartPage) {
+      const itemToRemove = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+      if (itemToRemove) {
+        // Fade out animation
+        itemToRemove.style.transition = 'opacity 0.3s ease';
+        itemToRemove.style.opacity = '0';
+        
+        // Remove after animation
+        setTimeout(() => {
+          itemToRemove.remove();
+          
+          // Recalculate totals
+          calculateCartTotals();
+          
+          // Check if cart is now empty
+          if (updatedItems.length === 0) {
+            showEmptyCartMessage();
+          }
+        }, 300);
+      }
+    }
+    
+    // Update mini-cart if it's open
+    updateMiniCartItems();
+    
+    return true;
+  }
+
+  /**
+   * Update the quantity of an item in the cart
+   * @param {string} productId - ID of product to update
+   * @param {number} quantity - New quantity
+   */
+  function updateCartItemQuantity(productId, quantity) {
+    if (!productId || isNaN(parseInt(quantity))) return false;
+    
+    // Ensure quantity is a valid number
+    quantity = Math.max(1, Math.min(99, parseInt(quantity)));
+    
+    // Get current cart
+    const cart = getCartFromStorage();
+    
+    // Find item
+    const existingProductIndex = cart.items.findIndex(item => item.id === productId);
+    
+    if (existingProductIndex !== -1) {
+      // Update quantity
+      cart.items[existingProductIndex].quantity = quantity;
+      
+      // Save updated cart
+      saveCartToStorage(cart.items);
+      
+      // Return success
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Calculate subtotal from cart items
+   * @param {Array} cartItems - Array of cart item objects
+   * @returns {number} Subtotal
+   */
+  function calculateSubtotal(cartItems) {
+    let subtotal = 0;
+    
+    if (!cartItems || !Array.isArray(cartItems)) return subtotal;
+    
+    cartItems.forEach(item => {
+      // Extract numeric price from price string (e.g. "$12.99" -> 12.99)
+      const price = parseFloat(item.price.replace(/[^\d.-]/g, ''));
+      const quantity = parseInt(item.quantity || 1);
+      
+      if (!isNaN(price) && !isNaN(quantity)) {
+        subtotal += price * quantity;
+      }
+    });
+    
+    return subtotal;
+  }
+
+  /**
+   * Format currency as dollar amount
+   * @param {number} amount - Amount to format
+   * @returns {string} Formatted amount with $ sign
+   */
+  function formatCurrency(amount) {
+    return '$' + parseFloat(amount).toFixed(2);
+  }
+
+  /**
+   * Calculate all cart totals
+   * Updates DOM elements with calculated values
+   */
+  function calculateCartTotals() {
+    if (!isCartPage) return;
+    
+    // Get cart items from DOM
+    const cartItemsData = extractCartItemsFromDOM();
+    
+    // Calculate subtotal
+    let subtotal = calculateSubtotal(cartItemsData);
+    
+    // Get shipping cost
+    let shipping = 5.99; // Default to standard shipping
+    
+    // Check selected shipping option
+    shippingOptions.forEach(option => {
+      if (option.checked) {
+        switch (option.id) {
+          case 'standard':
+            shipping = 5.99;
+            break;
+          case 'express':
+            shipping = 12.99;
+            break;
+          case 'free':
+            shipping = 0;
+            break;
+        }
+      }
+    });
+    
+    // Check if free shipping is applicable (orders $50+)
+    if (subtotal >= 50) {
+      freeShippingOption.disabled = false;
+      const freeShippingLabel = document.querySelector('label[for="free"]');
+      if (freeShippingLabel) {
+        freeShippingLabel.classList.remove('disabled');
+      }
+    } else {
+      freeShippingOption.disabled = true;
+      const freeShippingLabel = document.querySelector('label[for="free"]');
+      if (freeShippingLabel) {
+        freeShippingLabel.classList.add('disabled');
+      }
+      
+      // If free shipping was selected but no longer applicable, switch to standard
+      if (freeShippingOption.checked) {
+        document.getElementById('standard').checked = true;
+        shipping = 5.99;
+      }
+    }
+    
+    // Check for discount
+    let discount = 0;
+    if (discountRow && discountRow.style.display !== 'none' && discountAmount) {
+      const discountText = discountAmount.textContent.replace(/[^\d.-]/g, '');
+      discount = parseFloat(discountText);
+    }
+    
+    // Calculate tax (8% of subtotal after discount)
+    const taxRate = 0.08;
+    const taxableAmount = subtotal - discount;
+    const tax = taxableAmount * taxRate;
+    
+    // Calculate total
+    const total = taxableAmount + tax + shipping;
+    
+    // Update UI
+    if (cartSubtotal) cartSubtotal.textContent = formatCurrency(subtotal);
+    if (shippingCost) shippingCost.textContent = formatCurrency(shipping);
+    if (taxAmount) taxAmount.textContent = formatCurrency(tax);
+    if (orderTotal) orderTotal.textContent = formatCurrency(total);
+    
+    // Save the current state to localStorage
+    saveCartToStorage(cartItemsData);
+  }
+
+  /**
+   * Extract cart items from the DOM on the cart page
+   * @returns {Array} Array of cart item objects
+   */
+  function extractCartItemsFromDOM() {
+    const items = [];
+    
+    if (!isCartPage) return items;
+    
+    document.querySelectorAll('.cart-item').forEach(item => {
+      const productId = item.dataset.productId;
+      const title = item.querySelector('.product-title')?.textContent;
+      const price = item.querySelector('.price')?.textContent;
+      const quantity = item.querySelector('.quantity-input')?.value;
+      const image = item.querySelector('.product-image img')?.src;
+      const variant = item.querySelector('.product-variant')?.textContent || '';
+      
+      if (productId && title && price && quantity) {
+        items.push({
+          id: productId,
+          title: title,
+          price: price,
+          quantity: parseInt(quantity),
+          image: image,
+          variant: variant
+        });
+      }
+    });
+    
+    return items;
+  }
+
+  // ==================
+  // UI Update Functions
+  // ==================
+
+  /**
+   * Update all cart displays across the site
+   * Updates cart counts, mini-cart, cart page, etc.
+   */
+  function updateCartDisplay() {
+    // Get cart data
+    const cart = getCartFromStorage();
+    
+    // Calculate total items
+    let totalItems = 0;
+    cart.items.forEach(item => {
+      totalItems += parseInt(item.quantity || 1);
+    });
+    
+    // Update all cart count badges
+    document.querySelectorAll('.cart-count').forEach(badge => {
+      badge.textContent = totalItems;
+    });
+    
+    // Update items count on cart page
+    if (isCartPage && itemsCountDisplay) {
+      itemsCountDisplay.textContent = totalItems;
+    }
+    
+    // Update floating cart count if it exists
+    const floatingCount = document.querySelector('.floating-count');
+    if (floatingCount) {
+      floatingCount.textContent = totalItems;
+    }
+    
+    // Show/hide empty cart message on cart page
+    if (isCartPage) {
+      if (cart.items.length === 0) {
+        showEmptyCartMessage();
+      } else {
+        hideEmptyCartMessage();
+      }
+    }
+    
+    // Update mini-cart if it's visible
+    if (document.querySelector('.mini-cart.active')) {
+      updateMiniCartItems();
+    }
+  }
+
+  /**
+   * Show notification when item is added to cart
+   * @param {string} productName - Name of product added
+   */
   function showAddedToCartNotification(productName) {
     // Create notification if it doesn't exist
-    let notification = document.querySelector('.added-to-cart-notification');
+    let notification = document.querySelector('.cart-notification');
+    
     if (!notification) {
       notification = document.createElement('div');
-      notification.className = 'added-to-cart-notification';
+      notification.className = 'cart-notification';
       document.body.appendChild(notification);
     }
     
-    // Set message
+    // Set notification content
     notification.innerHTML = `
-      <i class="fas fa-check-circle"></i> 
+      <i class="fas fa-check-circle"></i>
       <span>${productName} added to cart</span>
     `;
     
-    // Show and then auto-hide
+    // Show notification
     notification.classList.add('active');
+    
+    // Hide after 3 seconds
     setTimeout(() => {
       notification.classList.remove('active');
     }, 3000);
   }
 
-  // Function to show mini-cart
+  /**
+   * Create and show mini-cart
+   */
   function showMiniCart() {
-    const miniCart = createMiniCart();
+    // Create mini-cart if it doesn't exist
+    let miniCart = document.querySelector('.mini-cart');
     
-    // Populate mini-cart with items from localStorage
+    if (!miniCart) {
+      miniCart = createMiniCart();
+    }
+    
+    // Update mini-cart contents
     updateMiniCartItems();
     
     // Show mini-cart
@@ -150,7 +481,62 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 5000);
   }
 
-  // Function to update items in mini-cart
+  /**
+   * Create mini-cart element
+   * @returns {HTMLElement} Mini-cart element
+   */
+  function createMiniCart() {
+    // Mini-cart HTML template
+    const miniCartHTML = `
+      <div class="mini-cart">
+        <div class="mini-cart-header">
+          <h3>Cart</h3>
+          <button class="mini-cart-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="mini-cart-items">
+          <!-- Items will be dynamically added here -->
+        </div>
+        <div class="mini-cart-footer">
+          <div class="mini-cart-subtotal">
+            <span>Subtotal:</span>
+            <span class="mini-subtotal-value">$0.00</span>
+          </div>
+          <div class="mini-cart-actions">
+            <a href="cart.html" class="btn btn-secondary view-cart-btn">View Cart</a>
+            <button class="btn btn-primary mini-checkout-btn">
+              <i class="fab fa-whatsapp"></i> Checkout
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Create element
+    const miniCartElement = document.createElement('div');
+    miniCartElement.innerHTML = miniCartHTML;
+    document.body.appendChild(miniCartElement.firstElementChild);
+    
+    // Get mini-cart
+    const miniCart = document.querySelector('.mini-cart');
+    
+    // Add event listeners
+    const closeBtn = miniCart.querySelector('.mini-cart-close');
+    const checkoutBtn = miniCart.querySelector('.mini-checkout-btn');
+    
+    closeBtn.addEventListener('click', () => {
+      miniCart.classList.remove('active');
+    });
+    
+    checkoutBtn.addEventListener('click', () => {
+      checkoutViaWhatsApp();
+    });
+    
+    return miniCart;
+  }
+
+  /**
+   * Update items in mini-cart
+   */
   function updateMiniCartItems() {
     const miniCart = document.querySelector('.mini-cart');
     if (!miniCart) return;
@@ -176,7 +562,7 @@ document.addEventListener('DOMContentLoaded', function() {
         itemElement.className = 'mini-cart-item';
         itemElement.innerHTML = `
           <div class="mini-cart-item-image">
-            <img src="${item.image}" alt="${item.title}">
+            <img src="${item.image || 'images/placeholder.jpg'}" alt="${item.title}">
           </div>
           <div class="mini-cart-item-details">
             <h4>${item.title}</h4>
@@ -192,7 +578,8 @@ document.addEventListener('DOMContentLoaded', function() {
         miniCartItems.appendChild(itemElement);
         
         // Calculate subtotal
-        subtotal += parseFloat(item.price.replace('$', '')) * parseInt(item.quantity);
+        const price = parseFloat(item.price.replace(/[^\d.-]/g, ''));
+        subtotal += price * parseInt(item.quantity);
       });
       
       // Update subtotal
@@ -200,299 +587,89 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Add event listeners to remove buttons
       miniCartItems.querySelectorAll('.mini-cart-item-remove').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+          e.stopPropagation();
           const productId = this.dataset.productId;
           removeCartItem(productId);
-          updateMiniCartItems();
         });
       });
     }
   }
 
-  // Function to create floating cart button for mobile
-  function createFloatingCartButton() {
-    // Only create on mobile
-    if (window.innerWidth <= 768) {
-      // Check if it already exists
-      if (document.querySelector('.floating-cart-button')) return;
-      
-      const floatingCart = document.createElement('div');
-      floatingCart.className = 'floating-cart-button';
-      floatingCart.innerHTML = `
-        <span class="floating-count">0</span>
-        <i class="fas fa-shopping-cart"></i>
-        <span class="floating-text">View Cart</span>
-      `;
-      
-      document.body.appendChild(floatingCart);
-      
-      // Update count
-      const cart = getCartFromStorage();
-      // Calculate total quantity
-      const totalQuantity = cart.items.reduce((total, item) => total + parseInt(item.quantity || 1), 0);
-      floatingCart.querySelector('.floating-count').textContent = totalQuantity;
-      
-      // Add click event
-      floatingCart.addEventListener('click', () => {
-        window.location.href = 'cart.html';
-      });
-    }
-  }
-
-  // ==================
-  // Storage Functions
-  // ==================
-
-  // Function to get cart from localStorage
-  function getCartFromStorage() {
-    const savedCart = localStorage.getItem('afrimartCart');
-    if (savedCart) {
-      return JSON.parse(savedCart);
-    } else {
-      return { items: [], subtotal: 0 };
-    }
-  }
-
-  // Function to save cart to localStorage
-  function saveCartToStorage(cartItems) {
-    // Format the cart data
-    const cartData = {
-      items: cartItems,
-      subtotal: calculateSubtotal(cartItems)
-    };
-    
-    // Save to localStorage
-    localStorage.setItem('afrimartCart', JSON.stringify(cartData));
-    
-    // Update cart counts
-    updateCartCounts();
-  }
-
-  // Function to extract cart items from the DOM
-  function extractCartItemsFromDOM() {
-    const items = [];
-    
-    document.querySelectorAll('.cart-item').forEach(item => {
-      items.push({
-        id: item.dataset.productId,
-        title: item.querySelector('.product-title').textContent,
-        price: item.querySelector('.price').textContent,
-        quantity: item.querySelector('.quantity-input').value,
-        image: item.querySelector('.product-image img').src,
-        variant: item.querySelector('.product-variant') ? item.querySelector('.product-variant').textContent : ''
-      });
-    });
-    
-    return items;
-  }
-
-  // Function to update cart counts across the site
-  function updateCartCounts() {
-    const cart = getCartFromStorage();
-    
-    // Calculate total items by summing quantities
-    let totalItems = 0;
-    cart.items.forEach(item => {
-      totalItems += parseInt(item.quantity || 1);
-    });
-    
-    // Update all cart count badges
-    document.querySelectorAll('.cart-count').forEach(badge => {
-      badge.textContent = totalItems;
-    });
-    
-    // Update floating cart count if it exists
-    const floatingCount = document.querySelector('.floating-count');
-    if (floatingCount) {
-      floatingCount.textContent = totalItems;
-    }
-    
-    // Update cart title on cart page
-    const cartTitle = document.querySelector('.cart-items h2');
-    if (cartTitle) {
-      cartTitle.textContent = `Your Cart (${totalItems} items)`;
-    }
-    
-    // Show/hide empty cart message on cart page
-    if (isCartPage) {
-      if (cart.items.length === 0) {
-        emptyCartSection.style.display = 'block';
-        cartWithItemsSection.style.display = 'none';
-      } else {
-        emptyCartSection.style.display = 'none';
-        cartWithItemsSection.style.display = 'block';
-      }
-    }
-  }
-
-  // Function to add item to cart (from product pages or shop)
-  function addItemToCart(product) {
-    // Get current cart
-    const cart = getCartFromStorage();
-    
-    // Check if product already exists in cart by ID
-    const existingProductIndex = cart.items.findIndex(item => item.id === product.id);
-    
-    if (existingProductIndex !== -1) {
-      // Product exists, update quantity
-      const newQty = parseInt(cart.items[existingProductIndex].quantity) + parseInt(product.quantity || 1);
-      cart.items[existingProductIndex].quantity = newQty;
-    } else {
-      // Make sure product has a quantity property
-      if (!product.quantity) {
-        product.quantity = 1;
-      }
-      // Product doesn't exist, add it
-      cart.items.push(product);
-    }
-    
-    // Save updated cart
-    saveCartToStorage(cart.items);
-    
-    // Show notification
-    showAddedToCartNotification(product.title);
-    
-    // Show mini-cart
-    showMiniCart();
-  }
-
-  // Function to remove item from cart
-  function removeCartItem(productId) {
-    // Get current cart
-    const cart = getCartFromStorage();
-    
-    // Remove item
-    const updatedItems = cart.items.filter(item => item.id !== productId);
-    
-    // Save updated cart
-    saveCartToStorage(updatedItems);
-    
-    // If on cart page, update UI by removing the element
-    if (isCartPage) {
-      const itemToRemove = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
-      if (itemToRemove) {
-        // Fade out animation
-        itemToRemove.style.transition = 'opacity 0.3s ease';
-        itemToRemove.style.opacity = '0';
-        
-        // Remove after animation
-        setTimeout(() => {
-          itemToRemove.remove();
-          
-          // Recalculate totals
-          calculateTotals();
-          
-          // Check if cart is now empty
-          if (updatedItems.length === 0) {
-            emptyCartSection.style.display = 'block';
-            cartWithItemsSection.style.display = 'none';
-          }
-        }, 300);
-      }
-    }
-  }
-
-  // ==================
-  // Cart Calculations
-  // ==================
-
-  // Function to format currency
-  function formatCurrency(amount) {
-    return '$' + parseFloat(amount).toFixed(2);
-  }
-
-  // Function to calculate subtotal from cart items
-  function calculateSubtotal(cartItems) {
-    let subtotal = 0;
-    
-    cartItems.forEach(item => {
-      const price = parseFloat(item.price.replace('$', ''));
-      const quantity = parseInt(item.quantity || 1);
-      subtotal += price * quantity;
-    });
-    
-    return subtotal;
-  }
-
-  // Function to calculate cart totals (on cart page)
-  function calculateTotals() {
+  /**
+   * Show empty cart message and hide cart items
+   */
+  function showEmptyCartMessage() {
     if (!isCartPage) return;
     
-    let subtotal = 0;
-    let shipping = parseFloat(shippingCost.textContent.replace('$', ''));
-    let discount = 0;
-    
-    // Extract items from DOM and calculate subtotal
-    const cartItemsData = extractCartItemsFromDOM();
-    subtotal = calculateSubtotal(cartItemsData);
-    
-    // Save the current state to localStorage
-    saveCartToStorage(cartItemsData);
-    
-    // Check if free shipping is applicable
-    if (subtotal >= 50) {
-      freeShippingOption.disabled = false;
-      document.querySelector('label[for="free"]').classList.remove('disabled');
-      
-      // If free shipping was previously selected, use it
-      if (freeShippingOption.checked) {
-        shipping = 0;
-      }
-    } else {
-      freeShippingOption.disabled = true;
-      document.querySelector('label[for="free"]').classList.add('disabled');
-      
-      // If free shipping was selected but is no longer available, switch to standard
-      if (freeShippingOption.checked) {
-        document.getElementById('standard').checked = true;
-        shipping = 5.99;
-      }
+    if (emptyCartSection) {
+      emptyCartSection.style.display = 'block';
     }
     
-    // Apply discount if applicable
-    if (discountRow.style.display !== 'none') {
-      const discountText = discountAmount.textContent.replace('$', '').replace('-', '');
-      discount = parseFloat(discountText);
+    if (cartWithItemsSection) {
+      cartWithItemsSection.style.display = 'none';
     }
-    
-    // Calculate tax (8% of subtotal after discount)
-    const taxRate = 0.08;
-    const taxableAmount = subtotal - discount;
-    const tax = taxableAmount * taxRate;
-    
-    // Calculate total
-    const total = taxableAmount + tax + shipping;
-    
-    // Update display
-    cartSubtotal.textContent = formatCurrency(subtotal);
-    taxAmount.textContent = formatCurrency(tax);
-    orderTotal.textContent = formatCurrency(total);
   }
 
-  // Function to update item subtotal when quantity changes
+  /**
+   * Hide empty cart message and show cart items
+   */
+  function hideEmptyCartMessage() {
+    if (!isCartPage) return;
+    
+    if (emptyCartSection) {
+      emptyCartSection.style.display = 'none';
+    }
+    
+    if (cartWithItemsSection) {
+      cartWithItemsSection.style.display = 'block';
+    }
+  }
+
+  /**
+   * Update the subtotal for a specific cart item when quantity changes
+   * @param {HTMLElement} quantityInput - Quantity input element
+   */
   function updateItemSubtotal(quantityInput) {
+    if (!isCartPage) return;
+    
     const cartItem = quantityInput.closest('.cart-item');
+    if (!cartItem) return;
+    
     const priceElement = cartItem.querySelector('.price');
     const subtotalElement = cartItem.querySelector('.subtotal');
+    const productId = cartItem.dataset.productId;
     
-    const price = parseFloat(priceElement.textContent.replace('$', ''));
+    if (!priceElement || !subtotalElement || !productId) return;
+    
+    const price = parseFloat(priceElement.textContent.replace(/[^\d.-]/g, ''));
     const quantity = parseInt(quantityInput.value);
+    
+    if (isNaN(price) || isNaN(quantity)) return;
+    
     const subtotal = price * quantity;
     
+    // Update DOM
     subtotalElement.textContent = formatCurrency(subtotal);
     
+    // Update cart in storage
+    updateCartItemQuantity(productId, quantity);
+    
     // Recalculate totals
-    calculateTotals();
+    calculateCartTotals();
   }
 
   // ==================
-  // WhatsApp Checkout
+  // Checkout Functions
   // ==================
 
-  // Function to checkout via WhatsApp
+  /**
+   * Checkout via WhatsApp
+   */
   function checkoutViaWhatsApp() {
-    // Get items either from DOM (if on cart page) or localStorage
+    // Get cart data
     let cartItemsData;
+    
     if (isCartPage) {
       cartItemsData = extractCartItemsFromDOM();
     } else {
@@ -501,17 +678,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Exit if cart is empty
-    if (cartItemsData.length === 0) {
+    if (!cartItemsData || !cartItemsData.length) {
       alert('Your cart is empty. Please add items before checkout.');
       return;
     }
-    
-    // Prepare values
-    let subtotal = calculateSubtotal(cartItemsData);
-    let shipping = isCartPage ? document.getElementById('shipping-cost').textContent : '$5.99';
-    let tax = isCartPage ? document.getElementById('tax-amount').textContent : formatCurrency(subtotal * 0.08);
-    let total = isCartPage ? document.getElementById('order-total').textContent : 
-                formatCurrency(subtotal + parseFloat(shipping.replace('$', '')) + parseFloat(tax.replace('$', '')));
     
     // Build WhatsApp message
     let orderMessage = "📦 *My AfriMart Depot Order:*\n\n";
@@ -522,32 +692,69 @@ document.addEventListener('DOMContentLoaded', function() {
       orderMessage += `${index+1}. ${item.title}${item.variant ? ` - ${item.variant}` : ''}\n`;
       orderMessage += `   • Price: ${item.price}\n`;
       orderMessage += `   • Quantity: ${item.quantity}\n`;
-      orderMessage += `   • Subtotal: ${formatCurrency(parseFloat(item.price.replace('$', '')) * parseInt(item.quantity))}\n\n`;
+      
+      const price = parseFloat(item.price.replace(/[^\d.-]/g, ''));
+      const quantity = parseInt(item.quantity);
+      const itemSubtotal = price * quantity;
+      
+      orderMessage += `   • Subtotal: ${formatCurrency(itemSubtotal)}\n\n`;
     });
+    
+    // Calculate summary amounts
+    const subtotal = calculateSubtotal(cartItemsData);
+    let shipping = 5.99; // Default
+    let discount = 0;
+    
+    // Get selected shipping if on cart page
+    if (isCartPage && shippingOptions) {
+      shippingOptions.forEach(option => {
+        if (option.checked) {
+          switch (option.id) {
+            case 'express':
+              shipping = 12.99;
+              break;
+            case 'free':
+              shipping = 0;
+              break;
+          }
+        }
+      });
+    }
+    
+    // Get discount if applied on cart page
+    if (isCartPage && discountRow && discountRow.style.display !== 'none' && discountAmount) {
+      const discountText = discountAmount.textContent.replace(/[^\d.-]/g, '');
+      discount = parseFloat(discountText);
+    }
+    
+    // Calculate tax and total
+    const taxRate = 0.08;
+    const taxableAmount = subtotal - discount;
+    const tax = taxableAmount * taxRate;
+    const total = taxableAmount + tax + shipping;
     
     // Add summary section
     orderMessage += "*Order Summary:*\n";
     orderMessage += `• Subtotal: ${formatCurrency(subtotal)}\n`;
     
-    // Add discount if applicable on cart page
-    if (isCartPage && discountRow && discountRow.style.display !== 'none') {
-      orderMessage += `• Discount: ${discountAmount.textContent}\n`;
+    if (discount > 0) {
+      orderMessage += `• Discount: -${formatCurrency(discount)}\n`;
     }
     
-    orderMessage += `• Shipping: ${shipping}\n`;
-    orderMessage += `• Tax: ${tax}\n`;
-    orderMessage += `• Total: ${total}\n\n`;
+    orderMessage += `• Shipping: ${formatCurrency(shipping)}\n`;
+    orderMessage += `• Tax: ${formatCurrency(tax)}\n`;
+    orderMessage += `• Total: ${formatCurrency(total)}\n\n`;
     
-    // Selected shipping method if on cart page
-    if (isCartPage) {
-      let shippingMethod = "Standard";
+    // Add shipping method
+    let shippingMethod = "Standard";
+    if (isCartPage && shippingOptions) {
       shippingOptions.forEach(option => {
         if (option.checked) {
           shippingMethod = option.id.charAt(0).toUpperCase() + option.id.slice(1);
         }
       });
-      orderMessage += `*Shipping Method:* ${shippingMethod}\n\n`;
     }
+    orderMessage += `*Shipping Method:* ${shippingMethod}\n\n`;
     
     // Add customer info template
     orderMessage += "👤 *My Information:*\n";
@@ -566,37 +773,21 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ==================
-  // Event Handlers
+  // Event Handlers and Initialization
   // ==================
 
-  // Setup cart icon click handler
-  function setupCartIconClickHandler() {
-    // Get all cart icons
-    const cartIcons = document.querySelectorAll('.cart-icon a');
+  /**
+   * Initialize cart on cart page
+   */
+  function initCartPage() {
+    if (!isCartPage) return;
     
-    cartIcons.forEach(icon => {
-      icon.addEventListener('click', function(e) {
-        // Get cart from localStorage
-        const cart = getCartFromStorage();
-        
-        // If cart has items, show mini-cart instead of navigating
-        if (cart.items && cart.items.length > 0) {
-          e.preventDefault();
-          showMiniCart();
-        }
-        // Otherwise, let default behavior navigate to cart.html
-      });
-    });
-  }
-
-  // If on cart page, set up cart functionality
-  if (isCartPage) {
-    // Load cart from localStorage if cart page is empty
+    // Populate cart page with items from localStorage if empty
     if (cartItemsContainer && cartItemsContainer.children.length === 0) {
       const cart = getCartFromStorage();
       
       if (cart.items.length > 0) {
-        // Populate cart with items from localStorage
+        // Add each item to the cart
         cart.items.forEach(item => {
           const itemElement = document.createElement('div');
           itemElement.className = 'cart-item';
@@ -605,7 +796,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="product-col">
               <div class="product-info">
                 <div class="product-image">
-                  <img src="${item.image}" alt="${item.title}">
+                  <img src="${item.image || 'images/placeholder.jpg'}" alt="${item.title}">
                 </div>
                 <div class="product-details">
                   <h3 class="product-title">${item.title}</h3>
@@ -619,12 +810,12 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="quantity-col">
               <div class="quantity-selector">
                 <button class="quantity-btn minus">-</button>
-                <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="10">
+                <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="99">
                 <button class="quantity-btn plus">+</button>
               </div>
             </div>
             <div class="subtotal-col">
-              <span class="subtotal">${formatCurrency(parseFloat(item.price.replace('$', '')) * parseInt(item.quantity))}</span>
+              <span class="subtotal">${formatCurrency(parseFloat(item.price.replace(/[^\d.-]/g, '')) * parseInt(item.quantity))}</span>
             </div>
             <div class="remove-col">
               <button class="remove-item">
@@ -636,118 +827,62 @@ document.addEventListener('DOMContentLoaded', function() {
           cartItemsContainer.appendChild(itemElement);
         });
         
-        // Add event listeners to the new items
+        // Setup event handlers for cart items
         setupCartItemEvents();
         
         // Calculate totals
-        calculateTotals();
+        calculateCartTotals();
         
-        // Update cart UI
-        emptyCartSection.style.display = 'none';
-        cartWithItemsSection.style.display = 'block';
+        // Update UI
+        hideEmptyCartMessage();
       } else {
         // Show empty cart message
-        emptyCartSection.style.display = 'block';
-        cartWithItemsSection.style.display = 'none';
+        showEmptyCartMessage();
       }
     }
     
-    // Setup event listeners for cart item interactions
-    function setupCartItemEvents() {
-      // Quantity selector functionality
-      document.querySelectorAll('.cart-item').forEach(item => {
-        const minusBtn = item.querySelector('.minus');
-        const plusBtn = item.querySelector('.plus');
-        const quantityInput = item.querySelector('.quantity-input');
-        
-        if (minusBtn && plusBtn && quantityInput) {
-          // Decrease quantity
-          minusBtn.addEventListener('click', function() {
-            const currentValue = parseInt(quantityInput.value);
-            if (currentValue > 1) {
-              quantityInput.value = currentValue - 1;
-              updateItemSubtotal(quantityInput);
-            }
-          });
+    // Setup shipping option change handlers
+    if (shippingOptions) {
+      shippingOptions.forEach(option => {
+        option.addEventListener('change', function() {
+          let shippingValue = 5.99; // Default
           
-          // Increase quantity
-          plusBtn.addEventListener('click', function() {
-            const currentValue = parseInt(quantityInput.value);
-            const maxValue = parseInt(quantityInput.getAttribute('max') || 10);
-            if (currentValue < maxValue) {
-              quantityInput.value = currentValue + 1;
-              updateItemSubtotal(quantityInput);
-            }
-          });
+          switch (this.id) {
+            case 'standard':
+              shippingValue = 5.99;
+              break;
+            case 'express':
+              shippingValue = 12.99;
+              break;
+            case 'free':
+              shippingValue = 0;
+              break;
+          }
           
-          // Manual input
-          quantityInput.addEventListener('change', function() {
-            let value = parseInt(this.value);
-            const minValue = parseInt(this.getAttribute('min') || 1);
-            const maxValue = parseInt(this.getAttribute('max') || 10);
-            
-            // Ensure valid value
-            if (isNaN(value) || value < minValue) {
-              value = minValue;
-            } else if (value > maxValue) {
-              value = maxValue;
-            }
-            
-            this.value = value;
-            updateItemSubtotal(this);
-          });
-        }
-      });
-      
-      // Remove item functionality
-      document.querySelectorAll('.remove-item').forEach(button => {
-        button.addEventListener('click', function() {
-          const cartItem = this.closest('.cart-item');
-          const productId = cartItem.dataset.productId;
+          if (shippingCost) {
+            shippingCost.textContent = formatCurrency(shippingValue);
+          }
           
-          // Remove from cart
-          removeCartItem(productId);
+          // Recalculate totals
+          calculateCartTotals();
         });
       });
     }
     
-    // Run setup on existing cart items
-    setupCartItemEvents();
-    
-    // Shipping option change
-    shippingOptions.forEach(option => {
-      option.addEventListener('change', function() {
-        const value = this.value;
-        
-        switch (value) {
-          case 'standard':
-            shippingCost.textContent = '$5.99';
-            break;
-          case 'express':
-            shippingCost.textContent = '$12.99';
-            break;
-          case 'free':
-            shippingCost.textContent = '$0.00';
-            break;
-        }
-        
-        // Recalculate totals
-        calculateTotals();
-      });
-    });
-    
-    // Apply discount code
-    if (applyDiscountBtn) {
+    // Setup discount code button
+    if (applyDiscountBtn && discountCodeInput) {
       applyDiscountBtn.addEventListener('click', function() {
         const code = discountCodeInput.value.trim().toUpperCase();
         
         // Hide previous messages
-        discountSuccessMsg.style.display = 'none';
-        discountErrorMsg.style.display = 'none';
+        if (discountSuccessMsg) discountSuccessMsg.style.display = 'none';
+        if (discountErrorMsg) discountErrorMsg.style.display = 'none';
         
-        if (code === '') {
-          discountErrorMsg.textContent = 'Please enter a discount code.';
-          discountErrorMsg.style.display = 'block';
+        if (!code) {
+          if (discountErrorMsg) {
+            discountErrorMsg.textContent = 'Please enter a discount code.';
+            discountErrorMsg.style.display = 'block';
+          }
           return;
         }
         
@@ -756,80 +891,105 @@ document.addEventListener('DOMContentLoaded', function() {
           
           if (discount === 'freeshipping') {
             // Apply free shipping
-            document.getElementById('free').checked = true;
-            document.getElementById('free').disabled = false;
-            document.querySelector('label[for="free"]').classList.remove('disabled');
-            shippingCost.textContent = '$0.00';
+            if (freeShippingOption) {
+              freeShippingOption.checked = true;
+              freeShippingOption.disabled = false;
+              
+              const freeShippingLabel = document.querySelector('label[for="free"]');
+              if (freeShippingLabel) {
+                freeShippingLabel.classList.remove('disabled');
+              }
+              
+              if (shippingCost) {
+                shippingCost.textContent = '$0.00';
+              }
+            }
             
             // Show success message
-            discountSuccessMsg.textContent = 'Free shipping applied successfully!';
-            discountSuccessMsg.style.display = 'block';
+            if (discountSuccessMsg) {
+              discountSuccessMsg.textContent = 'Free shipping applied successfully!';
+              discountSuccessMsg.style.display = 'block';
+            }
           } else {
             // Apply percentage discount
-            const subtotal = parseFloat(cartSubtotal.textContent.replace('$', ''));
-            const discountValue = subtotal * (discount / 100);
+            const subtotalValue = parseFloat(cartSubtotal.textContent.replace(/[^\d.-]/g, ''));
+            const discountValue = subtotalValue * (discount / 100);
             
             // Show discount row
-            discountRow.style.display = 'flex';
-            discountAmount.textContent = '-' + formatCurrency(discountValue);
+            if (discountRow && discountAmount) {
+              discountRow.style.display = 'flex';
+              discountAmount.textContent = '-' + formatCurrency(discountValue);
+            }
             
             // Show success message
-            discountSuccessMsg.textContent = `${discount}% discount applied successfully!`;
-            discountSuccessMsg.style.display = 'block';
+            if (discountSuccessMsg) {
+              discountSuccessMsg.textContent = `${discount}% discount applied successfully!`;
+              discountSuccessMsg.style.display = 'block';
+            }
           }
           
-          // Disable input and button after successful application
-          discountCodeInput.disabled = true;
-          applyDiscountBtn.disabled = true;
+          // Disable input and button
+          if (discountCodeInput) discountCodeInput.disabled = true;
+          if (applyDiscountBtn) applyDiscountBtn.disabled = true;
           
           // Recalculate totals
-          calculateTotals();
+          calculateCartTotals();
         } else {
           // Invalid code
-          discountErrorMsg.textContent = 'Invalid discount code. Please try again.';
-          discountErrorMsg.style.display = 'block';
+          if (discountErrorMsg) {
+            discountErrorMsg.textContent = 'Invalid discount code. Please try again.';
+            discountErrorMsg.style.display = 'block';
+          }
         }
       });
     }
     
-    // Update cart button
+    // Setup update cart button
     if (updateCartBtn) {
       updateCartBtn.addEventListener('click', function() {
-        // Animation to indicate update
+        // Add animation to indicate update
         this.innerHTML = '<i class="fas fa-check"></i> Cart Updated';
         this.classList.add('btn-success');
         
-        // Extract cart items and save to storage
+        // Update cart data
         const cartItemsData = extractCartItemsFromDOM();
         saveCartToStorage(cartItemsData);
         
         // Recalculate totals
-        calculateTotals();
+        calculateCartTotals();
         
+        // Reset button after animation
         setTimeout(() => {
-          this.innerHTML = 'Update Cart';
+          this.innerHTML = '<i class="fas fa-sync-alt"></i> Update Cart';
           this.classList.remove('btn-success');
         }, 2000);
       });
     }
     
-    // Clear cart button
+    // Setup clear cart button
     if (clearCartBtn) {
       clearCartBtn.addEventListener('click', function() {
         if (confirm('Are you sure you want to clear your cart?')) {
-          // Clear cart in localStorage
+          // Clear cart in storage
           saveCartToStorage([]);
           
-          // Add fade-out animation to all items
+          // Fade out all items
           document.querySelectorAll('.cart-item').forEach(item => {
             item.style.transition = 'opacity 0.3s ease';
             item.style.opacity = '0';
           });
           
-          // Remove after animation
+          // Update UI after animation
           setTimeout(() => {
-            document.querySelector('.cart-with-items').style.display = 'none';
-            document.querySelector('.empty-cart').style.display = 'block';
+            // Remove all items
+            if (cartItemsContainer) {
+              cartItemsContainer.innerHTML = '';
+            }
+            
+            // Show empty cart message
+            showEmptyCartMessage();
+            
+            // Reset cart counts
             document.querySelectorAll('.cart-count').forEach(badge => {
               badge.textContent = '0';
             });
@@ -838,7 +998,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
     
-    // Checkout button
+    // Setup checkout button
     if (checkoutBtn) {
       checkoutBtn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -846,55 +1006,219 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
-
-  // Add to Cart for related products (on cart page)
-  const addToCartButtons = document.querySelectorAll('.related-products-slider .add-to-cart');
   
-  addToCartButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const productCard = this.closest('.product-card');
-      const productTitle = productCard.querySelector('.product-title a').textContent;
-      const productImage = productCard.querySelector('.product-image img').src;
-      const productPrice = productCard.querySelector('.price').textContent;
-      const productId = productCard.dataset.productId || 'related_' + Date.now();
-      const productQuantity = productCard.querySelector('.quick-quantity') ? 
-                             parseInt(productCard.querySelector('.quick-quantity').value) : 1;
+  /**
+   * Setup event handlers for cart items
+   */
+  function setupCartItemEvents() {
+    if (!isCartPage) return;
+    
+    // Setup quantity change handlers
+    document.querySelectorAll('.cart-item').forEach(item => {
+      const minusBtn = item.querySelector('.minus');
+      const plusBtn = item.querySelector('.plus');
+      const quantityInput = item.querySelector('.quantity-input');
       
-      // Create product object
-      const product = {
-        id: productId,
-        title: productTitle,
-        price: productPrice,
-        quantity: productQuantity,
-        image: productImage
-      };// Add to cart
-      addItemToCart(product);
+      if (minusBtn && plusBtn && quantityInput) {
+        // Decrease quantity
+        minusBtn.addEventListener('click', function() {
+          const currentValue = parseInt(quantityInput.value);
+          if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
+            updateItemSubtotal(quantityInput);
+          }
+        });
+        
+        // Increase quantity
+        plusBtn.addEventListener('click', function() {
+          const currentValue = parseInt(quantityInput.value);
+          const maxValue = parseInt(quantityInput.getAttribute('max') || 99);
+          if (currentValue < maxValue) {
+            quantityInput.value = currentValue + 1;
+            updateItemSubtotal(quantityInput);
+          }
+        });
+        
+        // Manual input
+        quantityInput.addEventListener('change', function() {
+          let value = parseInt(this.value);
+          const minValue = parseInt(this.getAttribute('min') || 1);
+          const maxValue = parseInt(this.getAttribute('max') || 99);
+          
+          // Ensure valid value
+          if (isNaN(value) || value < minValue) {
+            value = minValue;
+          } else if (value > maxValue) {
+            value = maxValue;
+          }
+          
+          this.value = value;
+          updateItemSubtotal(this);
+        });
+      }
       
-      // Animation
-      this.innerHTML = '<i class="fas fa-check"></i> Added!';
-      this.style.backgroundColor = '#28a745';
-      
-      // Reset button after animation
-      setTimeout(() => {
-        this.innerHTML = 'Add to Cart';
-        this.style.backgroundColor = '';
-      }, 1500);
+      // Setup remove button
+      const removeBtn = item.querySelector('.remove-item');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', function() {
+          const productId = item.dataset.productId;
+          if (productId) {
+            removeCartItem(productId);
+          }
+        });
+      }
     });
-  });
-
-  // Add to Cart from other pages (shop.js or product-details.js would call this)
-  window.addToCart = function(product) {
-    addItemToCart(product);
-  };
-
-  // Create floating cart button on mobile if not on cart page
-  if (!isCartPage && window.innerWidth <= 768) {
-    createFloatingCartButton();
   }
-
-  // Set up the click handler for the cart icon
-  setupCartIconClickHandler();
-
-  // Update cart counts on page load
-  updateCartCounts();
+  
+  /**
+   * Setup cart icon click handlers
+   */
+  function setupCartIconClickHandlers() {
+    const cartIcons = document.querySelectorAll('.cart-icon a');
+    
+    cartIcons.forEach(icon => {
+      icon.addEventListener('click', function(e) {
+        // Check if cart has items
+        const cart = getCartFromStorage();
+        
+        // If cart has items, show mini-cart instead of navigating
+        if (cart.items && cart.items.length > 0) {
+          e.preventDefault();
+          showMiniCart();
+        }
+        // Otherwise, let default behavior navigate to cart.html
+      });
+    });
+  }
+  
+  /**
+   * Initialize the "Add to Cart" buttons on shop and product pages
+   */
+  function initAddToCartButtons() {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+    
+    addToCartButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // Get parent product card or container
+        const productContainer = this.closest('.product-card') || this.closest('.product-info');
+        if (!productContainer) return;
+        
+        // Get product data
+        let productId, productTitle, productPrice, productImage, productQuantity = 1;
+        
+        // Get product ID (different approaches based on page)
+        if (isProductPage) {
+          // On product details page
+          productId = new URLSearchParams(window.location.search).get('product') || 
+                     new URLSearchParams(window.location.search).get('id') || 
+                     `product_${Date.now()}`;
+          
+          // Get title from page
+          const titleElement = document.querySelector('.product-title') || document.querySelector('h1');
+          productTitle = titleElement ? titleElement.textContent.trim() : 'Product';
+          
+          // Get price
+          const priceElement = document.querySelector('.current-price') || document.querySelector('.price');
+          productPrice = priceElement ? priceElement.textContent.trim() : '$0.00';
+          
+          // Get main product image
+          const imageElement = document.querySelector('.main-product-image') || 
+                              document.querySelector('.gallery-main-image img') || 
+                              document.querySelector('.product-image img');
+          productImage = imageElement ? imageElement.src : '';
+          
+          // Get quantity
+          const quantityInput = document.querySelector('.quantity-input');
+          productQuantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+          
+        } else {
+          // On shop or other pages
+          productId = productContainer.dataset.productId || 
+                     productContainer.dataset.id || 
+                     `product_${Date.now()}`;
+          
+          // Get title
+          const titleElement = productContainer.querySelector('.product-title') || 
+                              productContainer.querySelector('h3 a') || 
+                              productContainer.querySelector('h3');
+          productTitle = titleElement ? (titleElement.textContent || titleElement.innerText).trim() : 'Product';
+          
+          // Get price
+          const priceElement = productContainer.querySelector('.price');
+          productPrice = priceElement ? priceElement.textContent.trim() : '$0.00';
+          
+          // Get image
+          const imageElement = productContainer.querySelector('.product-image img') || 
+                              productContainer.querySelector('img');
+          productImage = imageElement ? imageElement.src : '';
+          
+          // Get quantity if there's a quantity input
+          const quantityInput = productContainer.querySelector('.quantity-input') || 
+                               productContainer.querySelector('.quick-quantity');
+          productQuantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+        }
+        
+        // Create product object
+        const product = {
+          id: productId,
+          title: productTitle,
+          price: productPrice,
+          quantity: productQuantity,
+          image: productImage
+        };
+        
+        // Add to cart
+        addToCart(product);
+        
+        // Visual feedback
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-check"></i> Added!';
+        this.classList.add('added');
+        
+        // Reset button after animation
+        setTimeout(() => {
+          this.innerHTML = originalText;
+          this.classList.remove('added');
+        }, 1500);
+      });
+    });
+  }
+  
+  // ==================
+  // Public API
+  // ==================
+  
+  // Make cart functions globally available
+  window.AfriMartCart = {
+    addToCart: addToCart,
+    removeCartItem: removeCartItem,
+    updateCartItemQuantity: updateCartItemQuantity,
+    getCartItems: function() {
+      return getCartFromStorage().items;
+    },
+    clearCart: function() {
+      saveCartToStorage([]);
+      updateCartDisplay();
+    },
+    showMiniCart: showMiniCart
+  };
+  
+  // Export the global addToCart function for backward compatibility
+  window.addToCart = addToCart;
+  
+  // ==================
+  // Initialization
+  // ==================
+  
+  // Initialize cart functionality
+  initCartPage();
+  
+  // Setup add to cart buttons
+  initAddToCartButtons();
+  
+  // Setup cart icon click handlers
+  setupCartIconClickHandlers();
+  
+  // Update cart display on page load
+  updateCartDisplay();
 });

@@ -104,7 +104,7 @@
             <div class="product-slider" data-aos="fade-up" data-aos-delay="200">
                 <div class="product-slider-wrapper">
                     <!-- Product 1: Palm Oil -->
-                    <div class="product-card">
+                    <div class="product-card" data-product-id="palm-oil">
                         <div class="product-badge">Best Seller</div>
                         <div class="product-image">
                             <img src="images/palm-oil.png" alt="Premium Palm Oil">
@@ -123,12 +123,12 @@
                                 <span class="price">$12.99</span>
                                 <span class="unit">500ml</span>
                             </div>
-                            <button class="add-to-cart">Add to Cart</button>
+                            <a href="shop.html?product=palm-oil" class="btn btn-primary">View Product</a>
                         </div>
                     </div>
                     
                     <!-- Product 2: Dried Fish -->
-                    <div class="product-card">
+                    <div class="product-card" data-product-id="dried-catfish">
                         <div class="product-image">
                             <img src="images/dried-fish.jpg" alt="Smoked Catfish">
                         </div>
@@ -146,12 +146,12 @@
                                 <span class="price">$14.99</span>
                                 <span class="unit">250g</span>
                             </div>
-                            <button class="add-to-cart">Add to Cart</button>
+                            <a href="shop.html?product=dried-catfish" class="btn btn-primary">View Product</a>
                         </div>
                     </div>
                     
                     <!-- Product 3: Pepper Soup Spice -->
-                    <div class="product-card">
+                    <div class="product-card" data-product-id="pepper-soup-spice">
                         <div class="product-badge">New</div>
                         <div class="product-image">
                             <img src="images/pepper-soup-spices.webp" alt="Pepper Soup Spice">
@@ -170,12 +170,12 @@
                                 <span class="price">$8.99</span>
                                 <span class="unit">100g</span>
                             </div>
-                            <button class="add-to-cart">Add to Cart</button>
+                            <a href="shop.html?product=pepper-soup-spice" class="btn btn-primary">View Product</a>
                         </div>
                     </div>
                     
                     <!-- Product 4: Suya Spice -->
-                    <div class="product-card">
+                    <div class="product-card" data-product-id="suya-spice">
                         <div class="product-image">
                             <img src="images/suya-spices.webp" alt="Suya Spice">
                         </div>
@@ -193,7 +193,7 @@
                                 <span class="price">$7.99</span>
                                 <span class="unit">100g</span>
                             </div>
-                            <button class="add-to-cart">Add to Cart</button>
+                            <a href="shop.html?product=suya-spice" class="btn btn-primary">View Product</a>
                         </div>
                     </div>
                 </div>
@@ -586,6 +586,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <!-- Custom JS -->
     <script src="js/main.js"></script>
+    <!-- Cart JS -->
+    <script src="js/cart.js"></script>
 
     <!-- Additional Styles for WhatsApp button -->
     <style>
