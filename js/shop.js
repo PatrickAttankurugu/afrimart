@@ -1,10 +1,13 @@
 /*
 * AfriMart Depot - Shop Page JavaScript
-* Version: 2.5 - Added dynamic product loading from localStorage
+* Version: 2.5 - Added dynamic product loading from localStorage and S3
 */
 
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
+
+  // API Base URL for Netlify functions
+  const API_BASE_URL = '/.netlify/functions/s3-handler';
 
   // Initialize AOS Animation
   if (typeof AOS !== 'undefined') {
@@ -45,11 +48,31 @@ document.addEventListener('DOMContentLoaded', function() {
   const paginationLinks = document.querySelectorAll('.page-link');
 
   // ==================
-  // Load Products from localStorage
+  // S3 Integration Functions
   // ==================
   
-  function loadProductsFromStorage() {
-    const products = JSON.parse(localStorage.getItem('afrimart_products') || '[]');
+  async function getProductsFromS3() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/get-products`);
+      if (!response.ok) throw new Error('Failed to get products from S3');
+      
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error getting products from S3:', error);
+      // Fallback to localStorage
+      const savedProducts = localStorage.getItem('afrimart_products');
+      return savedProducts ? JSON.parse(savedProducts) : [];
+    }
+  }
+  
+  // ==================
+  // Load Products from localStorage and S3
+  // ==================
+  
+  async function loadProductsFromStorage() {
+    // First try to get from S3
+    const products = await getProductsFromS3();
     const productsGrid = document.querySelector('.products-grid');
     
     if (!productsGrid) return;
@@ -874,7 +897,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
-  
+ 
   // ==================
   // Toast Notifications
   // ==================
@@ -908,7 +931,7 @@ document.addEventListener('DOMContentLoaded', function() {
       case 'success':
         icon = '<i class="fas fa-check-circle"></i>';
         break;
-      case 'error':case 'error':
+      case 'error':
         icon = '<i class="fas fa-exclamation-circle"></i>';
         break;
       case 'info':
@@ -1074,7 +1097,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Load products from localStorage (new functionality)
+  // Load products from localStorage and S3
   loadProductsFromStorage();
   
   // Initialize all dynamic features
@@ -1088,4 +1111,4 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize lazy loading
   setupLazyLoading();
-});
+ });
