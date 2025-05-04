@@ -1,295 +1,820 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AfriMart Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css">
-</head>
-<body>
-    <div class="admin-dashboard">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <img src="images/logo.png" alt="AfriMart Logo">
-                </div>
-                <button class="toggle-sidebar" id="toggleSidebar">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-link active" data-section="dashboard">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="nav-link" data-section="products">
-                    <i class="fas fa-box"></i>
-                    <span>Products</span>
-                </a>
-                <a href="#" class="nav-link" data-section="orders">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Orders</span>
-                </a>
-                <a href="#" class="nav-link" data-section="settings">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <a href="index.html" class="nav-link" target="_blank">
-                    <i class="fas fa-external-link-alt"></i>
-                    <span>View Website</span>
-                </a>
-            </div>
-        </aside>
+/*
+* AfriMart Depot - Admin Dashboard JavaScript
+* Version: 2.2 - Fixed S3 routing and added debug functionality
+*/
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Header -->
-            <header class="header">
-                <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="page-title">Dashboard</h1>
-                <div class="header-actions">
-                    <div class="stats-toggle">
-                        <select id="statsTimeFrame" class="form-control">
-                            <option value="today">Today</option>
-                            <option value="week">This Week</option>
-                            <option value="month">This Month</option>
-                        </select>
-                    </div>
-                </div>
-            </header>
+document.addEventListener('DOMContentLoaded', function() {
+    'use strict';
 
-            <!-- Content Sections -->
-            <div class="content-section">
-                <!-- Dashboard Section -->
-                <section id="dashboardSection" class="section active">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-box"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Total Products</h3>
-                                <p id="totalProducts">0</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Total Orders</h3>
-                                <p id="totalOrders">0</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-dollar-sign"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Total Revenue</h3>
-                                <p id="totalRevenue">$0.00</p>
-                            </div>
-                        </div>
-                    </div>
+    // ==================
+    // Constants
+    // ==================
+    const API_BASE_URL = '/.netlify/functions/s3-handler';
+    const ORDERS_KEY = 'afrimart_orders';
+    const SETTINGS_KEY = 'afrimart_settings';
+    const ACTIVITY_KEY = 'afrimart_recent_activity';
+    
+    // ==================
+    // DOM Elements
+    // ==================
+    const sidebar = document.getElementById('sidebar');
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
+    const pageTitle = document.querySelector('.page-title');
+    
+    // Product Modal
+    const productModal = document.getElementById('productModal');
+    const closeModal = document.getElementById('closeModal');
+    const addProductBtn = document.getElementById('addProductBtn');
+    const productForm = document.getElementById('productForm');
+    const saveProductBtn = document.getElementById('saveProductBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    
+    // Product Form Fields
+    const productId = document.getElementById('productId');
+    const productName = document.getElementById('productName');
+    const productCategory = document.getElementById('productCategory');
+    const productPrice = document.getElementById('productPrice');
+    const productUnit = document.getElementById('productUnit');
+    const productDescription = document.getElementById('productDescription');
+    const productImage = document.getElementById('productImage');
+    const productBadge = document.getElementById('productBadge');
+    const imageUpload = document.getElementById('imageUpload');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const removeImage = document.getElementById('removeImage');
+    
+    // Filters and Search
+    const categoryFilter = document.getElementById('categoryFilter');
+    const productSearch = document.getElementById('productSearch');
+    const statsTimeFrame = document.getElementById('statsTimeFrame');
+    const orderStatusFilter = document.getElementById('orderStatusFilter');
+    
+    // Lists and Containers
+    const productsGrid = document.getElementById('productsGrid');
+    const ordersList = document.getElementById('ordersList');
+    const recentActivity = document.getElementById('recentActivity');
+    
+    // Stats Elements
+    const totalProducts = document.getElementById('totalProducts');
+    const totalOrders = document.getElementById('totalOrders');
+    const totalRevenue = document.getElementById('totalRevenue');
+    
+    // Loading and Toast
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const toast = document.getElementById('toast');
+    
+    // ==================
+    // State Management
+    // ==================
+    let currentEditingProduct = null;
+    let currentImageData = null;
+    
+    // ==================
+    // S3 Storage Functions - Updated with query parameters
+    // ==================
+    
+    async function getProductsFromS3() {
+        try {
+            console.log('[ADMIN-S3-PRODUCTS] Fetching products from S3');
+            const response = await fetch(`${API_BASE_URL}?operation=get-products`);
+            
+            if (!response.ok) {
+                console.error('[ADMIN-S3-PRODUCTS] Response status:', response.status);
+                throw new Error('Failed to get products from S3');
+            }
+            
+            const data = await response.json();
+            console.log('[ADMIN-S3-PRODUCTS] Successfully fetched products');
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('[ADMIN-S3-PRODUCTS] Error getting products from S3:', error);
+            // Fallback to localStorage if S3 fails
+            const savedProducts = localStorage.getItem('afrimart_products');
+            return savedProducts ? JSON.parse(savedProducts) : [];
+        }
+    }
+    
+    async function saveProductsToS3(products) {
+        try {
+            console.log('[ADMIN-S3-PRODUCTS] Saving products to S3');
+            const response = await fetch(`${API_BASE_URL}?operation=save-products`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(products)
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to save products to S3');
+            }
+            
+            // Also save to localStorage as backup
+            localStorage.setItem('afrimart_products', JSON.stringify(products));
+            console.log('[ADMIN-S3-PRODUCTS] Successfully saved products');
+            return true;
+        } catch (error) {
+            console.error('[ADMIN-S3-PRODUCTS] Error saving products to S3:', error);
+            // Save to localStorage as fallback
+            localStorage.setItem('afrimart_products', JSON.stringify(products));
+            return false;
+        }
+    }
+    
+    async function getOrdersFromS3() {
+        try {
+            console.log('[ADMIN-S3-ORDERS] Fetching orders from S3');
+            const response = await fetch(`${API_BASE_URL}?operation=get-orders`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to get orders from S3');
+            }
+            
+            const data = await response.json();
+            console.log('[ADMIN-S3-ORDERS] Successfully fetched orders');
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('[ADMIN-S3-ORDERS] Error getting orders from S3:', error);
+            // Fallback to localStorage if S3 fails
+            const savedOrders = localStorage.getItem('afrimart_orders');
+            return savedOrders ? JSON.parse(savedOrders) : [];
+        }
+    }
+    
+    async function saveOrdersToS3(orders) {
+        try {
+            console.log('[ADMIN-S3-ORDERS] Saving orders to S3');
+            const response = await fetch(`${API_BASE_URL}?operation=save-orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orders)
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to save orders to S3');
+            }
+            
+            // Also save to localStorage as backup
+            localStorage.setItem('afrimart_orders', JSON.stringify(orders));
+            console.log('[ADMIN-S3-ORDERS] Successfully saved orders');
+            return true;
+        } catch (error) {
+            console.error('[ADMIN-S3-ORDERS] Error saving orders to S3:', error);
+            // Save to localStorage as fallback
+            localStorage.setItem('afrimart_orders', JSON.stringify(orders));
+            return false;
+        }
+    }
+    
+    // ==================
+    // Initialization
+    // ==================
+    async function init() {
+        console.log('Initializing admin panel...');
+        initializeEventListeners();
+        loadCategories();
+        await loadDashboardStats();
+        await loadProducts();
+        await loadOrders();
+        loadSettings();
+        updateRecentActivity();
+    }
+    
+    // ==================
+    // Event Listeners
+    // ==================
+    function initializeEventListeners() {
+        console.log('Setting up event listeners...');
+        
+        // Sidebar Navigation - Desktop toggle
+        if (toggleSidebar) {
+            toggleSidebar.addEventListener('click', () => {
+                console.log('Toggling sidebar...');
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebar_collapsed', sidebar.classList.contains('collapsed'));
+            });
+        }
+        
+        // Mobile menu toggle
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                console.log('Toggling mobile menu...');
+                sidebar.classList.toggle('active');
+            });
+        }
+        
+        // Navigation links
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionName = link.dataset.section;
+                console.log('Switching to section:', sectionName);
+                
+                // Update active nav link
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                // Update active section
+                sections.forEach(s => s.classList.remove('active'));
+                const targetSection = document.getElementById(`${sectionName}Section`);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+                
+                // Update page title
+                if (pageTitle) {
+                    pageTitle.textContent = sectionName.charAt(0).toUpperCase() + sectionName.slice(1);
+                }
+                
+                // Close mobile sidebar
+                if (window.innerWidth <= 992) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        });
+        
+        // Product Modal
+        if (addProductBtn) {
+            addProductBtn.addEventListener('click', () => openProductModal());
+        }
+        if (closeModal) {
+            closeModal.addEventListener('click', closeProductModal);
+        }
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', closeProductModal);
+        }
+        if (productForm) {
+            productForm.addEventListener('submit', handleProductSubmit);
+        }
+        
+        // Image Upload
+        if (imageUpload) {
+            imageUpload.addEventListener('click', () => {
+                if (productImage) productImage.click();
+            });
+        }
+        if (productImage) {
+            productImage.addEventListener('change', handleImageUpload);
+        }
+        if (removeImage) {
+            removeImage.addEventListener('click', handleRemoveImage);
+        }
+        
+        // Drag and drop for image upload
+        if (imageUpload) {
+            imageUpload.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                imageUpload.classList.add('dragover');
+            });
+            
+            imageUpload.addEventListener('dragleave', () => {
+                imageUpload.classList.remove('dragover');
+            });
+            
+            imageUpload.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imageUpload.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    handleImageFile(file);
+                }
+            });
+        }
+        
+        // Filters
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', filterProducts);
+        }
+        if (productSearch) {
+            productSearch.addEventListener('input', filterProducts);
+        }
+        if (orderStatusFilter) {
+            orderStatusFilter.addEventListener('change', filterOrders);
+        }
+        
+        // Settings
+        const settingsForm = document.getElementById('settingsForm');
+        if (settingsForm) {
+            settingsForm.addEventListener('submit', handleSettingsSubmit);
+        }
+        
+        // Debug S3 button
+        const debugS3Btn = document.getElementById('debugS3');
+        if (debugS3Btn) {
+            debugS3Btn.addEventListener('click', async () => {
+                console.log('[DEBUG] Starting S3 debug...');
+                
+                // Test 1: Check environment
+                try {
+                    const envResponse = await fetch('/.netlify/functions/check-env');
+                    const envData = await envResponse.json();
+                    console.log('[DEBUG] Environment check:', envData);
+                } catch (error) {
+                    console.log('[DEBUG] Environment check failed:', error);
+                }
+                
+                // Test 2: Try to get products
+                try {
+                    const products = await getProducts();
+                    console.log('[DEBUG] Current products count:', products.length);
+                } catch (error) {
+                    console.log('[DEBUG] Get products failed:', error);
+                }
+                
+                // Test 3: Test save functionality
+                try {
+                    const testProduct = {
+                        id: 'debug-test-' + Date.now(),
+                        name: 'Debug Test Product',
+                        price: '$99.99',
+                        category: 'specialty'
+                    };
                     
-                    <div class="recent-activity">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>Recent Activity</h2>
-                            </div>
-                            <div class="card-body">
-                                <div id="recentActivity" class="activity-list">
-                                    <!-- Activity items will be inserted here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Products Section -->
-                <section id="productsSection" class="section">
-                    <div class="section-header">
-                        <h2>Products Management</h2>
-                        <button class="btn btn-primary" id="addProductBtn">
-                            <i class="fas fa-plus"></i> Add Product
+                    const saveResult = await saveProducts([testProduct]);
+                    console.log('[DEBUG] Save test result:', saveResult);
+                } catch (error) {
+                    console.log('[DEBUG] Save test failed:', error);
+                }
+                
+                showToast('S3 Debug complete. Check console for results.');
+            });
+        }
+        
+        // Click outside modal to close
+        window.addEventListener('click', (e) => {
+            if (e.target === productModal) {
+                closeProductModal();
+            }
+        });
+        
+        // Restore sidebar state
+        const sidebarCollapsed = localStorage.getItem('sidebar_collapsed');
+        if (sidebarCollapsed === 'true') {
+            sidebar.classList.add('collapsed');
+        }
+    }
+    
+    // ==================
+    // Product Management
+    // ==================
+    function openProductModal(product = null) {
+        currentEditingProduct = product;
+        
+        if (product) {
+            modalTitle.textContent = 'Edit Product';
+            productId.value = product.id;
+            productName.value = product.name;
+            productCategory.value = product.category;
+            productPrice.value = product.price.replace('$', '');
+            productUnit.value = product.unit;
+            productDescription.value = product.description;
+            productBadge.value = product.badge || '';
+            
+            if (product.image) {
+                previewImg.src = product.image;
+                imagePreview.style.display = 'block';
+                currentImageData = product.image;
+            }
+        } else {
+            modalTitle.textContent = 'Add Product';
+            productForm.reset();
+            imagePreview.style.display = 'none';
+            currentImageData = null;
+        }
+        
+        productModal.classList.add('active');
+    }
+    
+    function closeProductModal() {
+        productModal.classList.remove('active');
+        productForm.reset();
+        currentEditingProduct = null;
+        currentImageData = null;
+    }
+    
+    async function handleProductSubmit(e) {
+        e.preventDefault();
+        showLoading();
+        
+        const product = {
+            id: currentEditingProduct ? currentEditingProduct.id : Date.now().toString(),
+            name: productName.value,
+            category: productCategory.value,
+            price: '$' + parseFloat(productPrice.value).toFixed(2),
+            unit: productUnit.value,
+            description: productDescription.value,
+            badge: productBadge.value,
+            image: currentImageData || 'images/placeholder.jpg'
+        };
+        
+        let products = await getProducts();
+        
+        if (currentEditingProduct) {
+            const index = products.findIndex(p => p.id === product.id);
+            if (index > -1) {
+                products[index] = product;
+            }
+        } else {
+            products.push(product);
+        }
+        
+        await saveProducts(products);
+        await loadProducts();
+        closeProductModal();
+        showToast('Product saved successfully!');
+        hideLoading();
+        addRecentActivity('product', product.name, currentEditingProduct ? 'updated' : 'added');
+    }
+    
+    function handleImageUpload(e) {
+        const file = e.target.files[0];
+        if (file) {
+            handleImageFile(file);
+        }
+    }
+    
+    function handleImageFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            currentImageData = e.target.result;
+            previewImg.src = currentImageData;
+            imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function handleRemoveImage() {
+        currentImageData = null;
+        imagePreview.style.display = 'none';
+        if (productImage) productImage.value = '';
+    }
+    
+    async function deleteProduct(productId) {
+        if (confirm('Are you sure you want to delete this product?')) {
+            showLoading();
+            let products = await getProducts();
+            const product = products.find(p => p.id === productId);
+            products = products.filter(p => p.id !== productId);
+            await saveProducts(products);
+            await loadProducts();
+            showToast('Product deleted successfully!');
+            hideLoading();
+            if (product) {
+                addRecentActivity('product', product.name, 'deleted');
+            }
+        }
+    }
+    
+    // ==================
+    // Product Display & Filtering
+    // ==================
+    async function loadProducts() {
+        const products = await getProducts();
+        updateProductCount(products.length);
+        
+        if (products.length === 0) {
+            productsGrid.innerHTML = `
+                <div class="text-center w-100">
+                    <p>No products found. Click "Add Product" to get started.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        renderProducts(products);
+    }
+    
+    function renderProducts(products) {
+        productsGrid.innerHTML = products.map(product => `
+            <div class="product-card" data-id="${product.id}" data-category="${product.category}">
+                <div class="product-image">
+                    ${product.badge ? `<div class="product-badge ${product.badge.replace(/\s+/g, '-').toLowerCase()}">${product.badge}</div>` : ''}
+                    <img src="${product.image}" alt="${product.name}" onerror="this.src='images/placeholder.jpg'">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">${product.name}</h3>
+                    <p class="product-category">${formatCategory(product.category)}</p>
+                    <p class="product-price">${product.price}</p>
+                    <div class="product-actions">
+                        <button class="btn-edit" onclick="editProduct('${product.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn-delete" onclick="deleteProduct('${product.id}')">
+                            <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>
-                    
-                    <div class="products-container">
-                        <div class="product-filters">
-                            <div class="filter-group">
-                                <select id="categoryFilter" class="form-control">
-                                    <option value="">All Categories</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <div class="search-box">
-                                    <i class="fas fa-search"></i>
-                                    <input type="text" id="productSearch" placeholder="Search products...">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="products-grid" id="productsGrid">
-                            <!-- Products will be loaded here -->
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Orders Section -->
-                <section id="ordersSection" class="section">
-                    <div class="section-header">
-                        <h2>Orders Management</h2>
-                        <div class="order-filters">
-                            <select id="orderStatusFilter" class="form-control">
-                                <option value="">All Orders</option>
-                                <option value="completed">Completed</option>
-                                <option value="pending">Pending</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="orders-list" id="ordersList">
-                        <!-- Orders will be loaded here -->
-                    </div>
-                </section>
-
-                <!-- Settings Section -->
-                <section id="settingsSection" class="section">
-                    <div class="settings-container">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>General Settings</h2>
-                            </div>
-                            <div class="card-body">
-                                <form id="settingsForm">
-                                    <div class="form-group">
-                                        <label>Store Name</label>
-                                        <input type="text" id="storeName" class="form-control" value="AfriMart Depot">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>WhatsApp Number</label>
-                                        <input type="text" id="whatsappNumber" class="form-control" value="18048060130">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Tax Rate (%)</label>
-                                        <input type="number" id="taxRate" class="form-control" value="8" step="0.1">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Save Settings</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                </div>
             </div>
-        </main>
-    </div>
-
-    <!-- Product Modal -->
-    <div class="modal" id="productModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Add Product</h2>
-                <button class="close" id="closeModal">
-                    <i class="fas fa-times"></i>
-                </button>
+        `).join('');
+    }
+    
+    async function filterProducts() {
+        const searchTerm = productSearch.value.toLowerCase();
+        const selectedCategory = categoryFilter.value;
+        const products = await getProducts();
+        
+        const filteredProducts = products.filter(product => {
+            const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
+                                product.description?.toLowerCase().includes(searchTerm);
+            const matchesCategory = !selectedCategory || product.category === selectedCategory;
+            
+            return matchesSearch && matchesCategory;
+        });
+        
+        renderProducts(filteredProducts);
+    }
+    
+    // ==================
+    // Order Management
+    // ==================
+    async function loadOrders() {
+        const orders = await getOrders();
+        updateOrderCount(orders.length);
+        updateRevenue(orders);
+        
+        if (orders.length === 0) {
+            ordersList.innerHTML = `
+                <div class="text-center">
+                    <p>No orders yet.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        renderOrders(orders);
+    }
+    
+    function renderOrders(orders) {
+        ordersList.innerHTML = orders.map(order => `
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <h3 class="order-id">Order #${order.id}</h3>
+                        <p class="order-date">${new Date(order.timestamp).toLocaleDateString()}</p>
+                    </div>
+                    <span class="order-status status-${getOrderStatus(order)}">
+                        ${getOrderStatus(order).charAt(0).toUpperCase() + getOrderStatus(order).slice(1)}
+                    </span>
+                </div>
+                <div class="order-details">
+                    <p class="order-items"><strong>Items:</strong> ${order.items.map(item => `${item.title} (${item.quantity})`).join(', ')}</p>
+                    <p class="order-total"><strong>Total:</strong> $${order.total}</p>
+                </div>
+                <div class="order-actions">
+                    <button class="btn btn-secondary" onclick="deleteOrder('${order.id}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
             </div>
-            <div class="modal-body">
-                <form id="productForm">
-                    <input type="hidden" id="productId">
-                    
-                    <div class="form-group">
-                        <label>Product Name *</label>
-                        <input type="text" id="productName" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Category *</label>
-                        <select id="productCategory" class="form-control" required>
-                            <option value="">Select Category</option>
-                            <option value="dried-seafood">Dried Seafood</option>
-                            <option value="fresh-seafood">Fresh Seafood</option>
-                            <option value="snacks">Snacks</option>
-                            <option value="spices-herbs">Spices & Herbs</option>
-                            <option value="vegetables">Vegetables</option>
-                            <option value="grains-flours">Grains & Flours</option>
-                            <option value="specialty">Specialty Items</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Price *</label>
-                        <input type="number" id="productPrice" class="form-control" step="0.01" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Unit</label>
-                        <input type="text" id="productUnit" class="form-control" placeholder="e.g., 100g, 500ml">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea id="productDescription" class="form-control" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Product Image *</label>
-                        <div class="image-upload" id="imageUpload">
-                            <div class="upload-placeholder">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <p>Drag & drop or click to upload</p>
-                            </div>
-                            <input type="file" id="productImage" accept="image/*" hidden>
-                            <div class="image-preview" id="imagePreview" style="display: none;">
-                                <img id="previewImg" src="" alt="Preview">
-                                <button type="button" id="removeImage" class="remove-image">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Badge (optional)</label>
-                        <select id="productBadge" class="form-control">
-                            <option value="">No Badge</option>
-                            <option value="new">New</option>
-                            <option value="popular">Popular</option>
-                            <option value="best-seller">Best Seller</option>
-                        </select>
-                    </div>
-                    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary cancel" id="cancelBtn">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="saveProductBtn">
-                            <i class="fas fa-save"></i> Save Product
-                        </button>
-                    </div>
-                </form>
+        `).join('');
+    }
+    
+    async function deleteOrder(orderId) {
+        if (confirm('Are you sure you want to delete this order?')) {
+            showLoading();
+            let orders = await getOrders();
+            orders = orders.filter(o => o.id !== orderId);
+            await saveOrders(orders);
+            await loadOrders();
+            showToast('Order deleted successfully!');
+            hideLoading();
+        }
+    }
+    
+    async function filterOrders() {
+        const selectedStatus = orderStatusFilter.value;
+        const orders = await getOrders();
+        
+        const filteredOrders = orders.filter(order => {
+            const status = getOrderStatus(order);
+            return !selectedStatus || status === selectedStatus;
+        });
+        
+        renderOrders(filteredOrders);
+    }
+    
+    function getOrderStatus(order) {
+        // Default implementation - you can enhance based on your needs
+        return 'completed';
+    }
+    
+    // ==================
+    // Dashboard Stats
+    // ==================
+    async function loadDashboardStats() {
+        const products = await getProducts();
+        const orders = await getOrders();
+        
+        updateProductCount(products.length);
+        updateOrderCount(orders.length);
+        updateRevenue(orders);
+    }
+    
+    function updateProductCount(count) {
+        if (totalProducts) totalProducts.textContent = count;
+    }
+    
+    function updateOrderCount(count) {
+        if (totalOrders) totalOrders.textContent = count;
+    }
+    
+    function updateRevenue(orders) {
+        const revenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+        if (totalRevenue) totalRevenue.textContent = `$${revenue.toFixed(2)}`;
+    }
+    
+    // ==================
+    // Recent Activity
+    // ==================
+    function updateRecentActivity() {
+        const activity = getRecentActivity();
+        if (activity.length === 0) {
+            recentActivity.innerHTML = `<p>No recent activity</p>`;
+            return;
+        }
+        
+        recentActivity.innerHTML = activity.slice(0, 5).map(item => `
+            <div class="activity-item">
+                <div class="activity-icon">
+                    ${item.type === 'product' ? '<i class="fas fa-box"></i>' : '<i class="fas fa-shopping-cart"></i>'}
+                </div>
+                <div class="activity-details">
+                    <p class="activity-title">${formatActivityText(item)}</p>
+                    <p class="activity-time">${timeAgo(item.timestamp)}</p>
+                </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div class="toast" id="toast">
-        <span class="toast-message"></span>
-    </div>
-
-    <script src="js/admin.js"></script>
-</body>
-</html>
+        `).join('');
+    }
+    
+    function addRecentActivity(type, name, action) {
+        const activity = getRecentActivity();
+        activity.unshift({
+            type,
+            name,
+            action,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Keep only last 50 activities
+        saveRecentActivity(activity.slice(0, 50));
+        updateRecentActivity();
+    }
+    
+    function formatActivityText(item) {
+        if (item.type === 'product') {
+            return `Product "${item.name}" was ${item.action}`;
+        } else if (item.type === 'order') {
+            return `Order #${item.name} was ${item.action}`;
+        }
+        return '';
+    }
+    
+    function timeAgo(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        
+        if (seconds < 60) return 'just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        const days = Math.floor(hours / 24);
+        return `${days} day${days > 1 ? 's' : ''} ago`;
+    }
+    
+    // ==================
+    // Settings Management
+    // ==================
+    function loadSettings() {
+        const settings = getSettings();
+        
+        const storeName = document.getElementById('storeName');
+        const whatsappNumber = document.getElementById('whatsappNumber');
+        const taxRate = document.getElementById('taxRate');
+        
+        if (storeName) storeName.value = settings.storeName || 'AfriMart Depot';
+        if (whatsappNumber) whatsappNumber.value = settings.whatsappNumber || '18048060130';
+        if (taxRate) taxRate.value = settings.taxRate || '8';
+    }
+    
+    function handleSettingsSubmit(e) {
+        e.preventDefault();
+        showLoading();
+        
+        const settings = {
+            storeName: document.getElementById('storeName').value,
+            whatsappNumber: document.getElementById('whatsappNumber').value,
+            taxRate: document.getElementById('taxRate').value
+        };
+        
+        saveSettings(settings);
+        showToast('Settings saved successfully!');
+        hideLoading();
+    }
+    
+    // ==================
+    // Storage Functions
+    // ==================
+    async function getProducts() {
+        return await getProductsFromS3();
+    }
+    
+    async function saveProducts(products) {
+        return await saveProductsToS3(products);
+    }
+    
+    async function getOrders() {
+        return await getOrdersFromS3();
+    }
+    
+    async function saveOrders(orders) {
+        return await saveOrdersToS3(orders);
+    }
+    
+    function getSettings() {
+        return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+    }
+    
+    function saveSettings(settings) {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    }
+    
+    function getRecentActivity() {
+        return JSON.parse(localStorage.getItem(ACTIVITY_KEY) || '[]');
+    }
+    
+    function saveRecentActivity(activity) {
+        localStorage.setItem(ACTIVITY_KEY, JSON.stringify(activity));
+    }
+    
+    // ==================
+    // Utility Functions
+    // ==================
+    function formatCategory(category) {
+        return category.split('-').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+    }
+    
+    function loadCategories() {
+        if (categoryFilter) {
+            categoryFilter.innerHTML = `
+                <option value="">All Categories</option>
+                <option value="dried-seafood">Dried Seafood</option>
+                <option value="fresh-seafood">Fresh Seafood</option>
+                <option value="snacks">Snacks</option>
+                <option value="spices-herbs">Spices & Herbs</option>
+                <option value="vegetables">Vegetables</option>
+                <option value="grains-flours">Grains & Flours</option>
+                <option value="specialty">Specialty Items</option>
+            `;
+        }
+    }
+    
+    function showLoading() {
+        if (loadingOverlay) loadingOverlay.classList.add('active');
+    }
+    
+    function hideLoading() {
+        if (loadingOverlay) loadingOverlay.classList.remove('active');
+    }
+    
+    function showToast(message) {
+        const toastMessage = toast.querySelector('.toast-message');
+        if (toastMessage) {
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    }
+    
+    // ==================
+    // Global Functions (for onclick handlers)
+    // ==================
+    window.editProduct = function(productId) {
+        getProducts().then(products => {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                openProductModal(product);
+            }
+        });
+    };
+    
+    window.deleteProduct = deleteProduct;
+    window.deleteOrder = deleteOrder;
+    
+    // ==================
+    // Initialize Application
+    // ==================
+    init();
+});

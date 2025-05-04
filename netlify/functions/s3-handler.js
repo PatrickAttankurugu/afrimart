@@ -7,6 +7,13 @@ const s3 = new AWS.S3({
 });
 
 exports.handler = async (event, context) => {
+  console.log('[S3-HANDLER] Incoming request:', {
+    httpMethod: event.httpMethod,
+    path: event.path,
+    rawPath: event.rawPath,
+    queryStringParameters: event.queryStringParameters
+  });
+
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -23,10 +30,11 @@ exports.handler = async (event, context) => {
     };
   }
 
-  const { httpMethod, path } = event;
-  const pathParts = path.split('/').filter(Boolean);
-  const operation = pathParts[1] || ''; // Get operation after '/s3-handler/'
+  const { httpMethod, queryStringParameters } = event;
+  const operation = queryStringParameters?.operation || '';
   
+  console.log('[S3-HANDLER] Operation requested:', operation);
+
   let response = {};
 
   try {
@@ -112,14 +120,19 @@ exports.handler = async (event, context) => {
         };
 
       default:
+        console.log('[S3-HANDLER] No valid operation provided');
         return {
-          statusCode: 404,
+          statusCode: 400,
           headers,
-          body: JSON.stringify({ error: 'Operation not found' })
+          body: JSON.stringify({ 
+            error: 'Invalid operation',
+            validOperations: ['get-orders', 'save-orders', 'get-products', 'save-products'],
+            receivedOperation: operation
+          })
         };
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('[S3-HANDLER] Error:', error);
     return {
       statusCode: 500,
       headers,
