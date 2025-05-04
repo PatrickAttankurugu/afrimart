@@ -1,6 +1,6 @@
 /*
 * AfriMart Depot - Admin Dashboard JavaScript
-* Version: 2.1 - Fixed event listeners and button functionality
+* Version: 2.1 - Added S3 integration
 */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================
     // Constants
     // ==================
-    const PRODUCTS_KEY = 'afrimart_products';
+    const API_BASE_URL = '/.netlify/functions/s3-handler';
     const ORDERS_KEY = 'afrimart_orders';
     const SETTINGS_KEY = 'afrimart_settings';
     const ACTIVITY_KEY = 'afrimart_recent_activity';
@@ -74,15 +74,95 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentImageData = null;
     
     // ==================
+    // S3 Storage Functions
+    // ==================
+    
+    async function getProductsFromS3() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/get-products`);
+            if (!response.ok) throw new Error('Failed to get products from S3');
+            
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error getting products from S3:', error);
+            // Fallback to localStorage if S3 fails
+            const savedProducts = localStorage.getItem('afrimart_products');
+            return savedProducts ? JSON.parse(savedProducts) : [];
+        }
+    }
+    
+    async function saveProductsToS3(products) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/save-products`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(products)
+            });
+            
+            if (!response.ok) throw new Error('Failed to save products to S3');
+            
+            // Also save to localStorage as backup
+            localStorage.setItem('afrimart_products', JSON.stringify(products));
+            return true;
+        } catch (error) {
+            console.error('Error saving products to S3:', error);
+            // Save to localStorage as fallback
+            localStorage.setItem('afrimart_products', JSON.stringify(products));
+            return false;
+        }
+    }
+    
+    async function getOrdersFromS3() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/get-orders`);
+            if (!response.ok) throw new Error('Failed to get orders from S3');
+            
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error getting orders from S3:', error);
+            // Fallback to localStorage if S3 fails
+            const savedOrders = localStorage.getItem('afrimart_orders');
+            return savedOrders ? JSON.parse(savedOrders) : [];
+        }
+    }
+    
+    async function saveOrdersToS3(orders) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/save-orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orders)
+            });
+            
+            if (!response.ok) throw new Error('Failed to save orders to S3');
+            
+            // Also save to localStorage as backup
+            localStorage.setItem('afrimart_orders', JSON.stringify(orders));
+            return true;
+        } catch (error) {
+            console.error('Error saving orders to S3:', error);
+            // Save to localStorage as fallback
+            localStorage.setItem('afrimart_orders', JSON.stringify(orders));
+            return false;
+        }
+    }
+    
+    // ==================
     // Initialization
     // ==================
-    function init() {
+    async function init() {
         console.log('Initializing admin panel...');
         initializeEventListeners();
         loadCategories();
-        loadDashboardStats();
-        loadProducts();
-        loadOrders();
+        await loadDashboardStats();
+        await loadProducts();
+        await loadOrders();
         loadSettings();
         updateRecentActivity();
     }
@@ -257,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentImageData = null;
     }
     
-    function handleProductSubmit(e) {
+    async function handleProductSubmit(e) {
         e.preventDefault();
         showLoading();
         
@@ -272,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
             image: currentImageData || 'images/placeholder.jpg'
         };
         
-        let products = getProducts();
+        let products = await getProducts();
         
         if (currentEditingProduct) {
             const index = products.findIndex(p => p.id === product.id);
@@ -283,8 +363,8 @@ document.addEventListener('DOMContentLoaded', function() {
             products.push(product);
         }
         
-        saveProducts(products);
-        loadProducts();
+        await saveProducts(products);
+        await loadProducts();
         closeProductModal();
         showToast('Product saved successfully!');
         hideLoading();
@@ -314,14 +394,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (productImage) productImage.value = '';
     }
     
-    function deleteProduct(productId) {
+    async function deleteProduct(productId) {
         if (confirm('Are you sure you want to delete this product?')) {
             showLoading();
-            let products = getProducts();
+            let products = await getProducts();
             const product = products.find(p => p.id === productId);
             products = products.filter(p => p.id !== productId);
-            saveProducts(products);
-            loadProducts();
+            await saveProducts(products);
+            await loadProducts();
             showToast('Product deleted successfully!');
             hideLoading();
             if (product) {
@@ -333,8 +413,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================
     // Product Display & Filtering
     // ==================
-    function loadProducts() {
-        const products = getProducts();
+    async function loadProducts() {
+        const products = await getProducts();
         updateProductCount(products.length);
         
         if (products.length === 0) {
@@ -373,10 +453,10 @@ document.addEventListener('DOMContentLoaded', function() {
         `).join('');
     }
     
-    function filterProducts() {
+    async function filterProducts() {
         const searchTerm = productSearch.value.toLowerCase();
         const selectedCategory = categoryFilter.value;
-        const products = getProducts();
+        const products = await getProducts();
         
         const filteredProducts = products.filter(product => {
             const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
@@ -392,8 +472,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================
     // Order Management
     // ==================
-    function loadOrders() {
-        const orders = getOrders();
+    async function loadOrders() {
+        const orders = await getOrders();
         updateOrderCount(orders.length);
         updateRevenue(orders);
         
@@ -434,21 +514,21 @@ document.addEventListener('DOMContentLoaded', function() {
         `).join('');
     }
     
-    function deleteOrder(orderId) {
+    async function deleteOrder(orderId) {
         if (confirm('Are you sure you want to delete this order?')) {
             showLoading();
-            let orders = getOrders();
+            let orders = await getOrders();
             orders = orders.filter(o => o.id !== orderId);
-            saveOrders(orders);
-            loadOrders();
+            await saveOrders(orders);
+            await loadOrders();
             showToast('Order deleted successfully!');
             hideLoading();
         }
     }
     
-    function filterOrders() {
+    async function filterOrders() {
         const selectedStatus = orderStatusFilter.value;
-        const orders = getOrders();
+        const orders = await getOrders();
         
         const filteredOrders = orders.filter(order => {
             const status = getOrderStatus(order);
@@ -466,9 +546,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================
     // Dashboard Stats
     // ==================
-    function loadDashboardStats() {
-        const products = getProducts();
-        const orders = getOrders();
+    async function loadDashboardStats() {
+        const products = await getProducts();
+        const orders = await getOrders();
         
         updateProductCount(products.length);
         updateOrderCount(orders.length);
@@ -581,20 +661,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================
     // Storage Functions
     // ==================
-    function getProducts() {
-        return JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]');
+    async function getProducts() {
+        return await getProductsFromS3();
     }
     
-    function saveProducts(products) {
-        localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+    async function saveProducts(products) {
+        return await saveProductsToS3(products);
     }
     
-    function getOrders() {
-        return JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+    async function getOrders() {
+        return await getOrdersFromS3();
     }
     
-    function saveOrders(orders) {
-        localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+    async function saveOrders(orders) {
+        return await saveOrdersToS3(orders);
     }
     
     function getSettings() {
@@ -661,11 +741,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Global Functions (for onclick handlers)
     // ==================
     window.editProduct = function(productId) {
-        const products = getProducts();
-        const product = products.find(p => p.id === productId);
-        if (product) {
-            openProductModal(product);
-        }
+        getProducts().then(products => {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                openProductModal(product);
+            }
+        });
     };
     
     window.deleteProduct = deleteProduct;
