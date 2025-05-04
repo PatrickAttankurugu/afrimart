@@ -1,6 +1,6 @@
 /*
 * AfriMart Depot - Shop Page JavaScript
-* Version: 2.0 - Improved cart integration
+* Version: 2.5 - Added dynamic product loading from localStorage
 */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -45,18 +45,121 @@ document.addEventListener('DOMContentLoaded', function() {
   const paginationLinks = document.querySelectorAll('.page-link');
 
   // ==================
+  // Load Products from localStorage
+  // ==================
+  
+  function loadProductsFromStorage() {
+    const products = JSON.parse(localStorage.getItem('afrimart_products') || '[]');
+    const productsGrid = document.querySelector('.products-grid');
+    
+    if (!productsGrid) return;
+    
+    // Save the "load more" button and pagination if they exist
+    const loadMoreSection = productsGrid.querySelector('.load-more');
+    const paginationSection = productsGrid.querySelector('.pagination');
+    
+    // Clear existing products
+    productsGrid.innerHTML = '';
+    
+    if (products.length === 0) {
+      productsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; padding: 40px;">No products available yet.</p>';
+      if (loadMoreSection) productsGrid.appendChild(loadMoreSection);
+      if (paginationSection) productsGrid.appendChild(paginationSection);
+      return;
+    }
+    
+    products.forEach((product, index) => {
+      const productCard = createProductCard(product, index);
+      productsGrid.appendChild(productCard);
+    });
+    
+    // Re-add load more and pagination sections
+    if (loadMoreSection) productsGrid.appendChild(loadMoreSection);
+    if (paginationSection) productsGrid.appendChild(paginationSection);
+    
+    // Update the results count
+    updateResultsCount();
+    
+    // Reinitialize all dynamic features
+    initializeProductFeatures();
+  }
+  
+  function createProductCard(product, index) {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.setAttribute('data-category', product.category);
+    card.setAttribute('data-product-id', product.id);
+    card.setAttribute('data-aos', 'fade-up');
+    card.setAttribute('data-aos-delay', (index % 4) * 100);
+    
+    const badgeHtml = product.badge ? `<div class="product-badge ${product.badge.replace(/\s+/g, '-').toLowerCase()}">${product.badge}</div>` : '';
+    
+    card.innerHTML = `
+      ${badgeHtml}
+      <div class="product-image">
+        <img src="${product.image}" alt="${product.name}">
+        <div class="product-actions">
+          <button class="action-btn quick-view" data-product="${product.id}">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="action-btn add-to-wishlist">
+            <i class="far fa-heart"></i>
+          </button>
+        </div>
+      </div>
+      <div class="product-info">
+        <h3 class="product-title">
+          <a href="product-details.html?product=${product.id}">${product.name}</a>
+        </h3>
+        <div class="product-description">
+          <p>${product.description || ''}</p>
+        </div>
+        <div class="product-rating">
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star-half-alt"></i>
+          <span>(${Math.floor(Math.random() * 50) + 10})</span>
+        </div>
+        <div class="product-price">
+          <span class="price">${product.price}</span>
+          <span class="unit">${product.unit}</span>
+        </div>
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+    `;
+    
+    return card;
+  }
+  
+  function initializeProductFeatures() {
+    // Reinitialize all product features
+    setupProductHoverEffects();
+    setupAddToCartButtons();
+    setupWishlistButtons();
+    setupQuickView();
+    setupQuantitySelectors();
+    
+    // Reinitialize AOS for new elements
+    if (typeof AOS !== 'undefined') {
+      AOS.refresh();
+    }
+  }
+  
+  // ==================
   // Category Filtering
   // ==================
   
-  if (categoryLinks.length && productCards.length) {
+  if (categoryLinks.length) {
     // Function to update results count display
     function updateResultsCount() {
-      const visibleProducts = document.querySelectorAll('.product-card[style*="display: flex"]').length;
+      const allProducts = document.querySelectorAll('.product-card');
+      const visibleProducts = document.querySelectorAll('.product-card:not([style*="display: none"])');
       const resultsCountEl = document.querySelector('.shop-results-count p');
       
       if (resultsCountEl) {
-        const totalProducts = document.querySelectorAll('.product-card').length;
-        resultsCountEl.textContent = `Showing 1-${visibleProducts} of ${totalProducts} results`;
+        resultsCountEl.textContent = `Showing 1-${visibleProducts.length} of ${allProducts.length} results`;
       }
     }
     
@@ -70,9 +173,10 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.add('active');
         
         const selectedCategory = this.getAttribute('data-category');
+        const allProducts = document.querySelectorAll('.product-card');
         
         // Filter products
-        productCards.forEach(card => {
+        allProducts.forEach(card => {
           if (selectedCategory === 'all' || card.getAttribute('data-category') === selectedCategory) {
             card.style.display = 'flex';
             setTimeout(() => {
@@ -141,9 +245,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Remove products from DOM and append in new order
+        const loadMore = productsGrid.querySelector('.load-more');
+        const pagination = productsGrid.querySelector('.pagination');
+        
         products.forEach(product => {
           productsGrid.appendChild(product);
         });
+        
+        // Re-add load more and pagination
+        if (loadMore) productsGrid.appendChild(loadMore);
+        if (pagination) productsGrid.appendChild(pagination);
       }
     });
   }
@@ -183,181 +294,186 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // ==================
-  // Quick View Modal
+  // Quick View Functionality
   // ==================
   
-  if (quickViewButtons.length && quickViewModal) {
-    const modalOverlay = quickViewModal.querySelector('.modal-overlay');
-    const modalClose = quickViewModal.querySelector('.modal-close');
-    const productTitle = quickViewModal.querySelector('.product-title');
-    const productImage = quickViewModal.querySelector('.main-image img');
-    const productPrice = quickViewModal.querySelector('.current-price');
-    const productUnit = quickViewModal.querySelector('.unit');
-    const productDescription = quickViewModal.querySelector('.product-description p');
-    const productCategory = quickViewModal.querySelector('.meta-value');
-    const productRating = quickViewModal.querySelector('.stars');
-    const reviewCount = quickViewModal.querySelector('.review-count');
+  function setupQuickView() {
+    const quickViewButtons = document.querySelectorAll('.quick-view');
+    const quickViewModal = document.querySelector('.quick-view-modal');
     
-    // Function to open modal with product data
-    function openQuickViewModal(product) {
-      if (!productTitle || !productImage || !productPrice) return;
+    if (quickViewButtons.length && quickViewModal) {
+      const modalOverlay = quickViewModal.querySelector('.modal-overlay');
+      const modalClose = quickViewModal.querySelector('.modal-close');
+      const productTitle = quickViewModal.querySelector('.product-title');
+      const productImage = quickViewModal.querySelector('.main-image img');
+      const productPrice = quickViewModal.querySelector('.current-price');
+      const productUnit = quickViewModal.querySelector('.unit');
+      const productDescription = quickViewModal.querySelector('.product-description p');
+      const productCategory = quickViewModal.querySelector('.meta-value');
+      const productRating = quickViewModal.querySelector('.stars');
+      const reviewCount = quickViewModal.querySelector('.review-count');
       
-      // Update modal content
-      productTitle.textContent = product.title;
-      productImage.src = product.image;
-      productImage.alt = product.title;
-      productPrice.textContent = product.price;
-      
-      if (productUnit) {
-        productUnit.textContent = product.unit || '';
+      // Function to open modal with product data
+      function openQuickViewModal(product) {
+        if (!productTitle || !productImage || !productPrice) return;
+        
+        // Update modal content
+        productTitle.textContent = product.title;
+        productImage.src = product.image;
+        productImage.alt = product.title;
+        productPrice.textContent = product.price;
+        
+        if (productUnit) {
+          productUnit.textContent = product.unit || '';
+        }
+        
+        if (productDescription) {
+          productDescription.textContent = product.description || '';
+        }
+        
+        if (productCategory) {
+          const category = product.category || '';
+          productCategory.textContent = category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ');
+        }
+        
+        if (productRating && product.rating) {
+          productRating.innerHTML = product.rating;
+        }
+        
+        if (reviewCount && product.reviewCount) {
+          reviewCount.textContent = product.reviewCount;
+        }
+        
+        // Update thumbnails (using the same image for all thumbnails if not provided)
+        const thumbnails = quickViewModal.querySelectorAll('.thumbnail img');
+        if (thumbnails.length) {
+          thumbnails.forEach(thumb => {
+            thumb.src = product.image;
+            thumb.alt = product.title;
+          });
+        }
+        
+        // Add product ID to add to cart button
+        const addToCartBtn = quickViewModal.querySelector('.add-to-cart-btn');
+        if (addToCartBtn) {
+          addToCartBtn.setAttribute('data-product-id', product.id || '');
+        }
+        
+        // Show modal
+        quickViewModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
       }
       
-      if (productDescription) {
-        productDescription.textContent = product.description || '';
+      // Function to close modal
+      function closeModal() {
+        quickViewModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
       }
       
-      if (productCategory) {
-        const category = product.category || '';
-        productCategory.textContent = category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ');
+      // Add click event to quick view buttons
+      quickViewButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const productCard = this.closest('.product-card');
+          if (!productCard) return;
+          
+          // Get product data
+          const productId = productCard.dataset.productId || productCard.dataset.id || '';
+          const title = productCard.querySelector('.product-title a').textContent;
+          const image = productCard.querySelector('.product-image img').src;
+          const price = productCard.querySelector('.price').textContent;
+          const unit = productCard.querySelector('.unit')?.textContent || '';
+          const description = productCard.querySelector('.product-description p')?.textContent || '';
+          const category = productCard.getAttribute('data-category') || '';
+          const rating = productCard.querySelector('.product-rating')?.innerHTML || '';
+          const reviewCountEl = productCard.querySelector('.product-rating span');
+          const reviewCount = reviewCountEl ? `(${reviewCountEl.textContent})` : '';
+          
+          // Create product object
+          const product = {
+            id: productId,
+            title: title,
+            image: image,
+            price: price,
+            unit: unit,
+            description: description,
+            category: category,
+            rating: rating,
+            reviewCount: reviewCount
+          };
+          
+          // Open modal with product data
+          openQuickViewModal(product);
+        });
+      });
+      
+      // Close modal on click outside or close button
+      if (modalOverlay) {
+        modalOverlay.addEventListener('click', closeModal);
       }
       
-      if (productRating && product.rating) {
-        productRating.innerHTML = product.rating;
+      if (modalClose) {
+        modalClose.addEventListener('click', closeModal);
       }
       
-      if (reviewCount && product.reviewCount) {
-        reviewCount.textContent = product.reviewCount;
-      }
+      // Close modal on escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && quickViewModal.classList.contains('active')) {
+          closeModal();
+        }
+      });
       
-      // Update thumbnails (using the same image for all thumbnails if not provided)
-      const thumbnails = quickViewModal.querySelectorAll('.thumbnail img');
-      if (thumbnails.length) {
-        thumbnails.forEach(thumb => {
-          thumb.src = product.image;
-          thumb.alt = product.title;
+      // Handle add to cart button in modal
+      const modalAddToCartBtn = quickViewModal.querySelector('.add-to-cart-btn');
+      if (modalAddToCartBtn) {
+        modalAddToCartBtn.addEventListener('click', function() {
+          const productId = this.getAttribute('data-product-id');
+          const title = productTitle.textContent;
+          const price = productPrice.textContent;
+          const image = productImage.src;
+          
+          // Get quantity if there's a quantity input
+          let quantity = 1;
+          const quantityInput = quickViewModal.querySelector('.quantity-input');
+          if (quantityInput) {
+            quantity = parseInt(quantityInput.value) || 1;
+          }
+          
+          // Create product object
+          const product = {
+            id: productId,
+            title: title,
+            price: price,
+            quantity: quantity,
+            image: image
+          };
+          
+          // Add to cart using global function
+          if (typeof window.AfriMartCart !== 'undefined' && typeof window.AfriMartCart.addToCart === 'function') {
+            window.AfriMartCart.addToCart(product);
+          } else if (typeof window.addToCart === 'function') {
+            window.addToCart(product);
+          } else {
+            console.error('addToCart function not found. Make sure cart.js is loaded before shop.js');
+            
+            // Fallback implementation
+            this.innerHTML = '<i class="fas fa-check"></i> Added!';
+            this.classList.add('added');
+            
+            setTimeout(() => {
+              this.innerHTML = 'Add to Cart';
+              this.classList.remove('added');
+            }, 1500);
+          }
+          
+          // Close modal after adding to cart
+          setTimeout(() => {
+            closeModal();
+          }, 1000);
         });
       }
-      
-      // Add product ID to add to cart button
-      const addToCartBtn = quickViewModal.querySelector('.add-to-cart-btn');
-      if (addToCartBtn) {
-        addToCartBtn.setAttribute('data-product-id', product.id || '');
-      }
-      
-      // Show modal
-      quickViewModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    
-    // Function to close modal
-    function closeModal() {
-      quickViewModal.classList.remove('active');
-      document.body.style.overflow = 'auto';
-    }
-    
-    // Add click event to quick view buttons
-    quickViewButtons.forEach(button => {
-      button.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const productCard = this.closest('.product-card');
-        if (!productCard) return;
-        
-        // Get product data
-        const productId = productCard.dataset.productId || productCard.dataset.id || '';
-        const title = productCard.querySelector('.product-title a').textContent;
-        const image = productCard.querySelector('.product-image img').src;
-        const price = productCard.querySelector('.price').textContent;
-        const unit = productCard.querySelector('.unit')?.textContent || '';
-        const description = productCard.querySelector('.product-description p')?.textContent || '';
-        const category = productCard.getAttribute('data-category') || '';
-        const rating = productCard.querySelector('.product-rating')?.innerHTML || '';
-        const reviewCountEl = productCard.querySelector('.product-rating span');
-        const reviewCount = reviewCountEl ? `(${reviewCountEl.textContent})` : '';
-        
-        // Create product object
-        const product = {
-          id: productId,
-          title: title,
-          image: image,
-          price: price,
-          unit: unit,
-          description: description,
-          category: category,
-          rating: rating,
-          reviewCount: reviewCount
-        };
-        
-        // Open modal with product data
-        openQuickViewModal(product);
-      });
-    });
-    
-    // Close modal on click outside or close button
-    if (modalOverlay) {
-      modalOverlay.addEventListener('click', closeModal);
-    }
-    
-    if (modalClose) {
-      modalClose.addEventListener('click', closeModal);
-    }
-    
-    // Close modal on escape key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && quickViewModal.classList.contains('active')) {
-        closeModal();
-      }
-    });
-    
-    // Handle add to cart button in modal
-    const modalAddToCartBtn = quickViewModal.querySelector('.add-to-cart-btn');
-    if (modalAddToCartBtn) {
-      modalAddToCartBtn.addEventListener('click', function() {
-        const productId = this.getAttribute('data-product-id');
-        const title = productTitle.textContent;
-        const price = productPrice.textContent;
-        const image = productImage.src;
-        
-        // Get quantity if there's a quantity input
-        let quantity = 1;
-        const quantityInput = quickViewModal.querySelector('.quantity-input');
-        if (quantityInput) {
-          quantity = parseInt(quantityInput.value) || 1;
-        }
-        
-        // Create product object
-        const product = {
-          id: productId,
-          title: title,
-          price: price,
-          quantity: quantity,
-          image: image
-        };
-        
-        // Add to cart using global function
-        if (typeof window.AfriMartCart !== 'undefined' && typeof window.AfriMartCart.addToCart === 'function') {
-          window.AfriMartCart.addToCart(product);
-        } else if (typeof window.addToCart === 'function') {
-          window.addToCart(product);
-        } else {
-          console.error('addToCart function not found. Make sure cart.js is loaded before shop.js');
-          
-          // Fallback implementation
-          this.innerHTML = '<i class="fas fa-check"></i> Added!';
-          this.classList.add('added');
-          
-          setTimeout(() => {
-            this.innerHTML = 'Add to Cart';
-            this.classList.remove('added');
-          }, 1500);
-        }
-        
-        // Close modal after adding to cart
-        setTimeout(() => {
-          closeModal();
-        }, 1000);
-      });
     }
   }
   
@@ -415,9 +531,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Initialize quantity selectors
-  setupQuantitySelectors();
-  
   // ==================
   // Thumbnail Selection
   // ==================
@@ -443,9 +556,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
-  
-  // Initialize thumbnail gallery
-  setupThumbnailGallery();
   
   // ==================
   // Add to Cart
@@ -507,9 +617,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Initialize add to cart buttons
-  setupAddToCartButtons();
-  
   // ==================
   // Quick Add Controls
   // ==================
@@ -560,9 +667,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Initialize quick add controls
-  setupQuickAddControls();
-  
   // ==================
   // Add to Wishlist
   // ==================
@@ -597,9 +701,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
-  
-  // Initialize wishlist buttons
-  setupWishlistButtons();
   
   // ==================
   // Load More Products
@@ -707,9 +808,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       let visibleCount = 0;
+      const allProducts = document.querySelectorAll('.product-card');
       
       // Filter products based on price range
-      productCards.forEach(product => {
+      allProducts.forEach(product => {
         const priceEl = product.querySelector('.price');
         if (priceEl) {
           const price = parseFloat(priceEl.textContent.replace('$', ''));
@@ -728,7 +830,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Update results count
       const resultsCountEl = document.querySelector('.shop-results-count p');
       if (resultsCountEl) {
-        const totalProducts = productCards.length;
+        const totalProducts = allProducts.length;
         resultsCountEl.textContent = `Showing 1-${visibleCount} of ${totalProducts} results`;
       }
       
@@ -741,6 +843,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ==================
   
   function setupProductHoverEffects() {
+    const productCards = document.querySelectorAll('.product-card');
     productCards.forEach(card => {
       card.addEventListener('mouseenter', function() {
         const actions = this.querySelector('.product-actions');
@@ -771,9 +874,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
-  
-  // Initialize product hover effects
-  setupProductHoverEffects();
   
   // ==================
   // Toast Notifications
@@ -808,7 +908,7 @@ document.addEventListener('DOMContentLoaded', function() {
       case 'success':
         icon = '<i class="fas fa-check-circle"></i>';
         break;
-      case 'error':
+      case 'error':case 'error':
         icon = '<i class="fas fa-exclamation-circle"></i>';
         break;
       case 'info':
@@ -930,9 +1030,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Initialize lazy loading
-  setupLazyLoading();
-  
   // ==================
   // Initialize Shop Page
   // ==================
@@ -976,4 +1073,19 @@ document.addEventListener('DOMContentLoaded', function() {
       card.dataset.productId = productId;
     }
   });
+  
+  // Load products from localStorage (new functionality)
+  loadProductsFromStorage();
+  
+  // Initialize all dynamic features
+  initializeProductFeatures();
+  
+  // Initialize thumbnail gallery
+  setupThumbnailGallery();
+  
+  // Initialize quick add controls
+  setupQuickAddControls();
+  
+  // Initialize lazy loading
+  setupLazyLoading();
 });
