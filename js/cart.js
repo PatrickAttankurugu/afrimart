@@ -1,10 +1,13 @@
 /*
 * AfriMart Depot - Shopping Cart JavaScript
-* Version: 3.5 - Added order storage functionality
+* Version: 3.5 - Added S3 integration
 */
 
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
+
+  // API Base URL for Netlify functions
+  const API_BASE_URL = '/.netlify/functions/s3-handler';
 
   // Initialize AOS Animation
   if (typeof AOS !== 'undefined') {
@@ -64,28 +67,67 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   // ==================
-  // Cart Core Functions
+  // S3 Storage Functions
   // ==================
 
-  function getCartFromStorage() {
-    const savedCart = localStorage.getItem('afrimartCart');
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        if (!Array.isArray(parsedCart.items)) {
-            parsedCart.items = [];
+  async function getCartFromS3() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/get-orders`);
+      if (!response.ok) throw new Error('Failed to get from S3');
+      
+      const data = await response.json();
+      return Array.isArray(data) ? data : { items: [] };
+    } catch (error) {
+      console.error('Error getting from S3:', error);
+      // Fallback to localStorage in case of error
+      const savedCart = localStorage.getItem('afrimartCart');
+      if (savedCart) {
+        try {
+          return JSON.parse(savedCart);
+        } catch (e) {
+          console.error('Error parsing cart data from localStorage', e);
         }
-        return parsedCart;
-      } catch (e) {
-        console.error('Error parsing cart data from localStorage', e);
-        return { items: [], subtotal: 0 };
       }
-    } else {
-      return { items: [], subtotal: 0 };
+      return { items: [] };
     }
   }
 
-  function saveCartToStorage(cartItems) {
+  async function saveCartToS3(cartItems) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/save-orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(cartItems)
+      });
+      
+      if (!response.ok) throw new Error('Failed to save to S3');
+      
+      // Also save to localStorage as backup
+      localStorage.setItem('afrimartCart', JSON.stringify(cartItems));
+      return true;
+    } catch (error) {
+      console.error('Error saving to S3:', error);
+      // Save to localStorage as fallback
+      localStorage.setItem('afrimartCart', JSON.stringify(cartItems));
+      return false;
+    }
+  }
+
+  // ==================
+  // Cart Core Functions
+  // ==================
+
+  async function getCartFromStorage() {
+    const cart = await getCartFromS3();
+    if (!Array.isArray(cart.items)) {
+      cart.items = [];
+    }
+    return cart;
+  }
+
+  async function saveCartToStorage(cartItems) {
     const itemsToSave = Array.isArray(cartItems) ? cartItems : [];
     const subtotal = calculateSubtotal(itemsToSave);
 
@@ -95,19 +137,11 @@ document.addEventListener('DOMContentLoaded', function() {
       lastUpdated: new Date().toISOString()
     };
 
-    try {
-      localStorage.setItem('afrimartCart', JSON.stringify(cartData));
-      if (localStorage.getItem('cartCount')) {
-        localStorage.removeItem('cartCount');
-      }
-    } catch (e) {
-      console.error('Error saving cart data to localStorage', e);
-    }
-
+    await saveCartToS3(cartData);
     updateCartDisplay();
   }
 
-  function addToCart(product) {
+  async function addToCart(product) {
     if (!product || !product.id || !product.title || !product.price) {
       console.error('Invalid product object', product);
       return false;
@@ -119,14 +153,14 @@ document.addEventListener('DOMContentLoaded', function() {
       product.quantity = parseInt(product.quantity);
     }
 
-    const cart = getCartFromStorage();
+    const cart = await getCartFromStorage();
     const existingProductIndex = cart.items.findIndex(item => item.id === product.id);
 
     if (existingProductIndex !== -1) {
       if (product.quantity > 1) {
           const newQty = parseInt(cart.items[existingProductIndex].quantity) + product.quantity;
           cart.items[existingProductIndex].quantity = Math.min(newQty, 99);
-          saveCartToStorage(cart.items);
+          await saveCartToStorage(cart.items);
           showAddedToCartNotification(`${product.title} quantity updated`);
           showMiniCart();
           return true;
@@ -144,19 +178,19 @@ document.addEventListener('DOMContentLoaded', function() {
         image: product.image || '',
         variant: product.variant || ''
       });
-      saveCartToStorage(cart.items);
+      await saveCartToStorage(cart.items);
       showAddedToCartNotification(`${product.title} added to cart`);
       showMiniCart();
       return true;
     }
   }
 
-  function removeCartItem(productId) {
+  async function removeCartItem(productId) {
     if (!productId) return false;
 
-    const cart = getCartFromStorage();
+    const cart = await getCartFromStorage();
     const updatedItems = cart.items.filter(item => item.id !== productId);
-    saveCartToStorage(updatedItems);
+    await saveCartToStorage(updatedItems);
 
     if (isCartPage) {
       const itemToRemove = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
@@ -178,16 +212,16 @@ document.addEventListener('DOMContentLoaded', function() {
     return true;
   }
 
-  function updateCartItemQuantity(productId, quantity) {
+  async function updateCartItemQuantity(productId, quantity) {
     if (!productId || isNaN(parseInt(quantity))) return false;
 
     quantity = Math.max(1, Math.min(99, parseInt(quantity)));
-    const cart = getCartFromStorage();
+    const cart = await getCartFromStorage();
     const existingProductIndex = cart.items.findIndex(item => item.id === productId);
 
     if (existingProductIndex !== -1) {
       cart.items[existingProductIndex].quantity = quantity;
-      saveCartToStorage(cart.items);
+      await saveCartToStorage(cart.items);
       return true;
     }
 
@@ -218,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return '$' + numAmount.toFixed(2);
   }
 
-  function calculateCartTotals() {
+  async function calculateCartTotals() {
     if (!isCartPage) return;
 
     const cartItemsData = extractCartItemsFromDOM();
@@ -315,8 +349,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // UI Update Functions
   // ==================
 
-  function updateCartDisplay() {
-    const cart = getCartFromStorage();
+  async function updateCartDisplay() {
+    const cart = await getCartFromStorage();
     let totalItems = 0;
     if (Array.isArray(cart.items)) {
         cart.items.forEach(item => {
@@ -474,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return miniCart;
   }
 
-  function updateMiniCartItems() {
+  async function updateMiniCartItems() {
     const miniCart = document.querySelector('.mini-cart');
     if (!miniCart) return;
 
@@ -486,7 +520,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    const cart = getCartFromStorage();
+    const cart = await getCartFromStorage();
     miniCartItemsContainer.innerHTML = '';
 
     if (!Array.isArray(cart.items) || cart.items.length === 0) {
@@ -588,7 +622,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Order Storage Function
   // ==================
   
-  function storeOrder(items, cartInfo) {
+  async function storeOrder(items, cartInfo) {
     const order = {
       id: Date.now().toString(),
       timestamp: new Date().toISOString(),
@@ -600,17 +634,35 @@ document.addEventListener('DOMContentLoaded', function() {
       customer: 'WhatsApp Order' // Basic customer info
     };
     
-    let orders = JSON.parse(localStorage.getItem('afrimart_orders') || '[]');
+    let orders = await getOrders();
     orders.push(order);
-    localStorage.setItem('afrimart_orders', JSON.stringify(orders));
+    await saveOrders(orders);
+  }
+
+  async function getOrders() {
+    try {
+      let orders = localStorage.getItem('afrimart_orders');
+      return orders ? JSON.parse(orders) : [];
+    } catch (error) {
+      console.error('Error getting orders:', error);
+      return [];
+    }
+  }
+
+  async function saveOrders(orders) {
+    try {
+      localStorage.setItem('afrimart_orders', JSON.stringify(orders));
+    } catch (error) {
+      console.error('Error saving orders:', error);
+    }
   }
 
   // ==================
   // Checkout Functions
   // ==================
 
-  function checkoutViaWhatsApp() {
-    const cart = getCartFromStorage();
+  async function checkoutViaWhatsApp() {
+    const cart = await getCartFromStorage();
     const cartItems = cart.items || [];
     
     if (cartItems.length === 0) {
@@ -625,7 +677,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const total = parseFloat((document.getElementById('order-total')?.textContent || '$0').replace(/[^\d.-]/g, ''));
 
     // Store order before sending to WhatsApp
-    storeOrder(cartItems, { subtotal, shipping, tax, total });
+    await storeOrder(cartItems, { subtotal, shipping, tax, total });
 
     // Format cart items into a message
     let message = '🛒 New Order from AfriMart Depot\n\n';
@@ -657,7 +709,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof window.AfriMartCart !== 'undefined' && typeof window.AfriMartCart.clearCart === 'function') {
             window.AfriMartCart.clearCart();
         } else {
-            localStorage.removeItem('afrimartCart');
+            saveCartToS3({ items: [] });
             updateCartDisplay();
         }
         console.log("Order sent to WhatsApp, cart cleared.");
@@ -668,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Event Handlers and Initialization
   // ==================
 
-  function initCartPage() {
+  async function initCartPage() {
     if (!isCartPage) return;
 
     if (!cartItemsContainer) {
@@ -678,7 +730,7 @@ document.addEventListener('DOMContentLoaded', function() {
      }
 
     if (cartItemsContainer.children.length === 0) {
-      const cart = getCartFromStorage();
+      const cart = await getCartFromStorage();
 
       if (Array.isArray(cart.items) && cart.items.length > 0) {
         cart.items.forEach(item => {
@@ -792,16 +844,16 @@ document.addEventListener('DOMContentLoaded', function() {
               discountRow.style.display = 'flex';
                discountAmount.textContent = '-' + formatCurrency(discountValue);
             }
-
+ 
             if (discountSuccessMsg) {
               discountSuccessMsg.textContent = `${discount}% discount applied successfully!`;
               discountSuccessMsg.style.display = 'block';
             }
           }
-
+ 
           if (discountCodeInput) discountCodeInput.disabled = true;
           if (applyDiscountBtn) applyDiscountBtn.disabled = true;
-
+ 
           calculateCartTotals();
         } else {
           if (discountErrorMsg) {
@@ -816,43 +868,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
     }
-
+ 
     if (updateCartBtn) {
-      updateCartBtn.addEventListener('click', function() {
+      updateCartBtn.addEventListener('click', async function() {
         this.innerHTML = '<i class="fas fa-check"></i> Cart Updated';
         this.classList.add('btn-success');
-
+ 
         const cartItemsData = extractCartItemsFromDOM();
-        saveCartToStorage(cartItemsData);
+        await saveCartToStorage(cartItemsData);
         calculateCartTotals();
-
+ 
         setTimeout(() => {
           this.innerHTML = '<i class="fas fa-sync-alt"></i> Update Cart';
           this.classList.remove('btn-success');
         }, 2000);
       });
     }
-
+ 
     if (clearCartBtn) {
-      clearCartBtn.addEventListener('click', function() {
+      clearCartBtn.addEventListener('click', async function() {
         if (confirm('Are you sure you want to clear your cart?')) {
-          saveCartToStorage([]);
-
+          await saveCartToStorage([]);
+ 
           if(cartItemsContainer){
               Array.from(cartItemsContainer.children).forEach(item => {
                 item.style.transition = 'opacity 0.3s ease';
                 item.style.opacity = '0';
               });
           }
-
+ 
           setTimeout(() => {
             if (cartItemsContainer) {
               cartItemsContainer.innerHTML = '';
             }
-
+ 
             showEmptyCartMessage();
             calculateCartTotals();
-
+ 
              if (discountRow) discountRow.style.display = 'none';
              if (discountAmount) discountAmount.textContent = '-$0.00';
              if (discountCodeInput) {
@@ -862,12 +914,12 @@ document.addEventListener('DOMContentLoaded', function() {
              if (applyDiscountBtn) applyDiscountBtn.disabled = false;
              if (discountSuccessMsg) discountSuccessMsg.style.display = 'none';
              if (discountErrorMsg) discountErrorMsg.style.display = 'none';
-
+ 
           }, 300);
         }
       });
     }
-
+ 
     if (checkoutBtn) {
       checkoutBtn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -875,18 +927,18 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
-
+ 
   function setupCartItemEvents() {
     if (!isCartPage || !cartItemsContainer) return;
-
+ 
     cartItemsContainer.addEventListener('click', function(e) {
         const target = e.target;
         const cartItem = target.closest('.cart-item');
         if (!cartItem) return;
-
+ 
         const productId = cartItem.dataset.productId;
         const quantityInput = cartItem.querySelector('.quantity-input');
-
+ 
         if (target.closest('.remove-item')) {
              e.stopPropagation();
             if (productId) {
@@ -894,7 +946,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return;
         }
-
+ 
         if (target.closest('.quantity-btn.minus')) {
              e.stopPropagation();
             if (quantityInput) {
@@ -906,7 +958,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return;
         }
-
+ 
         if (target.closest('.quantity-btn.plus')) {
              e.stopPropagation();
             if (quantityInput) {
@@ -920,86 +972,86 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
     });
-
+ 
     cartItemsContainer.addEventListener('change', function(e) {
         if (e.target.classList.contains('quantity-input')) {
             const quantityInput = e.target;
             let value = parseInt(quantityInput.value);
             const minValue = parseInt(quantityInput.getAttribute('min') || 1);
             const maxValue = parseInt(quantityInput.getAttribute('max') || 99);
-
+ 
             if (isNaN(value) || value < minValue) {
                 value = minValue;
             } else if (value > maxValue) {
                 value = maxValue;
             }
-
+ 
             quantityInput.value = value;
             updateItemSubtotal(quantityInput);
         }
     });
-}
-
+ }
+ 
   function setupCartIconClickHandlers() {
     const cartIcons = document.querySelectorAll('.cart-icon a');
-
+ 
     cartIcons.forEach(icon => {
       if (icon.dataset.cartListenerAttached === 'true') return;
         icon.dataset.cartListenerAttached = 'true';
-
-        icon.addEventListener('click', function(e) {
-            const cart = getCartFromStorage();
-
+ 
+        icon.addEventListener('click', async function(e) {
+            const cart = await getCartFromStorage();
+ 
             if (cart.items && cart.items.length > 0) {
                 showMiniCart();
             }
         });
     });
   }
-
+ 
    function initAddToCartButtons() {
     document.body.addEventListener('click', function(e) {
         const button = e.target.closest('.add-to-cart');
         if (!button) return;
-
+ 
         e.preventDefault();
         e.stopPropagation();
-
+ 
         if (button.disabled) return;
-
+ 
         const productContainer = button.closest('.product-card') || button.closest('.product-info') || button.closest('.product-details') || button.closest('.sidebar-widget .product-card');
         if (!productContainer) {
             console.error('Could not find product container for Add to Cart button.');
             return;
         }
-
+ 
         let productId, productTitle, productPrice, productImage, productQuantity = 1;
         let variantInfo = "";
-
+ 
         const isOnProductPage = document.querySelector('.product-details-section') !== null;
         const isInQuickView = button.closest('.quick-view-modal') !== null;
-
+ 
         if (isOnProductPage || isInQuickView) {
             const context = isInQuickView ? button.closest('.quick-view-modal') : document;
-
+ 
             productId = button.dataset.productId ||
                        context.querySelector('.add-to-cart-btn')?.dataset.productId ||
                        new URLSearchParams(window.location.search).get('product') ||
                        new URLSearchParams(window.location.search).get('id') ||
                        `product_${Date.now()}`;
-
+ 
             const titleElement = context.querySelector('.product-title') || context.querySelector('h2');
             productTitle = titleElement ? titleElement.textContent.trim() : 'Product';
-
+ 
             const priceElement = context.querySelector('.current-price') || context.querySelector('.price');
             productPrice = priceElement ? priceElement.textContent.trim() : '$0.00';
-
+ 
             const imageElement = context.querySelector('.main-image img') || document.querySelector('.main-product-image');
             productImage = imageElement ? imageElement.src : (productContainer.querySelector('img')?.src || '');
-
+ 
             const quantityInput = context.querySelector('.quantity-input');
             productQuantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
-
+ 
             const variantGroups = context.querySelectorAll('.variant-group');
                 if (variantGroups && variantGroups.length > 0) {
                     const selectedVariants = [];
@@ -1012,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     variantInfo = selectedVariants.join(", ");
                 }
-
+ 
         } else {
             productId = productContainer.dataset.productId || productContainer.dataset.id || `product_${Date.now()}`;
             const titleElement = productContainer.querySelector('.product-title') || productContainer.querySelector('h3 a') || productContainer.querySelector('h3');
@@ -1025,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', function() {
             productQuantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
              variantInfo = "";
         }
-
+ 
         const product = {
             id: productId,
             title: productTitle,
@@ -1034,14 +1086,14 @@ document.addEventListener('DOMContentLoaded', function() {
             image: productImage,
             variant: variantInfo
         };
-
+ 
         addToCart(product);
-
+ 
         const originalHTML = button.innerHTML;
         button.innerHTML = '<i class="fas fa-check"></i> Added!';
         button.classList.add('added');
          button.disabled = true;
-
+ 
         setTimeout(() => {
              if(button) {
                 button.innerHTML = originalHTML;
@@ -1050,21 +1102,22 @@ document.addEventListener('DOMContentLoaded', function() {
              }
         }, 1500);
     });
-}
-
+ }
+ 
   // ==================
   // Public API
   // ==================
-
+ 
   window.AfriMartCart = {
     addToCart: addToCart,
     removeCartItem: removeCartItem,
     updateCartItemQuantity: updateCartItemQuantity,
-    getCartItems: function() {
-      return getCartFromStorage().items;
+    getCartItems: async function() {
+      const cart = await getCartFromStorage();
+      return cart.items;
     },
-    clearCart: function() {
-      saveCartToStorage([]);
+    clearCart: async function() {
+      await saveCartToStorage([]);
       updateCartDisplay();
       if(isCartPage) {
            showEmptyCartMessage();
@@ -1086,20 +1139,20 @@ document.addEventListener('DOMContentLoaded', function() {
     showMiniCart: showMiniCart,
     updateCartDisplay: updateCartDisplay
   };
-
+ 
   window.addToCart = addToCart;
-
+ 
   // ==================
   // Initialization
   // ==================
-
+ 
   updateCartDisplay();
   initCartPage();
   initAddToCartButtons();
   setupCartIconClickHandlers();
   createMiniCart();
   updateMiniCartItems();
-
+ 
   setTimeout(updateCartDisplay, 500);
-
-});
+ 
+ });
