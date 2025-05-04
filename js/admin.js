@@ -1,6 +1,6 @@
 /*
 * AfriMart Depot - Admin Dashboard JavaScript
-* Version: 2.1 - Added S3 integration
+* Version: 2.1 - Added S3 integration with debug logging
 */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -74,26 +74,54 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentImageData = null;
     
     // ==================
-    // S3 Storage Functions
+    // S3 Storage Functions with Debug Logging
     // ==================
     
     async function getProductsFromS3() {
+        const debugLog = (msg, data = null) => {
+            console.log(`[ADMIN-S3-PRODUCTS] ${msg}`, data || '');
+        };
+        
         try {
+            debugLog('Fetching products from S3');
+            debugLog('API URL:', `${API_BASE_URL}/get-products`);
+            
             const response = await fetch(`${API_BASE_URL}/get-products`);
-            if (!response.ok) throw new Error('Failed to get products from S3');
+            debugLog('Response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                debugLog('Error response:', errorText);
+                throw new Error('Failed to get products from S3');
+            }
             
             const data = await response.json();
+            debugLog('Retrieved data successfully');
+            debugLog('Product count:', data?.length || 0);
+            
             return Array.isArray(data) ? data : [];
         } catch (error) {
-            console.error('Error getting products from S3:', error);
-            // Fallback to localStorage if S3 fails
+            debugLog('Error getting products from S3:', error.message);
+            // Fallback to localStorage
             const savedProducts = localStorage.getItem('afrimart_products');
-            return savedProducts ? JSON.parse(savedProducts) : [];
+            if (savedProducts) {
+                debugLog('Fallback to localStorage successful');
+                return JSON.parse(savedProducts);
+            }
+            debugLog('No data in localStorage either');
+            return [];
         }
     }
     
     async function saveProductsToS3(products) {
+        const debugLog = (msg, data = null) => {
+            console.log(`[ADMIN-S3-SAVE] ${msg}`, data || '');
+        };
+        
         try {
+            debugLog('Saving products to S3');
+            debugLog('Products to save:', products?.length || 0);
+            
             const response = await fetch(`${API_BASE_URL}/save-products`, {
                 method: 'POST',
                 headers: {
@@ -102,36 +130,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(products)
             });
             
-            if (!response.ok) throw new Error('Failed to save products to S3');
+            debugLog('Save response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                debugLog('Error saving to S3:', errorText);
+                throw new Error('Failed to save products to S3');
+            }
+            
+            const result = await response.json();
+            debugLog('Save result:', result);
             
             // Also save to localStorage as backup
             localStorage.setItem('afrimart_products', JSON.stringify(products));
+            debugLog('Saved to localStorage as backup');
+            
             return true;
         } catch (error) {
-            console.error('Error saving products to S3:', error);
+            debugLog('Error saving products to S3:', error.message);
             // Save to localStorage as fallback
             localStorage.setItem('afrimart_products', JSON.stringify(products));
+            debugLog('Saved to localStorage as fallback');
             return false;
         }
     }
     
     async function getOrdersFromS3() {
+        const debugLog = (msg, data = null) => {
+            console.log(`[ADMIN-S3-ORDERS] ${msg}`, data || '');
+        };
+        
         try {
+            debugLog('Fetching orders from S3');
+            
             const response = await fetch(`${API_BASE_URL}/get-orders`);
-            if (!response.ok) throw new Error('Failed to get orders from S3');
+            debugLog('Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error('Failed to get orders from S3');
+            }
             
             const data = await response.json();
+            debugLog('Retrieved orders successfully');
+            debugLog('Order count:', data?.length || 0);
+            
             return Array.isArray(data) ? data : [];
         } catch (error) {
-            console.error('Error getting orders from S3:', error);
-            // Fallback to localStorage if S3 fails
+            debugLog('Error getting orders from S3:', error.message);
+            // Fallback to localStorage
             const savedOrders = localStorage.getItem('afrimart_orders');
             return savedOrders ? JSON.parse(savedOrders) : [];
         }
     }
     
     async function saveOrdersToS3(orders) {
+        const debugLog = (msg, data = null) => {
+            console.log(`[ADMIN-S3-SAVE-ORDERS] ${msg}`, data || '');
+        };
+        
         try {
+            debugLog('Saving orders to S3');
+            
             const response = await fetch(`${API_BASE_URL}/save-orders`, {
                 method: 'POST',
                 headers: {
@@ -140,18 +199,88 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(orders)
             });
             
+            debugLog('Save response status:', response.status);
+            
             if (!response.ok) throw new Error('Failed to save orders to S3');
             
             // Also save to localStorage as backup
             localStorage.setItem('afrimart_orders', JSON.stringify(orders));
             return true;
         } catch (error) {
-            console.error('Error saving orders to S3:', error);
+            debugLog('Error saving orders to S3:', error.message);
             // Save to localStorage as fallback
             localStorage.setItem('afrimart_orders', JSON.stringify(orders));
             return false;
         }
     }
+    
+    // ==================
+    // Debug Utilities
+    // ==================
+    
+    window.adminDebug = {
+        testS3Save: async function() {
+            console.log('[ADMIN-DEBUG] Testing S3 save operation...');
+            const testProduct = {
+                id: 'debug-test-' + Date.now(),
+                name: 'Debug Test Product',
+                price: '$9.99',
+                description: 'This is a test product for debugging',
+                category: 'specialty'
+            };
+            
+            const products = await getProducts();
+            products.push(testProduct);
+            
+            const saveResult = await saveProducts(products);
+            console.log('[ADMIN-DEBUG] Save result:', saveResult);
+            
+            // Now try to read it back
+            const savedProducts = await getProducts();
+            console.log('[ADMIN-DEBUG] Retrieved products:', savedProducts.length);
+            console.log('[ADMIN-DEBUG] Last product:', savedProducts[savedProducts.length - 1]);
+        },
+        
+        checkS3Status: async function() {
+            console.log('[ADMIN-DEBUG] Checking S3 status...');
+            try {
+                const response = await fetch('/.netlify/functions/check-env');
+                const data = await response.json();
+                console.log('[ADMIN-DEBUG] Environment check:', data);
+            } catch (error) {
+                console.log('[ADMIN-DEBUG] Error checking environment:', error);
+            }
+        },
+        
+        compareDataSources: async function() {
+            console.log('[ADMIN-DEBUG] Comparing data sources...');
+            
+            // Check S3
+            const s3Products = await getProductsFromS3();
+            console.log('[ADMIN-DEBUG] S3 products count:', s3Products?.length || 0);
+            
+            // Check localStorage
+            const localProducts = JSON.parse(localStorage.getItem('afrimart_products') || '[]');
+            console.log('[ADMIN-DEBUG] LocalStorage products count:', localProducts?.length || 0);
+            
+            // Compare first products
+            if (s3Products?.length > 0) {
+                console.log('[ADMIN-DEBUG] First S3 product:', s3Products[0]);
+            }
+            if (localProducts?.length > 0) {
+                console.log('[ADMIN-DEBUG] First localStorage product:', localProducts[0]);
+            }
+        },
+        
+        clearAllProducts: async function() {
+            if (confirm('Are you sure you want to clear all products?')) {
+                console.log('[ADMIN-DEBUG] Clearing all products...');
+                await saveProducts([]);
+                await loadProducts();
+                console.log('[ADMIN-DEBUG] All products cleared');
+            }
+        }
+    };
     
     // ==================
     // Initialization

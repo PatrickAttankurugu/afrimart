@@ -1,6 +1,6 @@
 /*
 * AfriMart Depot - Shop Page JavaScript
-* Version: 2.5 - Added dynamic product loading from localStorage and S3
+* Version: 2.5 - Added dynamic product loading from localStorage and S3 with debug logging
 */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -48,34 +48,87 @@ document.addEventListener('DOMContentLoaded', function() {
   const paginationLinks = document.querySelectorAll('.page-link');
 
   // ==================
-  // S3 Integration Functions
+  // S3 Integration Functions with Debug Logging
   // ==================
   
   async function getProductsFromS3() {
+    const debugLog = (msg, data = null) => {
+      console.log(`[S3-PRODUCTS] ${msg}`, data || '');
+    };
+    
     try {
+      debugLog('Initializing S3 fetch for products');
+      debugLog('API Base URL:', API_BASE_URL);
+      debugLog('Full URL:', `${API_BASE_URL}/get-products`);
+      
       const response = await fetch(`${API_BASE_URL}/get-products`);
-      if (!response.ok) throw new Error('Failed to get products from S3');
+      debugLog('Response received');
+      debugLog('Response status:', response.status);
+      debugLog('Response URL:', response.url);
+      debugLog('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        debugLog('Error response text:', errorText);
+        throw new Error(`Failed to get products from S3: ${response.status} ${errorText}`);
+      }
       
       const data = await response.json();
+      debugLog('Data received successfully');
+      debugLog('Data type:', typeof data);
+      debugLog('Is array:', Array.isArray(data));
+      debugLog('Data length:', data?.length);
+      
+      if (data && data.length > 0) {
+        debugLog('First product:', data[0]);
+      }
+      
       return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error('Error getting products from S3:', error);
+      debugLog('ERROR in getProductsFromS3:', error.message);
+      debugLog('Full error:', error);
+      
       // Fallback to localStorage
       const savedProducts = localStorage.getItem('afrimart_products');
-      return savedProducts ? JSON.parse(savedProducts) : [];
+      if (savedProducts) {
+        debugLog('Fallback: Found data in localStorage');
+        try {
+          const parsedProducts = JSON.parse(savedProducts);
+          debugLog('Fallback: Successfully parsed localStorage data');
+          debugLog('Fallback: LocalStorage products count:', parsedProducts?.length);
+          return parsedProducts;
+        } catch (parseError) {
+          debugLog('Fallback ERROR: Failed to parse localStorage data:', parseError);
+          return [];
+        }
+      } else {
+        debugLog('Fallback: No data in localStorage');
+        return [];
+      }
     }
   }
   
   // ==================
-  // Load Products from localStorage and S3
+  // Load Products from localStorage and S3 with Debug Logging
   // ==================
   
   async function loadProductsFromStorage() {
+    const debugLog = (msg, data = null) => {
+      console.log(`[LOAD-PRODUCTS] ${msg}`, data || '');
+    };
+    
+    debugLog('Starting to load products');
+    
     // First try to get from S3
     const products = await getProductsFromS3();
     const productsGrid = document.querySelector('.products-grid');
     
-    if (!productsGrid) return;
+    debugLog('Products received:', products?.length || 0);
+    
+    if (!productsGrid) {
+      debugLog('ERROR: Products grid element not found');
+      return;
+    }
     
     // Save the "load more" button and pagination if they exist
     const loadMoreSection = productsGrid.querySelector('.load-more');
@@ -85,13 +138,16 @@ document.addEventListener('DOMContentLoaded', function() {
     productsGrid.innerHTML = '';
     
     if (products.length === 0) {
+      debugLog('No products to display');
       productsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; padding: 40px;">No products available yet.</p>';
       if (loadMoreSection) productsGrid.appendChild(loadMoreSection);
       if (paginationSection) productsGrid.appendChild(paginationSection);
       return;
     }
     
+    debugLog('Creating product cards');
     products.forEach((product, index) => {
+      debugLog(`Creating card for product ${index}:`, product.name);
       const productCard = createProductCard(product, index);
       productsGrid.appendChild(productCard);
     });
@@ -105,6 +161,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Reinitialize all dynamic features
     initializeProductFeatures();
+    
+    debugLog('Products loading complete');
   }
   
   function createProductCard(product, index) {
@@ -169,6 +227,61 @@ document.addEventListener('DOMContentLoaded', function() {
       AOS.refresh();
     }
   }
+  
+  // ==================
+  // Debug Functions
+  // ==================
+  
+  async function checkProductSources() {
+    const debugLog = (msg, data = null) => {
+      console.log(`[DEBUG-CHECK] ${msg}`, data || '');
+    };
+    
+    debugLog('=== PRODUCT SOURCES DEBUG ===');
+    
+    // Check S3
+    const s3Products = await getProductsFromS3();
+    debugLog('S3 products count:', s3Products?.length || 0);
+    
+    // Check localStorage
+    const localProducts = JSON.parse(localStorage.getItem('afrimart_products') || '[]');
+    debugLog('LocalStorage products count:', localProducts?.length || 0);
+    
+    // Check displayed products
+    const displayedProducts = document.querySelectorAll('.product-card').length;
+    debugLog('Currently displayed products:', displayedProducts);
+    
+    // Log first product from each source for comparison
+    if (s3Products?.length > 0) {
+      debugLog('First S3 product:', s3Products[0]);
+    }
+    if (localProducts?.length > 0) {
+      debugLog('First localStorage product:', localProducts[0]);
+    }
+    
+    debugLog('=== DEBUG CHECK COMPLETE ===');
+  }
+  
+  // Make debug functions globally available
+  window.debugShop = {
+    checkProductSources,
+    getProducts: getProductsFromS3,
+    loadProducts: loadProductsFromStorage,
+    testAPI: () => {
+      console.log('Testing API endpoint directly...');
+      fetch(`${API_BASE_URL}/get-products`)
+        .then(response => {
+          console.log('Test Response status:', response.status);
+          return response.json();
+        })
+        .then(data => {
+          console.log('Test Response data:', data);
+        })
+        .catch(error => {
+          console.log('Test Error:', error);
+        });
+    }
+  };
   
   // ==================
   // Category Filtering
@@ -897,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
- 
+  
   // ==================
   // Toast Notifications
   // ==================
@@ -1098,7 +1211,9 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Load products from localStorage and S3
-  loadProductsFromStorage();
+  loadProductsFromStorage().then(() => {
+    checkProductSources();
+  });
   
   // Initialize all dynamic features
   initializeProductFeatures();
@@ -1111,4 +1226,4 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize lazy loading
   setupLazyLoading();
- });
+});
