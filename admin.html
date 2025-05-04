@@ -3,208 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AfriMart Admin</title>
+    <title>AfriMart Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Admin-specific CSS */
-        :root {
-            --primary-color: #14893c;
-            --secondary-color: #dd3333;
-            --accent-color: #f7a501;
-            --dark: #212529;
-            --white: #ffffff;
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-        
-        .admin-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .admin-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .admin-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-        }
-        
-        .admin-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .product-form {
-            display: grid;
-            gap: 15px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .form-group label {
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: inherit;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: var(--secondary-color);
-            color: white;
-        }
-        
-        .btn-warning {
-            background: var(--accent-color);
-            color: white;
-        }
-        
-        .product-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .product-table th, .product-table td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-        
-        .product-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-        
-        .product-image-preview {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        
-        .orders-list {
-            margin-top: 20px;
-        }
-        
-        .order-card {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-        }
-        
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background: white;
-            margin: 10% auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 8px;
-        }
-        
-        .close {
-            float: right;
-            font-size: 28px;
-            cursor: pointer;
-        }
-        
-        .image-upload {
-            border: 2px dashed #ddd;
-            border-radius: 4px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-        }
-        
-        .image-upload:hover {
-            border-color: var(--primary-color);
-        }
-    </style>
+    <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1>AfriMart Admin Dashboard</h1>
-            <div>
-                <button class="btn btn-secondary" onclick="window.location.href='index.html'">
-                    <i class="fas fa-home"></i> View Website
+    <div class="admin-dashboard">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="images/logo.png" alt="AfriMart Logo">
+                </div>
+                <button class="toggle-sidebar" id="toggleSidebar">
+                    <i class="fas fa-bars"></i>
                 </button>
             </div>
-        </div>
-        
-        <div class="admin-grid">
-            <!-- Product Form -->
-            <div class="admin-card">
-                <h2 id="form-title">Add New Product</h2>
-                <form id="product-form" class="product-form">
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-link" data-section="products">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+                <a href="#" class="nav-link" data-section="orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="#" class="nav-link" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="index.html" class="nav-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>View Website</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">Dashboard</h1>
+                <div class="header-actions">
+                    <div class="stats-toggle">
+                        <select id="statsTimeFrame" class="form-control">
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Sections -->
+            <div class="content-section">
+                <!-- Dashboard Section -->
+                <section id="dashboardSection" class="section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Products</h3>
+                                <p id="totalProducts">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Orders</h3>
+                                <p id="totalOrders">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Revenue</h3>
+                                <p id="totalRevenue">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-activity">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Recent Activity</h2>
+                            </div>
+                            <div class="card-body">
+                                <div id="recentActivity" class="activity-list">
+                                    <!-- Activity items will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Products Section -->
+                <section id="productsSection" class="section">
+                    <div class="section-header">
+                        <h2>Products Management</h2>
+                        <button class="btn btn-primary" id="addProductBtn">
+                            <i class="fas fa-plus"></i> Add Product
+                        </button>
+                    </div>
+                    
+                    <div class="products-container">
+                        <div class="product-filters">
+                            <div class="filter-group">
+                                <select id="categoryFilter" class="form-control">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="productSearch" placeholder="Search products...">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="products-grid" id="productsGrid">
+                            <!-- Products will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Orders Section -->
+                <section id="ordersSection" class="section">
+                    <div class="section-header">
+                        <h2>Orders Management</h2>
+                        <div class="order-filters">
+                            <select id="orderStatusFilter" class="form-control">
+                                <option value="">All Orders</option>
+                                <option value="completed">Completed</option>
+                                <option value="pending">Pending</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="orders-list" id="ordersList">
+                        <!-- Orders will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settingsSection" class="section">
+                    <div class="settings-container">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>General Settings</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="settingsForm">
+                                    <div class="form-group">
+                                        <label>Store Name</label>
+                                        <input type="text" id="storeName" class="form-control" value="AfriMart Depot">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>WhatsApp Number</label>
+                                        <input type="text" id="whatsappNumber" class="form-control" value="18048060130">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tax Rate (%)</label>
+                                        <input type="number" id="taxRate" class="form-control" value="8" step="0.1">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Product</h2>
+                <button class="close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    
                     <div class="form-group">
-                        <label>Product Name</label>
-                        <input type="text" id="productName" required>
+                        <label>Product Name *</label>
+                        <input type="text" id="productName" class="form-control" required>
                     </div>
                     
                     <div class="form-group">
-                        <label>Category</label>
-                        <select id="productCategory" required>
+                        <label>Category *</label>
+                        <select id="productCategory" class="form-control" required>
                             <option value="">Select Category</option>
                             <option value="dried-seafood">Dried Seafood</option>
                             <option value="fresh-seafood">Fresh Seafood</option>
@@ -217,28 +228,40 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Price</label>
-                        <input type="number" id="productPrice" step="0.01" required>
+                        <label>Price *</label>
+                        <input type="number" id="productPrice" class="form-control" step="0.01" required>
                     </div>
                     
                     <div class="form-group">
                         <label>Unit</label>
-                        <input type="text" id="productUnit" placeholder="e.g., 100g, 500ml">
+                        <input type="text" id="productUnit" class="form-control" placeholder="e.g., 100g, 500ml">
                     </div>
                     
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea id="productDescription" rows="3"></textarea>
+                        <textarea id="productDescription" class="form-control" rows="3"></textarea>
                     </div>
                     
                     <div class="form-group">
-                        <label>Image URL</label>
-                        <input type="text" id="productImage" placeholder="images/product-name.jpg">
+                        <label>Product Image *</label>
+                        <div class="image-upload" id="imageUpload">
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Drag & drop or click to upload</p>
+                            </div>
+                            <input type="file" id="productImage" accept="image/*" hidden>
+                            <div class="image-preview" id="imagePreview" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview">
+                                <button type="button" id="removeImage" class="remove-image">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
                         <label>Badge (optional)</label>
-                        <select id="productBadge">
+                        <select id="productBadge" class="form-control">
                             <option value="">No Badge</option>
                             <option value="new">New</option>
                             <option value="popular">Popular</option>
@@ -246,199 +269,27 @@
                         </select>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Product
-                    </button>
-                    <button type="button" id="cancel-edit" class="btn btn-secondary" style="display: none;">
-                        <i class="fas fa-times"></i> Cancel Edit
-                    </button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary cancel" id="cancelBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveProductBtn">
+                            <i class="fas fa-save"></i> Save Product
+                        </button>
+                    </div>
                 </form>
-            </div>
-            
-            <!-- Product List -->
-            <div class="admin-card">
-                <h2>Products</h2>
-                <div style="overflow-x: auto;">
-                    <table class="product-table">
-                        <thead>
-                            <tr>
-                                <th>Image</th>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="product-list">
-                            <!-- Products will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Orders Section -->
-        <div class="admin-card orders-list">
-            <h2>Recent Orders</h2>
-            <div id="orders-container">
-                <!-- Orders will be loaded here -->
             </div>
         </div>
     </div>
 
-    <script>
-        // Admin JavaScript
-        const PRODUCTS_KEY = 'afrimart_products';
-        const ORDERS_KEY = 'afrimart_orders';
-        let editingProductId = null;
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
 
-        // Load products on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadProducts();
-            loadOrders();
-        });
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="toast-message"></span>
+    </div>
 
-        // Product form submission
-        document.getElementById('product-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const product = {
-                id: editingProductId || Date.now().toString(),
-                name: document.getElementById('productName').value,
-                category: document.getElementById('productCategory').value,
-                price: '$' + document.getElementById('productPrice').value,
-                unit: document.getElementById('productUnit').value,
-                description: document.getElementById('productDescription').value,
-                image: document.getElementById('productImage').value,
-                badge: document.getElementById('productBadge').value
-            };
-            
-            let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]');
-            
-            if (editingProductId) {
-                // Update existing product
-                const index = products.findIndex(p => p.id === editingProductId);
-                if (index > -1) {
-                    products[index] = product;
-                }
-            } else {
-                // Add new product
-                products.push(product);
-            }
-            
-            localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-            resetForm();
-            loadProducts();
-        });
-
-        // Load and display products
-        function loadProducts() {
-            const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]');
-            const tbody = document.getElementById('product-list');
-            
-            tbody.innerHTML = products.map(product => `
-                <tr>
-                    <td><img src="${product.image}" class="product-image-preview" alt="${product.name}"></td>
-                    <td>${product.name}</td>
-                    <td>${formatCategory(product.category)}</td>
-                    <td>${product.price}</td>
-                    <td>
-                        <button class="btn btn-warning" onclick="editProduct('${product.id}')">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-secondary" onclick="deleteProduct('${product.id}')">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // Edit product
-        function editProduct(id) {
-            const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]');
-            const product = products.find(p => p.id === id);
-            
-            if (product) {
-                editingProductId = id;
-                document.getElementById('form-title').textContent = 'Edit Product';
-                document.getElementById('productName').value = product.name;
-                document.getElementById('productCategory').value = product.category;
-                document.getElementById('productPrice').value = product.price.replace('$', '');
-                document.getElementById('productUnit').value = product.unit;
-                document.getElementById('productDescription').value = product.description;
-                document.getElementById('productImage').value = product.image;
-                document.getElementById('productBadge').value = product.badge;
-                document.getElementById('cancel-edit').style.display = 'inline-flex';
-                
-                // Scroll to form
-                document.getElementById('product-form').scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        // Delete product
-        function deleteProduct(id) {
-            if (confirm('Are you sure you want to delete this product?')) {
-                let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]');
-                products = products.filter(p => p.id !== id);
-                localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-                loadProducts();
-            }
-        }
-
-        // Cancel edit
-        document.getElementById('cancel-edit').addEventListener('click', resetForm);
-
-        // Reset form
-        function resetForm() {
-            editingProductId = null;
-            document.getElementById('form-title').textContent = 'Add New Product';
-            document.getElementById('product-form').reset();
-            document.getElementById('cancel-edit').style.display = 'none';
-        }
-
-        // Format category name
-        function formatCategory(category) {
-            return category.split('-').map(word => 
-                word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ');
-        }
-
-        // Load and display orders
-        function loadOrders() {
-            const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
-            const container = document.getElementById('orders-container');
-            
-            if (orders.length === 0) {
-                container.innerHTML = '<p>No orders yet.</p>';
-                return;
-            }
-            
-            container.innerHTML = orders.map(order => `
-                <div class="order-card">
-                    <div class="order-header">
-                        <h3>Order #${order.id}</h3>
-                        <span>${new Date(order.timestamp).toLocaleDateString()}</span>
-                    </div>
-                    <p><strong>Customer:</strong> ${order.customer || 'Unknown'}</p>
-                    <p><strong>Items:</strong> ${order.items.map(item => `${item.title} (${item.quantity})`).join(', ')}</p>
-                    <p><strong>Total:</strong> $${order.total}</p>
-                    <button class="btn btn-secondary" onclick="deleteOrder('${order.id}')">
-                        <i class="fas fa-trash"></i> Delete Order
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        // Delete order
-        function deleteOrder(id) {
-            if (confirm('Are you sure you want to delete this order?')) {
-                let orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
-                orders = orders.filter(o => o.id !== id);
-                localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-                loadOrders();
-            }
-        }
-    </script>
+    <script src="js/admin.js"></script>
 </body>
 </html>
