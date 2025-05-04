@@ -1,0 +1,27 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[functions]
+  node_version = "16"
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/cart/*"
+  to = "/cart.html"
+  status = 200
+
+[[redirects]]
+  from = "/product-details/*"
+  to = "/product-details.html"
+  status = 200
+
+# Catch all other routes to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
