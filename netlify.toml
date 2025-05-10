@@ -1,15 +1,34 @@
-# netlify.toml (Minimal Test Version)
+# netlify.toml
 
 # Basic build settings
 [build]
   functions = "netlify/functions" # Specifies the directory for Netlify Functions
   publish = "."                   # Sets the root directory as the publish directory for the site
 
-# ALL REDIRECTS TEMPORARILY REMOVED FOR PARSING TEST
-# We will add them back once the core parsing issue is resolved.
+# Functions settings
+# Re-introducing node_version. Netlify's build image might default to an older Node
+# version if not specified, and Node 18+ is generally recommended for current AWS SDK.
+[functions]
+  node_version = "18"             # Specifies Node.js version 18 for the function runtime environment
+  # node_bundler = "esbuild" # You can try re-adding this later if the build succeeds without it
+
+# Redirects
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/cart/*"
+  to = "/cart.html"
+  status = 200
+
+[[redirects]]
+  from = "/product-details/*"
+  to = "/product-details.html"
+  status = 200
 
 # Catch-all redirect for Single Page Application (SPA) routing.
-# This is the most essential redirect for many SPA frameworks.
 [[redirects]]
   from = "/*"
   to = "/index.html"

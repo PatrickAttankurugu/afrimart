@@ -4,9 +4,6 @@
 const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { v4: uuidv4 } = require('uuid'); // For generating unique IDs/filenames
 
-// BUCKET_NAME will be accessed from process.env inside the handler
-const BUCKET_NAME = process.env.S3_BUCKET_NAME;
-
 // Helper function to convert a stream to a string
 function streamToString(stream) {
   return new Promise((resolve, reject) => {
@@ -27,6 +24,9 @@ exports.handler = async (event, context) => {
       secretAccessKey: process.env.AWS_SECRET_KEY,
     },
   });
+
+  // Access BUCKET_NAME from process.env inside the handler
+  const BUCKET_NAME = process.env.S3_BUCKET_NAME;
 
   // CORS headers for allowing cross-origin requests
   const headers = {
@@ -74,7 +74,6 @@ exports.handler = async (event, context) => {
     };
   }
 
-
   console.log(`[S3_HANDLER] Processing operation: "${operation}" with method: ${event.httpMethod}`);
 
   try {
@@ -93,11 +92,11 @@ exports.handler = async (event, context) => {
           return { statusCode: 200, headers, body: data };
         } catch (err) {
           if (err.name === 'NoSuchKey') {
-            console.log('[S3_HANDLER_ORDERS] orders.json not found. Returning empty array.');
-            return { statusCode: 200, headers, body: JSON.stringify({ items: [] }) }; // Ensure it's a valid cart structure
+            console.log('[S3_HANDLER_ORDERS] orders.json not found. Returning empty cart structure.');
+            return { statusCode: 200, headers, body: JSON.stringify({ items: [] }) };
           }
           console.error('[S3_HANDLER_ORDERS] Error fetching orders.json:', err);
-          throw err; // Re-throw to be caught by outer try-catch
+          throw err;
         }
 
       // Operation to save orders to S3
@@ -186,7 +185,7 @@ exports.handler = async (event, context) => {
 
         const fileTypeFromDataUrl = base64ImageData.substring(base64ImageData.indexOf(':') + 1, base64ImageData.indexOf(';'));
         if (fileTypeFromDataUrl && fileTypeFromDataUrl.startsWith('image/')) {
-            fileType = fileTypeFromDataUrl; // Prefer file type from data URL if valid
+            fileType = fileTypeFromDataUrl;
         }
         
         const base64Data = base64ImageData.split(';base64,').pop();
@@ -197,7 +196,7 @@ exports.handler = async (event, context) => {
             extension = 'jpg'; 
         }
 
-        const uniqueFileName = `${uuidv4()}-${originalFileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`; // Keep extension from original if present
+        const uniqueFileName = `${uuidv4()}-${originalFileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
         const s3Key = `images/${uniqueFileName}`; 
 
         console.log(`[S3_HANDLER_IMAGE] Uploading to S3 with Key: ${s3Key}, ContentType: ${fileType}`);
