@@ -4,17 +4,7 @@
 const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { v4: uuidv4 } = require('uuid'); // For generating unique IDs/filenames
 
-// Initialize the S3 client
-// Ensure environment variables are set in your Netlify dashboard:
-// AWS_REGION_NAME, AWS_ACCESS_KEY, AWS_SECRET_KEY, S3_BUCKET_NAME
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION_NAME,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,
-  },
-});
-
+// BUCKET_NAME will be accessed from process.env inside the handler
 const BUCKET_NAME = process.env.S3_BUCKET_NAME;
 
 // Helper function to convert a stream to a string
@@ -29,6 +19,15 @@ function streamToString(stream) {
 
 // Main handler function for Netlify
 exports.handler = async (event, context) => {
+  // Initialize S3Client INSIDE the handler to access process.env at runtime
+  const s3Client = new S3Client({
+    region: process.env.AWS_REGION_NAME,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_KEY,
+    },
+  });
+
   // CORS headers for allowing cross-origin requests
   const headers = {
     'Access-Control-Allow-Origin': '*', // Allow requests from any origin
@@ -66,6 +65,16 @@ exports.handler = async (event, context) => {
     };
   }
 
+  if (!BUCKET_NAME) {
+    console.error('[S3_HANDLER] Error: S3_BUCKET_NAME environment variable is not set.');
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'S3 Bucket Name not configured on the server.' }),
+    };
+  }
+
+
   console.log(`[S3_HANDLER] Processing operation: "${operation}" with method: ${event.httpMethod}`);
 
   try {
@@ -85,7 +94,7 @@ exports.handler = async (event, context) => {
         } catch (err) {
           if (err.name === 'NoSuchKey') {
             console.log('[S3_HANDLER_ORDERS] orders.json not found. Returning empty array.');
-            return { statusCode: 200, headers, body: JSON.stringify([]) };
+            return { statusCode: 200, headers, body: JSON.stringify({ items: [] }) }; // Ensure it's a valid cart structure
           }
           console.error('[S3_HANDLER_ORDERS] Error fetching orders.json:', err);
           throw err; // Re-throw to be caught by outer try-catch
@@ -136,7 +145,7 @@ exports.handler = async (event, context) => {
         }
         console.log('[S3_HANDLER_PRODUCTS] Attempting to save products.json');
         const productsDataToSave = JSON.parse(event.body);
-        console.log('[S3_HANDLER_PRODUCTS] Data to save:', JSON.stringify(productsDataToSave, null, 2).substring(0, 500) + '...'); // Log snippet
+        console.log('[S3_HANDLER_PRODUCTS] Data to save (first 500 chars):', JSON.stringify(productsDataToSave, null, 2).substring(0, 500) + '...');
         if (!Array.isArray(productsDataToSave)) {
             console.error('[S3_HANDLER_PRODUCTS] Invalid products data format. Expected array.');
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid products data format. Expected array.'}) };
@@ -157,11 +166,6 @@ exports.handler = async (event, context) => {
           return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed for upload-image' }) };
         }
         console.log('[S3_HANDLER_IMAGE] Attempting to upload image.');
-
-        // Check if the body is base64 encoded (Netlify often does this for binary data)
-        // The client (admin.js) is now sending FormData, which Netlify might handle.
-        // If Netlify doesn't parse multipart/form-data well, admin.js needs to send base64 in JSON.
-        // For this version, assuming admin.js is modified to send base64 in JSON.
         
         let requestBody;
         try {
@@ -171,27 +175,30 @@ exports.handler = async (event, context) => {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body for image upload.' }) };
         }
 
-        const base64ImageData = requestBody.image; // e.g., "data:image/jpeg;base64,..."
+        const base64ImageData = requestBody.image; 
         const originalFileName = requestBody.fileName || 'uploaded-image';
-        const fileType = requestBody.fileType || 'image/jpeg'; // Default to JPEG if not provided
+        let fileType = requestBody.fileType || 'image/jpeg'; 
 
         if (!base64ImageData || !base64ImageData.startsWith('data:image')) {
           console.error('[S3_HANDLER_IMAGE] Invalid or missing base64 image data.');
           return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid or missing base64 image data.' }) };
         }
 
-        // Extract base64 content and determine extension
+        const fileTypeFromDataUrl = base64ImageData.substring(base64ImageData.indexOf(':') + 1, base64ImageData.indexOf(';'));
+        if (fileTypeFromDataUrl && fileTypeFromDataUrl.startsWith('image/')) {
+            fileType = fileTypeFromDataUrl; // Prefer file type from data URL if valid
+        }
+        
         const base64Data = base64ImageData.split(';base64,').pop();
         const imageBuffer = Buffer.from(base64Data, 'base64');
         
-        // Determine file extension from fileType or originalFileName
-        let extension = fileType.split('/')[1] || originalFileName.split('.').pop();
+        let extension = fileType.split('/')[1] || originalFileName.split('.').pop() || 'jpg';
         if (!['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension.toLowerCase())) {
-            extension = 'jpg'; // Default to jpg if extension is unknown or unsafe
+            extension = 'jpg'; 
         }
 
-        const uniqueFileName = `${uuidv4()}-${originalFileName.replace(/[^a-zA-Z0-9.]/g, '_')}.${extension}`;
-        const s3Key = `images/${uniqueFileName}`; // Store images in an 'images/' folder
+        const uniqueFileName = `${uuidv4()}-${originalFileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`; // Keep extension from original if present
+        const s3Key = `images/${uniqueFileName}`; 
 
         console.log(`[S3_HANDLER_IMAGE] Uploading to S3 with Key: ${s3Key}, ContentType: ${fileType}`);
 
@@ -200,11 +207,9 @@ exports.handler = async (event, context) => {
           Key: s3Key,
           Body: imageBuffer,
           ContentType: fileType,
-          // ACL: 'public-read', // Uncomment if you want images to be publicly readable directly
         });
         await s3Client.send(uploadImageCommand);
 
-        // Construct the public URL (ensure your bucket policy allows public reads if needed, or use signed URLs)
         const imageUrl = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION_NAME}.amazonaws.com/${s3Key}`;
         
         console.log('[S3_HANDLER_IMAGE] Successfully uploaded image. URL:', imageUrl);
