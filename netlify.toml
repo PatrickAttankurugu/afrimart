@@ -1,52 +1,53 @@
-# netlify.toml
+    # netlify.toml
 
-# Build settings
-[build]
-  functions = "netlify/functions" # Specifies the directory for Netlify Functions
-  publish = "."                   # Sets the root directory as the publish directory for the site
+    # Build settings
+    [build]
+      functions = "netlify/functions" # Specifies the directory for Netlify Functions
+      publish = "."                   # Sets the root directory as the publish directory for the site
 
-# Functions settings
-[functions]
-  node_bundler = "esbuild"        # Uses esbuild for bundling Node.js functions, which is generally faster
-  node_version = "18"             # Specifies Node.js version 18 for the function runtime environment
+    # Functions settings
+    [functions]
+      node_bundler = "esbuild"        # Uses esbuild for bundling Node.js functions, which is generally faster
+      node_version = "18"             # Specifies Node.js version 18 for the function runtime environment
 
-# Redirect rules for Single Page Application (SPA) behavior and clean URLs.
-# These rules ensure that client-side routing works correctly by redirecting
-# specific paths to their corresponding HTML files.
+    # Redirect rules for Single Page Application (SPA) behavior and clean URLs.
+    # These rules ensure that client-side routing works correctly by redirecting
+    # specific paths to their corresponding HTML files.
 
-[[redirects]]
-  from = "/admin/*"               # Matches any path starting with /admin/
-  to = "/admin.html"              # Redirects to admin.html
-  status = 200                    # Returns a 200 status, making it a rewrite (URL stays the same in browser)
+    [[redirects]]
+      from = "/admin/*"               # Matches any path starting with /admin/
+      to = "/admin.html"              # Redirects to admin.html
+      status = 200                    # Returns a 200 status, making it a rewrite (URL stays the same in browser)
 
-[[redirects]]
-  from = "/cart/*"                # Matches any path starting with /cart/
-  to = "/cart.html"               # Redirects to cart.html
-  status = 200
+    [[redirects]]
+      from = "/cart/*"                # Matches any path starting with /cart/
+      to = "/cart.html"               # Redirects to cart.html
+      status = 200
 
-[[redirects]]
-  from = "/product-details/*"     # Matches any path starting with /product-details/
-  to = "/product-details.html"    # Redirects to product-details.html
-  status = 200
+    [[redirects]]
+      from = "/product-details/*"     # Matches any path starting with /product-details/
+      to = "/product-details.html"    # Redirects to product-details.html
+      status = 200
 
-# API endpoint proxying for Netlify Functions.
-# This rule is often handled automatically by Netlify when functions are in the specified directory.
-# Commenting out the original rule to test if it resolves parsing issues.
-# If your functions are not invoked correctly after this change (e.g., calls to /.netlify/functions/s3-handler fail),
-# you might need to adjust how your frontend JavaScript calls the functions or re-introduce a specific proxy rule
-# (e.g., proxying from a path like /api/* to /.netlify/functions/:splat).
-#
-# Original rule that was here:
-# [[redirects]]
-#   from = "/.netlify/functions/*"
-#   to = "/.netlify/functions/:splat"
-#   status = 200
+    # API endpoint proxying for Netlify Functions.
+    # This rule is often handled automatically by Netlify when functions are in the specified directory.
+    # Commenting out the original rule to test if it resolves parsing issues.
+    # If your functions are not invoked correctly after this change (e.g., calls to /.netlify/functions/s3-handler fail),
+    # you might need to adjust how your frontend JavaScript calls the functions or re-introduce a specific proxy rule
+    # (e.g., proxying from a path like /api/* to /.netlify/functions/:splat).
+    #
+    # Original rule that was here:
+    # [[redirects]]
+    #   from = "/.netlify/functions/*"
+    #   to = "/.netlify/functions/:splat"
+    #   status = 200
 
-# Catch-all redirect for Single Page Application (SPA) routing.
-# This is crucial for SPAs where routing is handled client-side.
-# Any path not matched by previous rules will be served index.html,
-# allowing client-side JavaScript to handle the specific route.
-[[redirects]]
-  from = "/*"                     # Matches any path
-  to = "/index.html"              # Serves index.html
-  status = 200                    # Returns a 200 status (rewrite)
+    # Catch-all redirect for Single Page Application (SPA) routing.
+    # This is crucial for SPAs where routing is handled client-side.
+    # Any path not matched by previous rules will be served index.html,
+    # allowing client-side JavaScript to handle the specific route.
+    [[redirects]]
+      from = "/*"                     # Matches any path
+      to = "/index.html"              # Serves index.html
+      status = 200                    # Returns a 200 status (rewrite)
+    
