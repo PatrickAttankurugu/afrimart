@@ -1,10 +1,10 @@
 {
-    "name": "afrimart-depot",
-    "version": "1.0.0",
-    "scripts": {
-      "build": "echo 'No build required'"
-    },
-    "dependencies": {
-      "aws-sdk": "^2.1390.0"
-    }
+  "name": "afrimart-depot",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo 'No build required'"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.490.0"
   }
+}

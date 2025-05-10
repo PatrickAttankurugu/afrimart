@@ -1,1229 +1,742 @@
 /*
 * AfriMart Depot - Shop Page JavaScript
-* Version: 2.5 - Added dynamic product loading from localStorage and S3 with debug logging
+* Version: 2.7 - Fully integrated with S3 for product loading and display.
 */
 
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
 
-  // API Base URL for Netlify functions
-  const API_BASE_URL = '/.netlify/functions/s3-handler';
-
-  // Initialize AOS Animation
-  if (typeof AOS !== 'undefined') {
-    AOS.init({
-      duration: 800,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
-    });
-  }
+  // ==================
+  // Constants & Global Variables
+  // ==================
+  const API_BASE_URL = '/.netlify/functions/s3-handler'; // Base URL for S3 handler Netlify function
+  let allProductsData = []; // To store all fetched products for client-side filtering/sorting
+  let currentProductsView = []; // Products currently displayed after filtering/sorting
+  const ITEMS_PER_PAGE = 12; // Number of products to show per page or load initially
+  let currentPage = 1;
 
   // ==================
   // DOM Elements
   // ==================
-
-  // Category filtering
+  const productsGrid = document.querySelector('.products-grid');
   const categoryLinks = document.querySelectorAll('.category-link');
-  const productCards = document.querySelectorAll('.product-card');
-  
-  // Product view and sorting
   const sortSelect = document.getElementById('sort-by');
   const viewButtons = document.querySelectorAll('.view-option');
-  const productsGrid = document.querySelector('.products-grid');
-  
-  // Quick view modal
-  const quickViewButtons = document.querySelectorAll('.quick-view');
-  const quickViewModal = document.querySelector('.quick-view-modal');
-  
-  // Price range filter
+  const quickViewModalElement = document.querySelector('.quick-view-modal'); // Renamed to avoid conflict
   const priceFilterBtn = document.querySelector('.filter-price-btn');
-  const priceFromValue = document.querySelector('.price-range-from .price-value');
-  const priceToValue = document.querySelector('.price-range-to .price-value');
-
-  // Load more products button
+  const priceFromValueEl = document.querySelector('.price-range-from .price-value'); // Renamed
+  const priceToValueEl = document.querySelector('.price-range-to .price-value'); // Renamed
   const loadMoreBtn = document.querySelector('.load-more-btn');
-  
-  // Pagination
-  const paginationLinks = document.querySelectorAll('.page-link');
+  const paginationContainer = document.querySelector('.pagination'); // Main pagination container
+  const resultsCountEl = document.querySelector('.shop-results-count p');
+  const shopLoadingOverlay = document.querySelector('.shop-loading-overlay'); // Assuming you add one
 
   // ==================
-  // S3 Integration Functions with Debug Logging
+  // S3 Product Functions
   // ==================
-  
+  /**
+   * Fetches all products from the S3 backend via Netlify function.
+   * @returns {Promise<Array>} A promise that resolves to an array of products.
+   */
   async function getProductsFromS3() {
-    const debugLog = (msg, data = null) => {
-      console.log(`[S3-PRODUCTS] ${msg}`, data || '');
-    };
-    
+    if (shopLoadingOverlay) shopLoadingOverlay.style.display = 'flex';
     try {
-      debugLog('Initializing S3 fetch for products');
-      debugLog('API Base URL:', API_BASE_URL);
-      debugLog('Full URL:', `${API_BASE_URL}/get-products`);
-      
-      const response = await fetch(`${API_BASE_URL}/get-products`);
-      debugLog('Response received');
-      debugLog('Response status:', response.status);
-      debugLog('Response URL:', response.url);
-      debugLog('Response headers:', Object.fromEntries(response.headers.entries()));
-      
+      console.log('[SHOP_JS] Fetching products from S3...');
+      const response = await fetch(`${API_BASE_URL}?operation=get-products`);
       if (!response.ok) {
         const errorText = await response.text();
-        debugLog('Error response text:', errorText);
-        throw new Error(`Failed to get products from S3: ${response.status} ${errorText}`);
+        console.error('[SHOP_JS] Failed to fetch products:', response.status, errorText);
+        throw new Error(`Failed to get products from S3. Status: ${response.status}`);
       }
-      
       const data = await response.json();
-      debugLog('Data received successfully');
-      debugLog('Data type:', typeof data);
-      debugLog('Is array:', Array.isArray(data));
-      debugLog('Data length:', data?.length);
-      
-      if (data && data.length > 0) {
-        debugLog('First product:', data[0]);
-      }
-      
-      return Array.isArray(data) ? data : [];
+      console.log('[SHOP_JS] Successfully fetched products:', data);
+      allProductsData = Array.isArray(data) ? data : [];
+      return allProductsData;
     } catch (error) {
-      debugLog('ERROR in getProductsFromS3:', error.message);
-      debugLog('Full error:', error);
-      
-      // Fallback to localStorage
-      const savedProducts = localStorage.getItem('afrimart_products');
-      if (savedProducts) {
-        debugLog('Fallback: Found data in localStorage');
-        try {
-          const parsedProducts = JSON.parse(savedProducts);
-          debugLog('Fallback: Successfully parsed localStorage data');
-          debugLog('Fallback: LocalStorage products count:', parsedProducts?.length);
-          return parsedProducts;
-        } catch (parseError) {
-          debugLog('Fallback ERROR: Failed to parse localStorage data:', parseError);
-          return [];
-        }
-      } else {
-        debugLog('Fallback: No data in localStorage');
-        return [];
-      }
+      console.error('[SHOP_JS] Error getting products from S3:', error);
+      showToast(`Error fetching products: ${error.message}. Please try again.`, 'error');
+      allProductsData = []; // Reset on error
+      return [];
+    } finally {
+      if (shopLoadingOverlay) shopLoadingOverlay.style.display = 'none';
     }
   }
-  
+
   // ==================
-  // Load Products from localStorage and S3 with Debug Logging
+  // Product Rendering & Display
   // ==================
-  
-  async function loadProductsFromStorage() {
-    const debugLog = (msg, data = null) => {
-      console.log(`[LOAD-PRODUCTS] ${msg}`, data || '');
-    };
-    
-    debugLog('Starting to load products');
-    
-    // First try to get from S3
-    const products = await getProductsFromS3();
-    const productsGrid = document.querySelector('.products-grid');
-    
-    debugLog('Products received:', products?.length || 0);
-    
-    if (!productsGrid) {
-      debugLog('ERROR: Products grid element not found');
-      return;
-    }
-    
-    // Save the "load more" button and pagination if they exist
-    const loadMoreSection = productsGrid.querySelector('.load-more');
-    const paginationSection = productsGrid.querySelector('.pagination');
-    
-    // Clear existing products
-    productsGrid.innerHTML = '';
-    
-    if (products.length === 0) {
-      debugLog('No products to display');
-      productsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; padding: 40px;">No products available yet.</p>';
-      if (loadMoreSection) productsGrid.appendChild(loadMoreSection);
-      if (paginationSection) productsGrid.appendChild(paginationSection);
-      return;
-    }
-    
-    debugLog('Creating product cards');
-    products.forEach((product, index) => {
-      debugLog(`Creating card for product ${index}:`, product.name);
-      const productCard = createProductCard(product, index);
-      productsGrid.appendChild(productCard);
-    });
-    
-    // Re-add load more and pagination sections
-    if (loadMoreSection) productsGrid.appendChild(loadMoreSection);
-    if (paginationSection) productsGrid.appendChild(paginationSection);
-    
-    // Update the results count
-    updateResultsCount();
-    
-    // Reinitialize all dynamic features
-    initializeProductFeatures();
-    
-    debugLog('Products loading complete');
-  }
-  
+  /**
+   * Creates an HTML element for a single product card.
+   * @param {Object} product - The product data.
+   * @param {number} index - The index of the product (for AOS delay).
+   * @returns {HTMLElement} The product card element.
+   */
   function createProductCard(product, index) {
     const card = document.createElement('div');
     card.className = 'product-card';
-    card.setAttribute('data-category', product.category);
-    card.setAttribute('data-product-id', product.id);
+    // Ensure product.id is a string and valid for dataset attribute
+    const productId = String(product.id || `product-${index}`).replace(/[^a-zA-Z0-9-_]/g, '');
+    card.setAttribute('data-product-id', productId);
+    card.setAttribute('data-category', product.category ? product.category.toLowerCase() : 'uncategorized');
+    card.setAttribute('data-price', parseFloat(String(product.price).replace('$', '')) || 0);
     card.setAttribute('data-aos', 'fade-up');
     card.setAttribute('data-aos-delay', (index % 4) * 100);
-    
+
     const badgeHtml = product.badge ? `<div class="product-badge ${product.badge.replace(/\s+/g, '-').toLowerCase()}">${product.badge}</div>` : '';
-    
+    const imageSrc = product.image && product.image.startsWith('http') ? product.image : 'images/placeholder.jpg'; // Use placeholder if image is invalid
+
     card.innerHTML = `
       ${badgeHtml}
       <div class="product-image">
-        <img src="${product.image}" alt="${product.name}">
+        <img src="${imageSrc}" alt="${product.name || 'Product Image'}" loading="lazy" onerror="this.onerror=null;this.src='images/placeholder.jpg';">
         <div class="product-actions">
-          <button class="action-btn quick-view" data-product="${product.id}">
+          <button class="action-btn quick-view" data-product-id="${productId}" aria-label="Quick view ${product.name}">
             <i class="fas fa-eye"></i>
           </button>
-          <button class="action-btn add-to-wishlist">
+          <button class="action-btn add-to-wishlist" aria-label="Add ${product.name} to wishlist">
             <i class="far fa-heart"></i>
           </button>
         </div>
       </div>
       <div class="product-info">
         <h3 class="product-title">
-          <a href="product-details.html?product=${product.id}">${product.name}</a>
+          <a href="product-details.html?product=${productId}">${product.name || 'Unnamed Product'}</a>
         </h3>
         <div class="product-description">
-          <p>${product.description || ''}</p>
+          <p>${product.description || 'No description available.'}</p>
         </div>
         <div class="product-rating">
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star-half-alt"></i>
-          <span>(${Math.floor(Math.random() * 50) + 10})</span>
+          ${generateRatingStars(product.rating || 0)}
+          <span>(${product.reviewCount || Math.floor(Math.random() * 50) + 5})</span>
         </div>
         <div class="product-price">
-          <span class="price">${product.price}</span>
-          <span class="unit">${product.unit}</span>
+          <span class="price">${product.price || '$0.00'}</span>
+          ${product.unit ? `<span class="unit">${product.unit}</span>` : ''}
         </div>
-        <button class="add-to-cart">Add to Cart</button>
+        <button class="add-to-cart" data-product-id="${productId}">Add to Cart</button>
       </div>
     `;
-    
     return card;
   }
-  
-  function initializeProductFeatures() {
-    // Reinitialize all product features
-    setupProductHoverEffects();
-    setupAddToCartButtons();
-    setupWishlistButtons();
-    setupQuickView();
-    setupQuantitySelectors();
-    
-    // Reinitialize AOS for new elements
+
+  /**
+   * Generates HTML for star ratings.
+   * @param {number} rating - The product rating (0-5).
+   * @returns {string} HTML string for stars.
+   */
+  function generateRatingStars(rating) {
+    let starsHtml = '';
+    for (let i = 1; i <= 5; i++) {
+      if (i <= rating) {
+        starsHtml += '<i class="fas fa-star"></i>';
+      } else if (i - 0.5 <= rating) {
+        starsHtml += '<i class="fas fa-star-half-alt"></i>';
+      } else {
+        starsHtml += '<i class="far fa-star"></i>';
+      }
+    }
+    return starsHtml;
+  }
+
+  /**
+   * Renders products in the grid.
+   * @param {Array} productsToRender - Array of products to display.
+   */
+  function renderProducts(productsToRender) {
+    if (!productsGrid) {
+      console.error('[SHOP_JS] Products grid not found.');
+      return;
+    }
+    productsGrid.innerHTML = ''; // Clear existing products
+
+    if (productsToRender.length === 0) {
+      productsGrid.innerHTML = '<p class="no-products-message" style="grid-column: 1 / -1; text-align: center; padding: 40px 0;">No products match your criteria.</p>';
+    } else {
+      productsToRender.forEach((product, index) => {
+        const productCard = createProductCard(product, index);
+        productsGrid.appendChild(productCard);
+      });
+    }
+    // Re-initialize features that depend on product cards being in the DOM
+    initializeDynamicProductFeatures();
+    updateResultsCount(productsToRender.length, allProductsData.length);
+
+    // Re-initialize AOS for new elements if AOS is defined
     if (typeof AOS !== 'undefined') {
       AOS.refresh();
     }
   }
-  
-  // ==================
-  // Debug Functions
-  // ==================
-  
-  async function checkProductSources() {
-    const debugLog = (msg, data = null) => {
-      console.log(`[DEBUG-CHECK] ${msg}`, data || '');
-    };
-    
-    debugLog('=== PRODUCT SOURCES DEBUG ===');
-    
-    // Check S3
-    const s3Products = await getProductsFromS3();
-    debugLog('S3 products count:', s3Products?.length || 0);
-    
-    // Check localStorage
-    const localProducts = JSON.parse(localStorage.getItem('afrimart_products') || '[]');
-    debugLog('LocalStorage products count:', localProducts?.length || 0);
-    
-    // Check displayed products
-    const displayedProducts = document.querySelectorAll('.product-card').length;
-    debugLog('Currently displayed products:', displayedProducts);
-    
-    // Log first product from each source for comparison
-    if (s3Products?.length > 0) {
-      debugLog('First S3 product:', s3Products[0]);
-    }
-    if (localProducts?.length > 0) {
-      debugLog('First localStorage product:', localProducts[0]);
-    }
-    
-    debugLog('=== DEBUG CHECK COMPLETE ===');
-  }
-  
-  // Make debug functions globally available
-  window.debugShop = {
-    checkProductSources,
-    getProducts: getProductsFromS3,
-    loadProducts: loadProductsFromStorage,
-    testAPI: () => {
-      console.log('Testing API endpoint directly...');
-      fetch(`${API_BASE_URL}/get-products`)
-        .then(response => {
-          console.log('Test Response status:', response.status);
-          return response.json();
-        })
-        .then(data => {
-          console.log('Test Response data:', data);
-        })
-        .catch(error => {
-          console.log('Test Error:', error);
-        });
-    }
-  };
-  
-  // ==================
-  // Category Filtering
-  // ==================
-  
-  if (categoryLinks.length) {
-    // Function to update results count display
-    function updateResultsCount() {
-      const allProducts = document.querySelectorAll('.product-card');
-      const visibleProducts = document.querySelectorAll('.product-card:not([style*="display: none"])');
-      const resultsCountEl = document.querySelector('.shop-results-count p');
-      
-      if (resultsCountEl) {
-        resultsCountEl.textContent = `Showing 1-${visibleProducts.length} of ${allProducts.length} results`;
+
+  /**
+   * Updates the display of how many products are being shown.
+   * @param {number} visibleCount - Number of currently visible products.
+   * @param {number} totalCount - Total number of products available (before filtering).
+   */
+  function updateResultsCount(visibleCount, totalCount) {
+    if (resultsCountEl) {
+      const startRange = totalCount > 0 && visibleCount > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0;
+      const endRange = Math.min(startRange + visibleCount -1 , totalCount);
+
+      if (visibleCount > 0) {
+         resultsCountEl.textContent = `Showing ${startRange}-${endRange} of ${totalCount} results`;
+      } else if (totalCount > 0) {
+         resultsCountEl.textContent = `Showing 0 of ${totalCount} results`;
+      }
+      else {
+         resultsCountEl.textContent = 'No products available.';
       }
     }
-    
-    // Add click event to category links
+  }
+
+  // ==================
+  // Filtering, Sorting, Pagination
+  // ==================
+
+  /**
+   * Applies all current filters, sorting, and pagination to the product list.
+   */
+  function applyFiltersAndSort() {
+    let filtered = [...allProductsData];
+
+    // Category Filter
+    const activeCategoryLink = document.querySelector('.category-link.active');
+    const selectedCategory = activeCategoryLink ? activeCategoryLink.dataset.category : 'all';
+    if (selectedCategory && selectedCategory !== 'all') {
+      filtered = filtered.filter(p => p.category && p.category.toLowerCase() === selectedCategory);
+    }
+
+    // Price Filter
+    const minPrice = priceFromValueEl ? parseFloat(String(priceFromValueEl.textContent).replace('$', '')) : 0;
+    const maxPrice = priceToValueEl ? parseFloat(String(priceToValueEl.textContent).replace('$', '')) : Infinity;
+    if (!isNaN(minPrice) && !isNaN(maxPrice)) {
+        filtered = filtered.filter(p => {
+            const price = parseFloat(String(p.price).replace('$', ''));
+            return price >= minPrice && price <= maxPrice;
+        });
+    }
+
+
+    // Search Filter (if you add a search input for the shop page)
+    // const searchTerm = shopSearchInput ? shopSearchInput.value.toLowerCase() : '';
+    // if (searchTerm) {
+    //   filtered = filtered.filter(p =>
+    //     (p.name && p.name.toLowerCase().includes(searchTerm)) ||
+    //     (p.description && p.description.toLowerCase().includes(searchTerm))
+    //   );
+    // }
+
+    // Sorting
+    const sortValue = sortSelect ? sortSelect.value : 'popularity';
+    filtered.sort((a, b) => {
+      const priceA = parseFloat(String(a.price).replace('$', ''));
+      const priceB = parseFloat(String(b.price).replace('$', ''));
+      // Add more robust date/popularity metrics if available in product data
+      const dateA = new Date(a.dateAdded || 0).getTime();
+      const dateB = new Date(b.dateAdded || 0).getTime();
+      const popularityA = a.reviewCount || 0; // Example: use review count for popularity
+      const popularityB = b.reviewCount || 0;
+
+      switch (sortValue) {
+        case 'price-low': return priceA - priceB;
+        case 'price-high': return priceB - priceA;
+        case 'newest': return dateB - dateA; // Assuming newer products have later dates
+        case 'popularity': // Fallback or default
+        default: return popularityB - popularityA; // Higher popularity first
+      }
+    });
+
+    currentProductsView = filtered; // Store the fully filtered and sorted list
+
+    // Pagination
+    const paginatedProducts = paginateProducts(currentProductsView, currentPage, ITEMS_PER_PAGE);
+    renderProducts(paginatedProducts);
+    setupPagination(currentProductsView.length, ITEMS_PER_PAGE, currentPage);
+    updateResultsCount(paginatedProducts.length, currentProductsView.length); // Pass correct counts
+  }
+
+  /**
+   * Paginates an array of products.
+   * @param {Array} products - The array of products to paginate.
+   * @param {number} page - The current page number.
+   * @param {number} itemsPerPage - Number of items per page.
+   * @returns {Array} The slice of products for the current page.
+   */
+  function paginateProducts(products, page, itemsPerPage) {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return products.slice(startIndex, endIndex);
+  }
+
+  /**
+   * Sets up pagination controls.
+   * @param {number} totalItems - Total number of items to paginate.
+   * @param {number} itemsPerPage - Number of items per page.
+   * @param {number} activePage - The currently active page.
+   */
+  function setupPagination(totalItems, itemsPerPage, activePage) {
+    if (!paginationContainer) return;
+    paginationContainer.innerHTML = ''; // Clear existing pagination
+
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    if (totalPages <= 1) {
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none'; // Hide load more if not needed
+        return; // No pagination needed for 1 or 0 pages
+    }
+
+
+    // Previous Button
+    const prevLi = document.createElement('li');
+    prevLi.className = 'page-item';
+    const prevLink = document.createElement('a');
+    prevLink.className = 'page-link';
+    prevLink.href = '#';
+    prevLink.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    prevLink.setAttribute('aria-label', 'Previous page');
+    if (activePage === 1) prevLink.classList.add('disabled');
+    prevLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (activePage > 1) {
+        currentPage = activePage - 1;
+        applyFiltersAndSort();
+      }
+    });
+    prevLi.appendChild(prevLink);
+    paginationContainer.appendChild(prevLi);
+
+    // Page Number Links (simplified for brevity, can be made more complex)
+    for (let i = 1; i <= totalPages; i++) {
+      // Basic pagination: show first, last, current, and adjacent pages
+      // More complex logic can be added for "..." indicators
+      if (i === 1 || i === totalPages || (i >= activePage - 1 && i <= activePage + 1) ) {
+        const pageLi = document.createElement('li');
+        pageLi.className = 'page-item';
+        const pageLink = document.createElement('a');
+        pageLink.className = 'page-link';
+        pageLink.href = '#';
+        pageLink.textContent = i;
+        if (i === activePage) pageLink.classList.add('active');
+        pageLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          currentPage = i;
+          applyFiltersAndSort();
+        });
+        pageLi.appendChild(pageLink);
+        paginationContainer.appendChild(pageLi);
+      } else if (paginationContainer.lastChild && !paginationContainer.lastChild.classList.contains('page-dots')) {
+        // Add ellipsis if there's a gap and no ellipsis yet
+        const dotsLi = document.createElement('li');
+        dotsLi.className = 'page-item page-dots disabled';
+        const dotsSpan = document.createElement('span');
+        dotsSpan.className = 'page-link';
+        dotsSpan.textContent = '...';
+        dotsLi.appendChild(dotsSpan);
+        paginationContainer.appendChild(dotsLi);
+      }
+    }
+
+
+    // Next Button
+    const nextLi = document.createElement('li');
+    nextLi.className = 'page-item';
+    const nextLink = document.createElement('a');
+    nextLink.className = 'page-link';
+    nextLink.href = '#';
+    nextLink.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    nextLink.setAttribute('aria-label', 'Next page');
+    if (activePage === totalPages) nextLink.classList.add('disabled');
+    nextLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (activePage < totalPages) {
+        currentPage = activePage + 1;
+        applyFiltersAndSort();
+      }
+    });
+    nextLi.appendChild(nextLink);
+    paginationContainer.appendChild(nextLi);
+
+    // Show/hide load more button based on pagination
+    if (loadMoreBtn) {
+        loadMoreBtn.style.display = activePage < totalPages ? 'inline-block' : 'none';
+    }
+  }
+
+
+  // ==================
+  // Event Handlers Setup
+  // ==================
+
+  /**
+   * Sets up event listeners for static elements on the page.
+   */
+  function initializeStaticEventListeners() {
+    // Category Links
     categoryLinks.forEach(link => {
       link.addEventListener('click', function(e) {
         e.preventDefault();
-        
-        // Update active link
         categoryLinks.forEach(item => item.classList.remove('active'));
         this.classList.add('active');
-        
-        const selectedCategory = this.getAttribute('data-category');
-        const allProducts = document.querySelectorAll('.product-card');
-        
-        // Filter products
-        allProducts.forEach(card => {
-          if (selectedCategory === 'all' || card.getAttribute('data-category') === selectedCategory) {
-            card.style.display = 'flex';
-            setTimeout(() => {
-              card.classList.add('visible');
-            }, 10);
-          } else {
-            card.classList.remove('visible');
-            setTimeout(() => {
-              card.style.display = 'none';
-            }, 300);
-          }
-        });
-        
-        // Update results count
-        updateResultsCount();
+        currentPage = 1; // Reset to first page on category change
+        applyFiltersAndSort();
       });
     });
-    
-    // Check for URL parameter to filter on page load
-    const urlParams = new URLSearchParams(window.location.search);
-    const categoryParam = urlParams.get('category');
-    
-    if (categoryParam) {
-      const categoryLink = document.querySelector(`.category-link[data-category="${categoryParam}"]`);
-      if (categoryLink) {
-        categoryLink.click();
-      }
+
+    // Sort Select
+    if (sortSelect) {
+      sortSelect.addEventListener('change', () => {
+        currentPage = 1; // Reset to first page on sort change
+        applyFiltersAndSort();
+      });
     }
-  }
-  
-  // ==================
-  // Product Sorting
-  // ==================
-  
-  if (sortSelect && productsGrid) {
-    sortSelect.addEventListener('change', function() {
-      const sortValue = this.value;
-      
-      if (productsGrid) {
-        const products = Array.from(productsGrid.querySelectorAll('.product-card'));
-        
-        products.sort((a, b) => {
-          const getPriceValue = (el) => {
-            const priceEl = el.querySelector('.price');
-            return priceEl ? parseFloat(priceEl.textContent.replace('$', '')) : 0;
-          };
-          
-          switch (sortValue) {
-            case 'price-low':
-              return getPriceValue(a) - getPriceValue(b);
-            case 'price-high':
-              return getPriceValue(b) - getPriceValue(a);
-            case 'newest':
-              // Using data attribute for date if available, otherwise DOM order
-              const getDateValue = (el) => {
-                return el.dataset.date ? new Date(el.dataset.date).getTime() : 0;
-              };
-              return getDateValue(b) - getDateValue(a);
-            default: // popularity - based on rating count
-              const getRatingCount = (el) => {
-                const ratingCountEl = el.querySelector('.product-rating span');
-                return ratingCountEl ? parseInt(ratingCountEl.textContent.replace(/[()]/g, '')) : 0;
-              };
-              return getRatingCount(b) - getRatingCount(a);
-          }
-        });
-        
-        // Remove products from DOM and append in new order
-        const loadMore = productsGrid.querySelector('.load-more');
-        const pagination = productsGrid.querySelector('.pagination');
-        
-        products.forEach(product => {
-          productsGrid.appendChild(product);
-        });
-        
-        // Re-add load more and pagination
-        if (loadMore) productsGrid.appendChild(loadMore);
-        if (pagination) productsGrid.appendChild(pagination);
-      }
-    });
-  }
-  
-  // ==================
-  // View Toggle (Grid/List)
-  // ==================
-  
-  if (viewButtons.length && productsGrid) {
+
+    // View Toggle Buttons
     viewButtons.forEach(button => {
       button.addEventListener('click', function() {
-        // Update active button
         viewButtons.forEach(btn => btn.classList.remove('active'));
         this.classList.add('active');
-        
-        // Toggle view
-        if (this.classList.contains('list-view')) {
-          productsGrid.classList.add('list-view');
-          // Save preference to localStorage
-          localStorage.setItem('afrimart_shop_view', 'list');
-        } else {
-          productsGrid.classList.remove('list-view');
-          // Save preference to localStorage
-          localStorage.setItem('afrimart_shop_view', 'grid');
+        if (productsGrid) {
+            productsGrid.classList.toggle('list-view', this.classList.contains('list-view'));
         }
+        localStorage.setItem('afrimart_shop_view', this.classList.contains('list-view') ? 'list' : 'grid');
       });
     });
-    
-    // Load saved view preference on page load
-    const savedView = localStorage.getItem('afrimart_shop_view');
-    if (savedView === 'list') {
-      productsGrid.classList.add('list-view');
-      viewButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.classList.contains('list-view'));
+     // Load saved view preference
+    const savedShopView = localStorage.getItem('afrimart_shop_view');
+    if (productsGrid && savedShopView === 'list') {
+        productsGrid.classList.add('list-view');
+        document.querySelector('.view-option.grid-view')?.classList.remove('active');
+        document.querySelector('.view-option.list-view')?.classList.add('active');
+    }
+
+
+    // Price Filter Button
+    if (priceFilterBtn) {
+      priceFilterBtn.addEventListener('click', () => {
+        currentPage = 1; // Reset to first page on price filter change
+        applyFiltersAndSort();
+        showToast('Price filter applied!', 'success');
       });
     }
-  }
-  
-  // ==================
-  // Quick View Functionality
-  // ==================
-  
-  function setupQuickView() {
-    const quickViewButtons = document.querySelectorAll('.quick-view');
-    const quickViewModal = document.querySelector('.quick-view-modal');
-    
-    if (quickViewButtons.length && quickViewModal) {
-      const modalOverlay = quickViewModal.querySelector('.modal-overlay');
-      const modalClose = quickViewModal.querySelector('.modal-close');
-      const productTitle = quickViewModal.querySelector('.product-title');
-      const productImage = quickViewModal.querySelector('.main-image img');
-      const productPrice = quickViewModal.querySelector('.current-price');
-      const productUnit = quickViewModal.querySelector('.unit');
-      const productDescription = quickViewModal.querySelector('.product-description p');
-      const productCategory = quickViewModal.querySelector('.meta-value');
-      const productRating = quickViewModal.querySelector('.stars');
-      const reviewCount = quickViewModal.querySelector('.review-count');
-      
-      // Function to open modal with product data
-      function openQuickViewModal(product) {
-        if (!productTitle || !productImage || !productPrice) return;
-        
-        // Update modal content
-        productTitle.textContent = product.title;
-        productImage.src = product.image;
-        productImage.alt = product.title;
-        productPrice.textContent = product.price;
-        
-        if (productUnit) {
-          productUnit.textContent = product.unit || '';
-        }
-        
-        if (productDescription) {
-          productDescription.textContent = product.description || '';
-        }
-        
-        if (productCategory) {
-          const category = product.category || '';
-          productCategory.textContent = category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ');
-        }
-        
-        if (productRating && product.rating) {
-          productRating.innerHTML = product.rating;
-        }
-        
-        if (reviewCount && product.reviewCount) {
-          reviewCount.textContent = product.reviewCount;
-        }
-        
-        // Update thumbnails (using the same image for all thumbnails if not provided)
-        const thumbnails = quickViewModal.querySelectorAll('.thumbnail img');
-        if (thumbnails.length) {
-          thumbnails.forEach(thumb => {
-            thumb.src = product.image;
-            thumb.alt = product.title;
-          });
-        }
-        
-        // Add product ID to add to cart button
-        const addToCartBtn = quickViewModal.querySelector('.add-to-cart-btn');
-        if (addToCartBtn) {
-          addToCartBtn.setAttribute('data-product-id', product.id || '');
-        }
-        
-        // Show modal
-        quickViewModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }
-      
-      // Function to close modal
-      function closeModal() {
-        quickViewModal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-      }
-      
-      // Add click event to quick view buttons
-      quickViewButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          const productCard = this.closest('.product-card');
-          if (!productCard) return;
-          
-          // Get product data
-          const productId = productCard.dataset.productId || productCard.dataset.id || '';
-          const title = productCard.querySelector('.product-title a').textContent;
-          const image = productCard.querySelector('.product-image img').src;
-          const price = productCard.querySelector('.price').textContent;
-          const unit = productCard.querySelector('.unit')?.textContent || '';
-          const description = productCard.querySelector('.product-description p')?.textContent || '';
-          const category = productCard.getAttribute('data-category') || '';
-          const rating = productCard.querySelector('.product-rating')?.innerHTML || '';
-          const reviewCountEl = productCard.querySelector('.product-rating span');
-          const reviewCount = reviewCountEl ? `(${reviewCountEl.textContent})` : '';
-          
-          // Create product object
-          const product = {
-            id: productId,
-            title: title,
-            image: image,
-            price: price,
-            unit: unit,
-            description: description,
-            category: category,
-            rating: rating,
-            reviewCount: reviewCount
-          };
-          
-          // Open modal with product data
-          openQuickViewModal(product);
-        });
-      });
-      
-      // Close modal on click outside or close button
-      if (modalOverlay) {
-        modalOverlay.addEventListener('click', closeModal);
-      }
-      
-      if (modalClose) {
-        modalClose.addEventListener('click', closeModal);
-      }
-      
-      // Close modal on escape key
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && quickViewModal.classList.contains('active')) {
-          closeModal();
-        }
-      });
-      
-      // Handle add to cart button in modal
-      const modalAddToCartBtn = quickViewModal.querySelector('.add-to-cart-btn');
-      if (modalAddToCartBtn) {
-        modalAddToCartBtn.addEventListener('click', function() {
-          const productId = this.getAttribute('data-product-id');
-          const title = productTitle.textContent;
-          const price = productPrice.textContent;
-          const image = productImage.src;
-          
-          // Get quantity if there's a quantity input
-          let quantity = 1;
-          const quantityInput = quickViewModal.querySelector('.quantity-input');
-          if (quantityInput) {
-            quantity = parseInt(quantityInput.value) || 1;
-          }
-          
-          // Create product object
-          const product = {
-            id: productId,
-            title: title,
-            price: price,
-            quantity: quantity,
-            image: image
-          };
-          
-          // Add to cart using global function
-          if (typeof window.AfriMartCart !== 'undefined' && typeof window.AfriMartCart.addToCart === 'function') {
-            window.AfriMartCart.addToCart(product);
-          } else if (typeof window.addToCart === 'function') {
-            window.addToCart(product);
-          } else {
-            console.error('addToCart function not found. Make sure cart.js is loaded before shop.js');
-            
-            // Fallback implementation
-            this.innerHTML = '<i class="fas fa-check"></i> Added!';
-            this.classList.add('added');
-            
-            setTimeout(() => {
-              this.innerHTML = 'Add to Cart';
-              this.classList.remove('added');
-            }, 1500);
-          }
-          
-          // Close modal after adding to cart
-          setTimeout(() => {
-            closeModal();
-          }, 1000);
-        });
-      }
-    }
-  }
-  
-  // ==================
-  // Quantity Selector
-  // ==================
-  
-  function setupQuantitySelectors() {
-    const quantitySelectors = document.querySelectorAll('.quantity-selector');
-    
-    if (quantitySelectors.length) {
-      quantitySelectors.forEach(selector => {
-        const minusBtn = selector.querySelector('.minus');
-        const plusBtn = selector.querySelector('.plus');
-        const input = selector.querySelector('.quantity-input');
-        
-        if (minusBtn && plusBtn && input) {
-          // Decrease quantity
-          minusBtn.addEventListener('click', function() {
-            let value = parseInt(input.value);
-            value = Math.max(1, value - 1);
-            input.value = value;
-            
-            // Trigger change event
-            input.dispatchEvent(new Event('change'));
-          });
-          
-          // Increase quantity
-          plusBtn.addEventListener('click', function() {
-            let value = parseInt(input.value);
-            const max = parseInt(input.getAttribute('max') || 99);
-            value = Math.min(max, value + 1);
-            input.value = value;
-            
-            // Trigger change event
-            input.dispatchEvent(new Event('change'));
-          });
-          
-          // Direct input
-          input.addEventListener('change', function() {
-            let value = parseInt(this.value);
-            const min = parseInt(this.getAttribute('min') || 1);
-            const max = parseInt(this.getAttribute('max') || 99);
-            
-            if (isNaN(value) || value < min) {
-              value = min;
-            } else if (value > max) {
-              value = max;
-            }
-            
-            this.value = value;
-          });
-        }
-      });
-    }
-  }
-  
-  // ==================
-  // Thumbnail Selection
-  // ==================
-  
-  function setupThumbnailGallery() {
-    const thumbnails = document.querySelectorAll('.thumbnail');
-    const mainImage = document.querySelector('.main-image img');
-    
-    if (thumbnails.length && mainImage) {
-      thumbnails.forEach(thumbnail => {
-        thumbnail.addEventListener('click', function() {
-          // Update active state
-          thumbnails.forEach(item => item.classList.remove('active'));
-          this.classList.add('active');
-          
-          // Update main image
-          const thumbnailImg = this.querySelector('img');
-          if (thumbnailImg) {
-            mainImage.src = thumbnailImg.src;
-            mainImage.alt = thumbnailImg.alt;
-          }
-        });
-      });
-    }
-  }
-  
-  // ==================
-  // Add to Cart
-  // ==================
-  
-  function setupAddToCartButtons() {
-    const addToCartButtons = document.querySelectorAll('.add-to-cart');
-    
-    if (addToCartButtons.length) {
-      addToCartButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-          e.preventDefault();
-          
-          // Get product info from the product card
-          const productCard = this.closest('.product-card');
-          if (!productCard) return;
-          
-          // Get product data
-          const productId = productCard.dataset.productId || productCard.dataset.id || `product_${Date.now()}`;
-          const productTitle = productCard.querySelector('.product-title a')?.textContent || 'Product';
-          const productImage = productCard.querySelector('.product-image img')?.src || '';
-          const productPrice = productCard.querySelector('.price')?.textContent || '$0.00';
-          
-          // Get quantity if available
-          let quantity = 1;
-          const quantityInput = productCard.querySelector('.quick-quantity');
-          if (quantityInput) {
-            quantity = parseInt(quantityInput.value) || 1;
-          }
-          
-          // Create product object
-          const product = {
-            id: productId,
-            title: productTitle,
-            price: productPrice,
-            quantity: quantity,
-            image: productImage
-          };
-          
-          // Add to cart using the global function
-          if (typeof window.AfriMartCart !== 'undefined' && typeof window.AfriMartCart.addToCart === 'function') {
-            window.AfriMartCart.addToCart(product);
-          } else if (typeof window.addToCart === 'function') {
-            window.addToCart(product);
-          } else {
-            console.error('addToCart function not found. Make sure cart.js is loaded before shop.js');
-            
-            // Fallback visual feedback
-            this.innerHTML = '<i class="fas fa-check"></i> Added!';
-            this.classList.add('added');
-            
-            setTimeout(() => {
-              this.innerHTML = 'Add to Cart';
-              this.classList.remove('added');
-            }, 1500);
-          }
-        });
-      });
-    }
-  }
-  
-  // ==================
-  // Quick Add Controls
-  // ==================
-  
-  function setupQuickAddControls() {
-    const quickAddControls = document.querySelectorAll('.quick-add-container');
-    
-    if (quickAddControls.length) {
-      quickAddControls.forEach(container => {
-        const minusBtn = container.querySelector('.quick-minus');
-        const plusBtn = container.querySelector('.quick-plus');
-        const input = container.querySelector('.quick-quantity');
-        
-        if (minusBtn && plusBtn && input) {
-          // Decrease quantity
-          minusBtn.addEventListener('click', function() {
-            let value = parseInt(input.value);
-            if (value > 1) {
-              input.value = value - 1;
+
+    // Load More Button
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', function() {
+        const totalPages = Math.ceil(currentProductsView.length / ITEMS_PER_PAGE);
+        if (currentPage < totalPages) {
+          currentPage++;
+          // For "load more", we append rather than replace
+          const nextPageProducts = paginateProducts(currentProductsView, currentPage, ITEMS_PER_PAGE);
+          nextPageProducts.forEach((product, index) => {
+            // Ensure product grid exists and the no-products message is not the only child
+            if (productsGrid && productsGrid.querySelector('.product-card')) {
+                 const productCard = createProductCard(product, (currentPage -1) * ITEMS_PER_PAGE + index);
+                 productsGrid.appendChild(productCard);
+            } else if (productsGrid) { // If grid was empty (e.g. due to "no products message")
+                productsGrid.innerHTML = ''; // Clear message
+                const productCard = createProductCard(product, (currentPage -1) * ITEMS_PER_PAGE + index);
+                productsGrid.appendChild(productCard);
             }
           });
-          
-          // Increase quantity
-          plusBtn.addEventListener('click', function() {
-            let value = parseInt(input.value);
-            const maxValue = parseInt(input.getAttribute('max') || 10);
-            if (value < maxValue) {
-              input.value = value + 1;
-            }
-          });
-          
-          // Manual input
-          input.addEventListener('change', function() {
-            let value = parseInt(this.value);
-            const minValue = parseInt(this.getAttribute('min') || 1);
-            const maxValue = parseInt(this.getAttribute('max') || 10);
-            
-            if (isNaN(value) || value < minValue) {
-              value = minValue;
-            } else if (value > maxValue) {
-              value = maxValue;
-            }
-            
-            this.value = value;
-          });
+          initializeDynamicProductFeatures(); // Re-init for new cards
+          setupPagination(currentProductsView.length, ITEMS_PER_PAGE, currentPage); // Update pagination state
+          updateResultsCount( (currentPage * ITEMS_PER_PAGE > currentProductsView.length ? currentProductsView.length : currentPage * ITEMS_PER_PAGE) , currentProductsView.length);
         }
       });
     }
   }
-  
-  // ==================
-  // Add to Wishlist
-  // ==================
-  
-  function setupWishlistButtons() {
-    const wishlistButtons = document.querySelectorAll('.add-to-wishlist, .wishlist-btn');
-    
-    if (wishlistButtons.length) {
-      wishlistButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          const icon = this.querySelector('i');
-          
-          if (icon) {
-            if (icon.classList.contains('far')) {
-              // Add to wishlist
-              icon.classList.remove('far');
-              icon.classList.add('fas');
-              icon.style.color = '#dc3545';
-              showToast('Product added to wishlist!', 'success');
-            } else {
-              // Remove from wishlist
-              icon.classList.remove('fas');
-              icon.classList.add('far');
-              icon.style.color = '';
-              showToast('Product removed from wishlist!', 'info');
-            }
-          }
-        });
-      });
-    }
+
+  /**
+   * Sets up event listeners for dynamically created product cards.
+   * This should be called after products are rendered or re-rendered.
+   */
+  function initializeDynamicProductFeatures() {
+    setupProductHoverEffects();
+    setupAddToCartButtons();
+    setupWishlistButtons();
+    setupQuickViewModal();
+    // Note: Quantity selectors are typically part of quick view or product details, not the main shop grid cards.
   }
-  
-  // ==================
-  // Load More Products
-  // ==================
-  
-  if (loadMoreBtn) {
-    loadMoreBtn.addEventListener('click', function() {
-      // Add loading state
-      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-      this.disabled = true;
-      
-      // In a real implementation, this would trigger AJAX to load more products
-      // For demo purposes, we simulate loading with a delay
-      setTimeout(() => {
-        this.textContent = 'No More Products';
-        this.disabled = true;
-        
-        showToast('All products have been loaded', 'info');
-      }, 1500);
-    });
-  }
-  
-  // ==================
-  // Pagination
-  // ==================
-  
-  if (paginationLinks.length) {
-    paginationLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Update active state
-        paginationLinks.forEach(item => item.classList.remove('active'));
-        this.classList.add('active');
-        
-        // In a real implementation, this would navigate to the corresponding page
-        // For demo purposes, we'll just scroll to top
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-      });
-    });
-  }
-  
-  // ==================
-  // Price Range Filter
-  // ==================
-  
-  if (priceFilterBtn && priceFromValue && priceToValue) {
-    // Initialize a simple price slider UI
-    const priceSliderUI = document.querySelector('.price-slider-ui');
-    
-    if (priceSliderUI) {
-      // For a real implementation, use a library like noUiSlider
-      // This is a simplified version for demonstration
-      let isDragging = false;
-      let activeHandle = null;
-      const minPrice = 0;
-      const maxPrice = 50;
-      
-      priceSliderUI.addEventListener('mousedown', function(e) {
-        isDragging = true;
-        updatePriceFromPosition(e.offsetX);
-      });
-      
-      document.addEventListener('mousemove', function(e) {
-        if (isDragging && priceSliderUI) {
-          const rect = priceSliderUI.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          updatePriceFromPosition(x);
-        }
-      });
-      
-      document.addEventListener('mouseup', function() {
-        isDragging = false;
-        activeHandle = null;
-      });
-      
-      function updatePriceFromPosition(x) {
-        const width = priceSliderUI.offsetWidth;
-        const percentage = Math.min(Math.max(x / width, 0), 1);
-        const price = minPrice + (maxPrice - minPrice) * percentage;
-        
-        // Decide which handle to update based on position or previous state
-        if (activeHandle === 'min' || (!activeHandle && price < parseFloat(priceToValue.textContent.replace('$', '')))) {
-          activeHandle = 'min';
-          priceFromValue.textContent = '$' + Math.round(price);
-        } else {
-          activeHandle = 'max';
-          priceToValue.textContent = '$' + Math.round(price);
-        }
-      }
-    }
-    
-    // Filter button click handler
-    priceFilterBtn.addEventListener('click', function() {
-      const minPrice = parseFloat(priceFromValue.textContent.replace('$', ''));
-      const maxPrice = parseFloat(priceToValue.textContent.replace('$', ''));
-      
-      // Validate price range
-      if (minPrice > maxPrice) {
-        showToast('Minimum price cannot be greater than maximum price', 'error');
-        return;
-      }
-      
-      let visibleCount = 0;
-      const allProducts = document.querySelectorAll('.product-card');
-      
-      // Filter products based on price range
-      allProducts.forEach(product => {
-        const priceEl = product.querySelector('.price');
-        if (priceEl) {
-          const price = parseFloat(priceEl.textContent.replace('$', ''));
-          
-          if (price >= minPrice && price <= maxPrice) {
-            product.style.display = 'flex';
-            product.classList.add('visible');
-            visibleCount++;
-          } else {
-            product.classList.remove('visible');
-            product.style.display = 'none';
-          }
-        }
-      });
-      
-      // Update results count
-      const resultsCountEl = document.querySelector('.shop-results-count p');
-      if (resultsCountEl) {
-        const totalProducts = allProducts.length;
-        resultsCountEl.textContent = `Showing 1-${visibleCount} of ${totalProducts} results`;
-      }
-      
-      showToast(`Showing products between $${minPrice} and $${maxPrice}`, 'success');
-    });
-  }
-  
-  // ==================
-  // Product Hover Effects
-  // ==================
-  
+
   function setupProductHoverEffects() {
-    const productCards = document.querySelectorAll('.product-card');
-    productCards.forEach(card => {
+    document.querySelectorAll('.product-card').forEach(card => {
       card.addEventListener('mouseenter', function() {
-        const actions = this.querySelector('.product-actions');
-        const img = this.querySelector('.product-image img');
-        
-        if (actions) {
-          actions.style.opacity = '1';
-          actions.style.transform = 'translateX(0)';
-        }
-        
-        if (img) {
-          img.style.transform = 'scale(1.05)';
-        }
+        this.querySelector('.product-actions')?.style.setProperty('opacity', '1', 'important');
+        this.querySelector('.product-actions')?.style.setProperty('transform', 'translateX(0)', 'important');
       });
-      
       card.addEventListener('mouseleave', function() {
-        const actions = this.querySelector('.product-actions');
-        const img = this.querySelector('.product-image img');
-        
-        if (actions) {
-          actions.style.opacity = '0';
-          actions.style.transform = 'translateX(20px)';
-        }
-        
-        if (img) {
-          img.style.transform = 'scale(1)';
+        this.querySelector('.product-actions')?.style.setProperty('opacity', '0');
+        this.querySelector('.product-actions')?.style.setProperty('transform', 'translateX(20px)');
+      });
+    });
+  }
+
+  function setupAddToCartButtons() {
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+      // Remove existing listener to prevent duplicates if re-initializing
+      const newButton = button.cloneNode(true);
+      button.parentNode.replaceChild(newButton, button);
+
+      newButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent event bubbling, e.g., if card is a link
+
+        const productCard = this.closest('.product-card');
+        if (!productCard) return;
+
+        const productId = productCard.dataset.productId;
+        const product = allProductsData.find(p => String(p.id) === productId); // Find from original data
+
+        if (product) {
+          const cartProduct = {
+            id: product.id,
+            title: product.name,
+            price: product.price,
+            quantity: 1, // Default quantity for direct add
+            image: product.image,
+            variant: '' // No variants on shop grid, or handle if data structure changes
+          };
+
+          if (typeof AfriMartCart !== 'undefined' && AfriMartCart.addToCart) {
+            AfriMartCart.addToCart(cartProduct);
+          } else {
+            console.error('AfriMartCart or addToCart function is not available.');
+            showToast('Error adding to cart. Please try again.', 'error');
+            return;
+          }
+
+          // Visual feedback
+          this.innerHTML = '<i class="fas fa-check"></i> Added!';
+          this.classList.add('added');
+          setTimeout(() => {
+            this.innerHTML = 'Add to Cart';
+            this.classList.remove('added');
+          }, 1500);
+        } else {
+            console.error('Product data not found for ID:', productId);
+            showToast('Could not add product. Please try again.', 'error');
         }
       });
     });
   }
-  
+
+
+  function setupWishlistButtons() {
+    document.querySelectorAll('.add-to-wishlist').forEach(button => {
+      const newButton = button.cloneNode(true);
+      button.parentNode.replaceChild(newButton, button);
+
+      newButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const icon = this.querySelector('i');
+        if (icon) {
+          const added = icon.classList.toggle('fas'); // Toggle solid heart
+          icon.classList.toggle('far', !added);    // Toggle regular heart
+          icon.style.color = added ? 'var(--secondary-color)' : ''; // Use CSS variable
+          showToast(added ? 'Added to wishlist!' : 'Removed from wishlist', 'info');
+        }
+      });
+    });
+  }
+
+  function setupQuickViewModal() {
+    if (!quickViewModalElement) return;
+
+    const modalOverlay = quickViewModalElement.querySelector('.modal-overlay');
+    const modalClose = quickViewModalElement.querySelector('.modal-close');
+
+    document.querySelectorAll('.quick-view').forEach(button => {
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+
+        newButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const productId = this.dataset.productId;
+            const product = allProductsData.find(p => String(p.id) === productId);
+
+            if (product) {
+                populateQuickViewModal(product);
+                quickViewModalElement.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                console.error('Product not found for quick view:', productId);
+                showToast('Product details not available.', 'error');
+            }
+        });
+    });
+
+    if (modalOverlay) modalOverlay.addEventListener('click', closeQuickViewModal);
+    if (modalClose) modalClose.addEventListener('click', closeQuickViewModal);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && quickViewModalElement.classList.contains('active')) {
+        closeQuickViewModal();
+      }
+    });
+
+    // Add to cart from quick view modal
+    const quickViewAddToCartBtn = quickViewModalElement.querySelector('.add-to-cart-btn');
+    if (quickViewAddToCartBtn) {
+        quickViewAddToCartBtn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const product = allProductsData.find(p => String(p.id) === productId);
+            const quantityInput = quickViewModalElement.querySelector('.quantity-input');
+            const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+
+            if (product) {
+                const cartProduct = { ...product, title: product.name, quantity: quantity }; // Adapt to cart structure
+                 if (typeof AfriMartCart !== 'undefined' && AfriMartCart.addToCart) {
+                    AfriMartCart.addToCart(cartProduct);
+                } else {
+                    console.error('AfriMartCart or addToCart function is not available.');
+                    showToast('Error adding to cart. Please try again.', 'error');
+                    return;
+                }
+                closeQuickViewModal();
+            }
+        });
+    }
+  }
+
+  function populateQuickViewModal(product) {
+    if (!quickViewModalElement) return;
+    quickViewModalElement.querySelector('.product-title').textContent = product.name;
+    quickViewModalElement.querySelector('.main-image img').src = product.image || 'images/placeholder.jpg';
+    quickViewModalElement.querySelector('.main-image img').alt = product.name;
+    quickViewModalElement.querySelector('.current-price').textContent = product.price;
+    if(quickViewModalElement.querySelector('.unit')) quickViewModalElement.querySelector('.unit').textContent = product.unit || '';
+    quickViewModalElement.querySelector('.product-description p').textContent = product.description || 'No description available.';
+    quickViewModalElement.querySelector('.meta-value.category-value').textContent = product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1).replace('-', ' ') : 'N/A'; // Added category display
+    quickViewModalElement.querySelector('.meta-value.sku-value').textContent = product.sku || `AFM-${product.id}`; // Added SKU
+    quickViewModalElement.querySelector('.stars').innerHTML = generateRatingStars(product.rating || 0);
+    quickViewModalElement.querySelector('.review-count').textContent = `(${product.reviewCount || 0} reviews)`;
+    quickViewModalElement.querySelector('.add-to-cart-btn').dataset.productId = product.id;
+
+    // Thumbnails (assuming product.images is an array of image URLs if available)
+    const thumbnailContainer = quickViewModalElement.querySelector('.thumbnail-images');
+    if (thumbnailContainer) {
+        thumbnailContainer.innerHTML = ''; // Clear existing
+        const imagesToShow = product.images && product.images.length > 0 ? product.images : [{thumbnail: product.image, large: product.image}]; // Fallback to main image
+        imagesToShow.slice(0, 3).forEach((imgData, index) => { // Show up to 3 thumbnails
+            const thumbDiv = document.createElement('div');
+            thumbDiv.className = 'thumbnail' + (index === 0 ? ' active' : '');
+            const thumbImg = document.createElement('img');
+            thumbImg.src = typeof imgData === 'string' ? imgData : (imgData.thumbnail || product.image); // Handle if images is array of strings or objects
+            thumbImg.alt = `Thumbnail ${index + 1}`;
+            thumbImg.addEventListener('click', function() {
+                quickViewModalElement.querySelector('.main-image img').src = typeof imgData === 'string' ? imgData : (imgData.large || product.image);
+                thumbnailContainer.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                this.parentElement.classList.add('active');
+            });
+            thumbDiv.appendChild(thumbImg);
+            thumbnailContainer.appendChild(thumbDiv);
+        });
+    }
+    // Initialize quantity selector within the modal
+    const quantitySelector = quickViewModalElement.querySelector('.quantity-selector');
+    if (quantitySelector) {
+        const minusBtn = quantitySelector.querySelector('.minus');
+        const plusBtn = quantitySelector.querySelector('.plus');
+        const input = quantitySelector.querySelector('.quantity-input');
+        input.value = 1; // Reset to 1
+
+        minusBtn.onclick = () => { // Use onclick to override previous if any
+            let val = parseInt(input.value);
+            if (val > 1) input.value = val - 1;
+        };
+        plusBtn.onclick = () => {
+            let val = parseInt(input.value);
+            if (val < (product.stock || 10)) input.value = val + 1; // Use product stock if available
+        };
+    }
+  }
+
+
+  function closeQuickViewModal() {
+    if (quickViewModalElement) quickViewModalElement.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
+
   // ==================
-  // Toast Notifications
+  // Utility Functions
   // ==================
-  
+  /**
+   * Displays a toast notification.
+   * @param {string} message - The message to display.
+   * @param {string} type - Type of toast ('success', 'error', 'info', 'warning').
+   */
   function showToast(message, type = 'info') {
-    // Check if toast container exists, create if not
     let toastContainer = document.querySelector('.toast-container');
-    
     if (!toastContainer) {
       toastContainer = document.createElement('div');
       toastContainer.className = 'toast-container';
       document.body.appendChild(toastContainer);
-      
-      // Add styles
-      toastContainer.style.position = 'fixed';
-      toastContainer.style.bottom = '20px';
-      toastContainer.style.right = '20px';
-      toastContainer.style.zIndex = '9999';
-      toastContainer.style.display = 'flex';
-      toastContainer.style.flexDirection = 'column';
-      toastContainer.style.alignItems = 'flex-end';
     }
-    
-    // Create toast element
+
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    
-    // Create toast content
-    let icon = '';
-    switch (type) {
-      case 'success':
-        icon = '<i class="fas fa-check-circle"></i>';
-        break;
-      case 'error':
-        icon = '<i class="fas fa-exclamation-circle"></i>';
-        break;
-      case 'info':
-        icon = '<i class="fas fa-info-circle"></i>';
-        break;
-      case 'warning':
-        icon = '<i class="fas fa-exclamation-triangle"></i>';
-        break;
-    }
-    
+    let iconClass = 'fas fa-info-circle';
+    if (type === 'success') iconClass = 'fas fa-check-circle';
+    else if (type === 'error') iconClass = 'fas fa-exclamation-circle';
+    else if (type === 'warning') iconClass = 'fas fa-exclamation-triangle';
+
     toast.innerHTML = `
       <div class="toast-content">
-        ${icon}
+        <i class="${iconClass}"></i>
         <span>${message}</span>
       </div>
-      <button class="toast-close"><i class="fas fa-times"></i></button>
+      <button class="toast-close" aria-label="Close notification"><i class="fas fa-times"></i></button>
     `;
-    
-    // Style the toast
-    toast.style.backgroundColor = type === 'success' ? '#28a745' : 
-                               type === 'error' ? '#dc3545' : 
-                               type === 'warning' ? '#ffc107' : '#17a2b8';
-    toast.style.color = type === 'warning' ? '#212529' : '#fff';
-    toast.style.padding = '12px 20px';
-    toast.style.borderRadius = '4px';
-    toast.style.marginTop = '10px';
-    toast.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-    toast.style.display = 'flex';
-    toast.style.justifyContent = 'space-between';
-    toast.style.alignItems = 'center';
-    toast.style.minWidth = '250px';
-    toast.style.transform = 'translateX(100%)';
-    toast.style.opacity = '0';
-    toast.style.transition = 'all 0.3s ease-in-out';
-    
-    // Close button
-    const closeBtn = toast.querySelector('.toast-close');
-    closeBtn.style.background = 'none';
-    closeBtn.style.border = 'none';
-    closeBtn.style.color = 'inherit';
-    closeBtn.style.cursor = 'pointer';
-    closeBtn.style.padding = '0';
-    closeBtn.style.marginLeft = '10px';
-    
-    closeBtn.addEventListener('click', function() {
+    toastContainer.appendChild(toast);
+
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    // Auto remove
+    const autoRemoveTimer = setTimeout(() => removeToast(toast), 5000);
+
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+      clearTimeout(autoRemoveTimer);
       removeToast(toast);
     });
-    
-    // Add to container
-    toastContainer.appendChild(toast);
-    
-    // Trigger animation
+  }
+
+  function removeToast(toast) {
+    toast.classList.remove('show');
     setTimeout(() => {
-      toast.style.transform = 'translateX(0)';
-      toast.style.opacity = '1';
-    }, 10);
-    
-    // Auto remove after delay
-    setTimeout(() => {
-      removeToast(toast);
-    }, 3000);
-    
-    function removeToast(toast) {
-      toast.style.transform = 'translateX(100%)';
-      toast.style.opacity = '0';
-      
-      setTimeout(() => {
-        toast.remove();
-        
-        // Remove container if empty
-        if (toastContainer.children.length === 0) {
-          toastContainer.remove();
-        }
-      }, 300);
+      toast.remove();
+      const container = document.querySelector('.toast-container');
+      if (container && !container.hasChildNodes()) {
+        container.remove();
+      }
+    }, 400);
+  }
+
+
+  // ==================
+  // Initial Page Load
+  // ==================
+  async function initializeShopPage() {
+    if (typeof AOS !== 'undefined') AOS.init(); // Initialize AOS animations
+
+    await getProductsFromS3(); // Fetch all products initially
+    currentPage = 1;
+    applyFiltersAndSort(); // Render initial set of products and setup pagination
+    initializeStaticEventListeners(); // Setup listeners for static elements
+    // Dynamic listeners are called within renderProducts via initializeDynamicProductFeatures
+
+    // Handle category from URL param if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    if (categoryParam) {
+      const targetCategoryLink = document.querySelector(`.category-link[data-category="${categoryParam}"]`);
+      if (targetCategoryLink) {
+        categoryLinks.forEach(link => link.classList.remove('active'));
+        targetCategoryLink.classList.add('active');
+        applyFiltersAndSort(); // Re-filter based on URL param
+      }
     }
   }
-  
-  // ==================
-  // Lazy Loading Images
-  // ==================
-  
-  function setupLazyLoading() {
-    const lazyImages = document.querySelectorAll('.product-image img');
-    
-    if ('IntersectionObserver' in window) {
-      const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const img = entry.target;
-            const src = img.getAttribute('data-src');
-            
-            if (src) {
-              img.src = src;
-              img.removeAttribute('data-src');
-            }
-            
-            imageObserver.unobserve(img);
-          }
-        });
-      });
-      
-      lazyImages.forEach(img => {
-        // Only apply if not already loaded
-        if (!img.complete || img.naturalHeight === 0) {
-          const src = img.src;
-          img.setAttribute('data-src', src);
-          img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Cpath d="M20 30 L30 20 L30 30 Z" stroke="%23ddd" fill="%23eee"/%3E%3Crect width="30" height="20" x="5" y="10" stroke="%23ddd" fill="%23eee" /%3E%3Ccircle cx="15" cy="15" r="3" stroke="%23ddd" fill="%23eee"/%3E%3C/svg%3E';
-          imageObserver.observe(img);
-        }
-      });
-    } else {
-      // Fallback for browsers that don't support IntersectionObserver
-      lazyImages.forEach(img => {
-        const src = img.getAttribute('data-src');
-        if (src) {
-          img.src = src;
-        }
-      });
-    }
-  }
-  
-  // ==================
-  // Initialize Shop Page
-  // ==================
-  
-  // Check if this is a product details page (from URL)
-  const urlParams = new URLSearchParams(window.location.search);
-  const productParam = urlParams.get('product') || urlParams.get('id');
-  
-  if (productParam) {
-    // If we have a specific product parameter, scroll to that product
-    const targetProduct = document.querySelector(`.product-card[data-product-id="${productParam}"]`) || 
-                          document.querySelector(`.product-card[data-id="${productParam}"]`);
-    
-    if (targetProduct) {
-      // Highlight the product
-      setTimeout(() => {
-        targetProduct.classList.add('highlighted');
-        
-        // Scroll to the product
-        targetProduct.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Remove highlight after a few seconds
-        setTimeout(() => {
-          targetProduct.classList.remove('highlighted');
-        }, 3000);
-      }, 500);
-    }
-  }
-  
-  // Add product IDs to all product cards if missing
-  document.querySelectorAll('.product-card').forEach((card, index) => {
-    if (!card.dataset.productId && !card.dataset.id) {
-      // Generate a consistent ID based on the product title or index
-      const titleElement = card.querySelector('.product-title a') || card.querySelector('.product-title');
-      const title = titleElement ? titleElement.textContent.trim() : '';
-      
-      const productId = title ? 
-                       title.toLowerCase().replace(/[^a-z0-9]/g, '-') : 
-                       `product-${index + 1}`;
-      
-      card.dataset.productId = productId;
-    }
-  });
-  
-  // Load products from localStorage and S3
-  loadProductsFromStorage().then(() => {
-    checkProductSources();
-  });
-  
-  // Initialize all dynamic features
-  initializeProductFeatures();
-  
-  // Initialize thumbnail gallery
-  setupThumbnailGallery();
-  
-  // Initialize quick add controls
-  setupQuickAddControls();
-  
-  // Initialize lazy loading
-  setupLazyLoading();
+
+  initializeShopPage(); // Start the shop page initialization
 });
