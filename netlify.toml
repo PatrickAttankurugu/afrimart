@@ -1,33 +1,15 @@
-# netlify.toml
+# netlify.toml (Minimal Test Version)
 
-# Build settings
+# Basic build settings
 [build]
   functions = "netlify/functions" # Specifies the directory for Netlify Functions
   publish = "."                   # Sets the root directory as the publish directory for the site
 
-# Functions settings
-[functions]
-  node_version = "18"             # Specifies Node.js version 18 for the function runtime environment
-  # Temporarily commented out node_bundler to isolate the parsing issue
-  # node_bundler = "esbuild"
-
-# Redirect rules for Single Page Application (SPA) behavior and clean URLs.
-[[redirects]]
-  from = "/admin/*"
-  to = "/admin.html"
-  status = 200
-
-[[redirects]]
-  from = "/cart/*"
-  to = "/cart.html"
-  status = 200
-
-[[redirects]]
-  from = "/product-details/*"
-  to = "/product-details.html"
-  status = 200
+# ALL REDIRECTS TEMPORARILY REMOVED FOR PARSING TEST
+# We will add them back once the core parsing issue is resolved.
 
 # Catch-all redirect for Single Page Application (SPA) routing.
+# This is the most essential redirect for many SPA frameworks.
 [[redirects]]
   from = "/*"
   to = "/index.html"
