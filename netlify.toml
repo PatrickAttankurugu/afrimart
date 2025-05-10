@@ -6,13 +6,13 @@
   publish = "."                   # Sets the root directory as the publish directory for the site
 
 # Functions settings
-# Re-introducing node_version. Netlify's build image might default to an older Node
-# version if not specified, and Node 18+ is generally recommended for current AWS SDK.
+# Temporarily emptying this block to see if it resolves the parsing error.
+# Netlify will use its default Node.js version and bundler.
 [functions]
-  node_version = "18"             # Specifies Node.js version 18 for the function runtime environment
-  # node_bundler = "esbuild" # You can try re-adding this later if the build succeeds without it
+  # node_version = "18"           # Temporarily removed due to parsing error
+  # node_bundler = "esbuild"      # Temporarily removed
 
-# Redirects
+# Redirect rules for Single Page Application (SPA) behavior and clean URLs.
 [[redirects]]
   from = "/admin/*"
   to = "/admin.html"
