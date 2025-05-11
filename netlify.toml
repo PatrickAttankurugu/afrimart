@@ -6,11 +6,10 @@
   publish = "."                   # Sets the root directory as the publish directory for the site
 
 # Functions settings
-# Temporarily emptying this block to see if it resolves the parsing error.
-# Netlify will use its default Node.js version and bundler.
+# Re-introducing node_version as the previous parsing error was likely due to other lines.
 [functions]
-  # node_version = "18"           # Temporarily removed due to parsing error
-  # node_bundler = "esbuild"      # Temporarily removed
+  node_version = "18"             # Specifies Node.js version 18 for the function runtime environment
+  # node_bundler = "esbuild"      # Keep this commented out for now, can re-add if build is stable
 
 # Redirect rules for Single Page Application (SPA) behavior and clean URLs.
 [[redirects]]
