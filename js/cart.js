@@ -822,40 +822,35 @@ document.addEventListener('DOMContentLoaded', function() {
     message += `Subtotal: $${total.toFixed(2)}\n`;
     
     // Add shipping cost if available
-    const shippingCost = document.querySelector('.shipping-cost')?.textContent;
-    if (shippingCost) {
-        message += `Shipping: ${shippingCost}\n`;
+    const shippingCostValue = document.getElementById('shipping-cost')?.textContent;
+    if (shippingCostValue) {
+        message += `Shipping: ${shippingCostValue}\n`;
     }
     
     // Add tax if available
-    const taxAmount = document.querySelector('.tax-amount')?.textContent;
-    if (taxAmount) {
-        message += `Tax: ${taxAmount}\n`;
+    const taxAmountValue = document.getElementById('tax-amount')?.textContent;
+    if (taxAmountValue) {
+        message += `Tax: ${taxAmountValue}\n`;
     }
     
     // Add total
-    const orderTotal = document.querySelector('.order-total')?.textContent;
-    message += `Total: ${orderTotal || `$${total.toFixed(2)}`}\n\n`;
+    const orderTotalValue = document.getElementById('order-total')?.textContent;
+    message += `Total: ${orderTotalValue || `$${total.toFixed(2)}`}\n\n`;
     
-    // Add customer information if available
-    const customerName = document.querySelector('input[name="name"]')?.value;
-    const customerEmail = document.querySelector('input[name="email"]')?.value;
-    const customerPhone = document.querySelector('input[name="phone"]')?.value;
-    const customerAddress = document.querySelector('textarea[name="address"]')?.value;
+    // Add customer information if available on checkout page (example, typically from a form)
+    // For cart page, this might be blank or fetched from user session
+    const customerName = ""; // Placeholder for actual customer name if available
+    const customerAddress = ""; // Placeholder for actual customer address
     
-    if (customerName || customerEmail || customerPhone || customerAddress) {
-        message += '*Customer Information:*\n';
-        if (customerName) message += `Name: ${customerName}\n`;
-        if (customerEmail) message += `Email: ${customerEmail}\n`;
-        if (customerPhone) message += `Phone: ${customerPhone}\n`;
-        if (customerAddress) message += `Address: ${customerAddress}\n`;
-    }
+    if (customerName) message += `Customer Name: ${customerName}\n`;
+    if (customerAddress) message += `Delivery Address: ${customerAddress}\n`;
+    message += '\nPlease provide your delivery details and preferred payment method.';
 
-    // Encode the message for WhatsApp URL (without manual line break encoding)
+    // Encode the message for WhatsApp URL
     const encodedMessage = encodeURIComponent(message);
     
-   // WhatsApp business number (properly format international number)
-    const whatsappNumber = '0018048060130'.replace(/\D/g, '');
+   // WhatsApp business number - CORRECTED FORMAT
+    const whatsappNumber = '18048060130'; // US Country Code 1 + Number (no '+', no '00')
     
     // Create WhatsApp URL with proper formatting
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
@@ -872,6 +867,15 @@ document.addEventListener('DOMContentLoaded', function() {
             updateCartDisplay();
         }
         console.log("Order sent to WhatsApp, cart cleared.");
+
+        // Show success message on cart page
+        if (isCartPage) {
+            const successMessageDiv = document.querySelector('.checkout-success-message');
+            const summaryContentDiv = document.querySelector('.summary-content');
+            if(successMessageDiv) successMessageDiv.classList.add('active');
+            if(summaryContentDiv) summaryContentDiv.style.display = 'none';
+        }
+
     }, 1500);
   }
 
