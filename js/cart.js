@@ -854,8 +854,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Encode the message for WhatsApp URL (without manual line break encoding)
     const encodedMessage = encodeURIComponent(message);
     
-    // WhatsApp business number (properly format international number)
-    const whatsappNumber = '233545014267'.replace(/\D/g, '');
+   // WhatsApp business number (properly format international number)
+    const whatsappNumber = '0018048060130'.replace(/\D/g, '');
     
     // Create WhatsApp URL with proper formatting
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
