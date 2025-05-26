@@ -1,5 +1,5 @@
 /**
- * WhatsApp Checkout Number Update
+ * WhatsApp Checkout Number Update - FIXED VERSION
  * This script updates the destination WhatsApp number for the checkout process
  */
 
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ==================
 
   // Set your WhatsApp number here (with country code, no + or leading zeros not part of the country code)
-  const WHATSAPP_NUMBER = '18048060130'; // CORRECTED: US number format for WhatsApp API
+  const WHATSAPP_NUMBER = '18048060130'; // US number format for WhatsApp API
   
   /**
    * Updates all WhatsApp checkout links and buttons to use the new number
@@ -27,18 +27,22 @@ document.addEventListener('DOMContentLoaded', function() {
       if (button.href && (button.href.includes('wa.me') || button.href.includes('whatsapp.com/send'))) {
         // Extract the existing parameters
         const url = new URL(button.href);
-        let params = new URLSearchParams(url.search);
         
         // Create new URL with the updated phone number
         if (button.href.includes('wa.me')) {
           // Format: https://wa.me/NUMBER?text=MESSAGE
-          // wa.me can handle numbers with or without '+' if they are digits with country code.
-          // Using just digits is safer and more consistent here.
-          const oldPath = url.pathname.replace('/', '');
-          button.href = button.href.replace(oldPath, WHATSAPP_NUMBER);
-        } else {
+          // Extract the text parameter if it exists
+          const params = new URLSearchParams(url.search);
+          const textParam = params.get('text');
+          
+          // Build new URL with correct format
+          button.href = `https://wa.me/${WHATSAPP_NUMBER}`;
+          if (textParam) {
+            button.href += `?text=${encodeURIComponent(textParam)}`;
+          }
+        } else if (button.href.includes('api.whatsapp.com/send')) {
           // Format: https://api.whatsapp.com/send?phone=NUMBER&text=MESSAGE
-          // 'phone' parameter expects digits only, with country code.
+          const params = new URLSearchParams(url.search);
           params.set('phone', WHATSAPP_NUMBER);
           button.href = `${url.origin}${url.pathname}?${params.toString()}`;
         }
@@ -61,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Backup the original checkout function if it exists
       const originalCheckoutFunction = window.AfriMartCart.checkoutViaWhatsApp;
       
-      if (typeof originalCheckoutFunction === 'function' || !window.AfriMartCart.checkoutViaWhatsApp) { // Also override if it doesn't exist yet
+      if (typeof originalCheckoutFunction === 'function' || !window.AfriMartCart.checkoutViaWhatsApp) {
         // Override the checkout function to use our number
         window.AfriMartCart.checkoutViaWhatsApp = function() {
           // Get cart data and totals
@@ -98,35 +102,24 @@ document.addEventListener('DOMContentLoaded', function() {
           message += '*Order Summary:*\n';
           message += `Subtotal: $${total.toFixed(2)}\n`;
           
-          // Add shipping cost if available (ensure elements exist)
-          const shippingCostEl = document.querySelector('.shipping-cost');
+          // Add shipping cost if available
+          const shippingCostEl = document.querySelector('.shipping-cost') || document.getElementById('shipping-cost');
           if (shippingCostEl) {
             message += `Shipping: ${shippingCostEl.textContent}\n`;
           }
           
           // Add tax if available
-          const taxAmountEl = document.querySelector('.tax-amount');
+          const taxAmountEl = document.querySelector('.tax-amount') || document.getElementById('tax-amount');
           if (taxAmountEl) {
             message += `Tax: ${taxAmountEl.textContent}\n`;
           }
           
           // Add total
-          const orderTotalEl = document.querySelector('.order-total');
+          const orderTotalEl = document.querySelector('.order-total') || document.getElementById('order-total');
           message += `Total: ${orderTotalEl ? orderTotalEl.textContent : `$${total.toFixed(2)}`}\n\n`;
           
-          // Add customer information if available
-          const customerName = document.querySelector('input[name="name"]')?.value;
-          const customerEmail = document.querySelector('input[name="email"]')?.value;
-          const customerPhone = document.querySelector('input[name="phone"]')?.value;
-          const customerAddress = document.querySelector('textarea[name="address"]')?.value;
-          
-          if (customerName || customerEmail || customerPhone || customerAddress) {
-            message += '*Customer Information:*\n';
-            if (customerName) message += `Name: ${customerName}\n`;
-            if (customerEmail) message += `Email: ${customerEmail}\n`;
-            if (customerPhone) message += `Phone: ${customerPhone}\n`;
-            if (customerAddress) message += `Address: ${customerAddress}\n`;
-          }
+          // Add customer information request
+          message += '\nPlease provide your delivery details and preferred payment method.';
   
           // Encode the message for WhatsApp URL
           const encodedMessage = encodeURIComponent(message);
@@ -145,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
               localStorage.removeItem('afrimartCart');
               updateCartDisplay();
             }
-            console.log("Order sent to WhatsApp, cart cleared.");
+            console.log("Order sent to WhatsApp with message, cart cleared.");
           }, 1500);
         };
       }
@@ -153,8 +146,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Override any standalone checkout functions
     if (typeof window.checkoutViaWhatsApp === 'function') {
-      // const originalStandaloneCheckout = window.checkoutViaWhatsApp; // No need to call original
-      
       window.checkoutViaWhatsApp = function() {
         const cart = getCartFromStorage().items || [];
         processCheckout(cart);
@@ -188,6 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     message += '*Order Summary:*\n';
     message += `Subtotal: $${total.toFixed(2)}\n`;
+    message += '\nPlease provide your delivery details and preferred payment method.';
     
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodedMessage}`;
@@ -218,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
       window.CartEnhancer.updateCartCountDisplay();
     }
     
-    if (typeof window.updateCartDisplay === 'function' && window.updateCartDisplay !== updateCartDisplay) { // Avoid self-recursion
+    if (typeof window.updateCartDisplay === 'function' && window.updateCartDisplay !== updateCartDisplay) {
       window.updateCartDisplay();
     }
     
@@ -233,11 +225,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkoutBtn = e.target.closest('.checkout-btn, .mini-checkout-btn, a[href*="wa.me"], a[href*="whatsapp.com/send"]');
     
     if (checkoutBtn) {
+      // For links, let them work normally as href is updated
       if (checkoutBtn.tagName === 'A' && 
           (checkoutBtn.href.includes('wa.me') || checkoutBtn.href.includes('whatsapp.com/send'))) {
-        return; // Let the link work normally as href is updated
+        // Don't interfere with properly formatted links
+        return;
       }
       
+      // For buttons without href, handle the checkout
       if (!checkoutBtn.tagName || checkoutBtn.tagName !== 'A') {
         e.preventDefault();
         
@@ -263,5 +258,5 @@ document.addEventListener('DOMContentLoaded', function() {
   // Rerun on any significant page change (history events)
   window.addEventListener('popstate', updateWhatsAppCheckoutNumber);
   
-  console.log('WhatsApp Checkout Number updated to: ' + WHATSAPP_NUMBER); // Log corrected number
+  console.log('WhatsApp Checkout Number updated to: ' + WHATSAPP_NUMBER);
 });
