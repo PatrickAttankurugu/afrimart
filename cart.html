@@ -196,33 +196,40 @@
 
                             <div class="whatsapp-info">
                                 <h4><i class="fab fa-whatsapp"></i> Order via WhatsApp</h4>
-                                <p>Complete your purchase quickly through WhatsApp:</p>
+                                <p>We process all orders through WhatsApp for personalized service:</p>
                                 <ol class="whatsapp-steps">
                                     <li>Click the checkout button below</li>
                                     <li>A WhatsApp chat will open with your order details</li>
                                     <li>Provide your delivery information</li>
-                                    <li>Confirm your order and payment method</li>
+                                    <li>Choose your preferred payment method (Cash on Delivery, Bank Transfer, or Mobile Money)</li>
+                                    <li>Confirm your order with our team</li>
                                 </ol>
                             </div>
 
                             <button class="btn checkout-btn">
-                                <i class="fab fa-whatsapp"></i> Checkout via WhatsApp
+                                <i class="fab fa-whatsapp"></i> Complete Order via WhatsApp
                             </button>
 
                             <div class="secure-checkout">
-                                <i class="fas fa-lock"></i>
-                                <span>Secure Ordering</span>
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Secure Ordering Process</span>
                             </div>
 
-                            <div class="payment-methods">
-                                <p>We accept:</p>
-                                <div class="payment-icons">
-                                    <i class="fab fa-cc-visa"></i>
-                                    <i class="fab fa-cc-mastercard"></i>
-                                    <i class="fab fa-cc-amex"></i>
-                                    <i class="fab fa-cc-discover"></i>
-                                    <i class="fab fa-cc-paypal"></i>
-                                    <i class="fab fa-apple-pay"></i>
+                            <div class="payment-info">
+                                <p><strong>Payment Options Available:</strong></p>
+                                <div class="payment-options">
+                                    <div class="payment-option">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <span>Cash on Delivery</span>
+                                    </div>
+                                    <div class="payment-option">
+                                        <i class="fas fa-university"></i>
+                                        <span>Bank Transfer</span>
+                                    </div>
+                                    <div class="payment-option">
+                                        <i class="fas fa-mobile-alt"></i>
+                                        <span>Mobile Money</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -499,8 +506,8 @@
                 <div class="designer-credit">
                     <p>Designed by <a href="https://wa.me/233545014267" target="_blank">Patrick Attankurugu</a></p>
                 </div>
-                <div class="payment-methods">
-                    <img src="images/payment-methods.png" alt="Payment Methods">
+                <div class="accepted-payments">
+                    <p>Payment Options: Cash on Delivery • Bank Transfer • Mobile Money</p>
                 </div>
             </div>
         </div>
@@ -574,7 +581,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/parallax.js/1.5.0/parallax.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script src="js/main.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/whatsapp-number-update.js"></script>
@@ -582,9 +589,6 @@
 <script>
   // Additional cart page specific JavaScript
   document.addEventListener('DOMContentLoaded', function() {
-    // Note: The quick add functionality for related products is removed from cart.js
-    // as per the requirement to only allow adding to cart from shop.html.
-
     // Display cart count on page load
     const updateItemsCount = () => {
       const cartData = localStorage.getItem('afrimartCart');
@@ -657,5 +661,67 @@
     }
   });
 </script>
+
+<style>
+/* Additional styles for payment options display */
+.payment-info {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.payment-info p {
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.payment-option i {
+  color: var(--primary-color);
+  width: 20px;
+  text-align: center;
+}
+
+.accepted-payments {
+  text-align: center;
+}
+
+.accepted-payments p {
+  margin: 0;
+  font-size: 14px;
+  color: #777;
+  font-style: italic;
+}
+
+.secure-checkout i {
+  color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .payment-options {
+    gap: 10px;
+  }
+  
+  .payment-option {
+    font-size: 13px;
+  }
+}
+</style>
 </body>
 </html>
